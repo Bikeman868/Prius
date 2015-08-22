@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Prius</id>
+    <version>1.0.0</version>
+    <title>The ORM for people who like stored procedures</title>
+    <authors>Martin Halliday</authors>
+    <owners>Martin Halliday</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Provides extremely fast and robust layer for accessing databases. Supports several database engines, and is designed for people that mostly use stored procedures</description>
+    <copyright>Copyright 2015</copyright>
+    <releaseNotes>First release</releaseNotes>
+    <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
+    <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
+    <tags>ORM database mapping sqlserver mysql postgresql</tags>
+    <dependencies>
+      <dependency id="MySql.Data" version="6.9.7" />
+      <dependency id="Npgsql" version="2.2.5" />
+      <dependency id="Urchin.Client" version="1.0.1.2" />
+    </dependencies>
+    <references>
+      <reference file="Prius.Contracts.dll"/>
+      <reference file="Prius.ORM.dll"/>
+    </references>
+  </metadata>
+  <files>
+    <file src="Prius.Contracts\bin\Release\Prius.Contracts.dll" target="lib"/>
+    <file src="Prius.Contracts\bin\Release\Prius.ORM.dll" target="lib"/>
+    <file src="Prius.Mocks\bin\Release\Prius.Mocks.dll" target="lib"/>
+    <file src="Prius.Tests\bin\Release\Prius.Tests.dll" target="lib"/>
+    <file src="*.md" target=""/>
+    <file src="*.txt" target=""/>
+  </files>
+</package>
