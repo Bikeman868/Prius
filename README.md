@@ -165,4 +165,4 @@ What this configuration example does is:
 
 > Note that because the code you write in your application is identical for all databases, it is possible for Prius to fall back from SQL Server to MySQL.
 > Note that for this to work, SQL Server and MySQL must contain all the same stored procedures.
-> Note that when you call the `Create()` method of IContextFactory, it is the name of the repository that you pass. In this example `_contentFactory.Create("users");`
+> Note that when you call the `Create()` method of IContextFactory, it is the name of the repository that you pass. In this example `_contextFactory.Create("users");`

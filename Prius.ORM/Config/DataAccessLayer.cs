@@ -6,7 +6,7 @@ namespace Prius.Orm.Config
 {
     public class DataAccessLayer
     {
-        [JsonProperty("servers")]
+        [JsonProperty("databases")]
         public List<Database> Servers { get; set; }
 
         [JsonProperty("fallbackPolicies")]
