@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Prius.Mocks</id>
+    <version>1.0.0</version>
+    <title>Reusable mocks for the ORM for people who like stored procedures</title>
+    <authors>Martin Halliday</authors>
+    <owners>Martin Halliday</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Reusable mocks that you can use to mock Prius in your unit tests</description>
+    <copyright>Copyright 2015</copyright>
+    <releaseNotes>First release</releaseNotes>
+    <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
+    <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
+    <tags>ORM database mapping sqlserver mysql postgresql mock moq</tags>
+    <dependencies>
+      <dependency id="Moq" version="4.2.1507.0118" />
+      <dependency id="Moq.Modules" version="1.0.0"  />
+      <dependency id="Newtonsoft.Json" version="7.0.1" />
+    </dependencies>
+    <references>
+      <reference file="Prius.Contracts.dll"/>
+      <reference file="Prius.Mocks.dll"/>
+    </references>
+  </metadata>
+  <files>
+    <file src="Prius.Contracts\bin\Release\Prius.Contracts.dll" target="lib"/>
+    <file src="Prius.Contracts\bin\Release\Prius.Mocks.dll" target="lib"/>
+    <file src="*.md" target=""/>
+    <file src="*.txt" target=""/>
+  </files>
+</package>
