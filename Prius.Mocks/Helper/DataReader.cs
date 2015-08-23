@@ -20,8 +20,11 @@ namespace Prius.Mocks.Helper
             ResultSets = resultSets;
 
             _resultSetEnumerator = resultSets.GetEnumerator();
-            if (_resultSetEnumerator.Current != null && _resultSetEnumerator.Current.Data != null)
-                _rowEnumerator = _resultSetEnumerator.Current.Data.GetEnumerator();
+            if (_resultSetEnumerator.MoveNext())
+            {
+                if (_resultSetEnumerator.Current != null && _resultSetEnumerator.Current.Data != null)
+                    _rowEnumerator = _resultSetEnumerator.Current.Data.GetEnumerator();
+            }
 
             return this;
         }

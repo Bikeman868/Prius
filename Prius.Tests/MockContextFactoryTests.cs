@@ -66,13 +66,13 @@ namespace Prius.Tests
                 return base.Query(command);
             }
 
-            public long NonQuery(ICommand command)
+            public override long NonQuery(ICommand command)
             {
                 Execute(command);
                 return base.NonQuery(command);
             }
 
-            public T Scalar<T>(ICommand command)
+            public override T Scalar<T>(ICommand command)
             {
                 Execute(command);
                 return base.Scalar<T>(command);
@@ -80,23 +80,14 @@ namespace Prius.Tests
 
             private void Execute(ICommand command)
             {
-                var userIdParameter = (IParameter) null;
-                var parameters = command.GetParameters();
-                if (parameters != null)
-                    userIdParameter = parameters.FirstOrDefault(p => string.Compare(p.Name, "userid", StringComparison.InvariantCultureIgnoreCase) == 0);
-
-                if (userIdParameter == null)
-                    SetData(_userData);
-                else
-                {
-                    SetData(_userData, null, o => o["userId"].Value<int>() == (int)userIdParameter.Value);
-                }
+                var userId = GetParameterValue(command, "userId", 0);
+                SetData(_userData, null, o => o["userId"].Value<int>() == userId);
             }
         }
 
         private class CraeteUserProcedure : MockedStoredProcedure
         {
-            private JArray _userData;
+            private readonly JArray _userData;
 
             public CraeteUserProcedure(JArray userData)
             {
@@ -105,14 +96,39 @@ namespace Prius.Tests
 
             public override long NonQuery(ICommand command)
             {
-                // You can add a new row to the data here for a full simulation of what the database does
+                var userId = CreateUser(command);
                 return 1;
+            }
+
+            public override T Scalar<T>(ICommand command)
+            {
+                var userId = CreateUser(command);
+                return (T)Convert.ChangeType(userId, typeof(T));
+            }
+
+            private long CreateUser(ICommand command)
+            {
+                var maximumUserId = _userData.Children().Aggregate(
+                    0,
+                    (max, t) =>
+                    {
+                        var userId = ((JObject)t)["userId"].Value<int>();
+                        return userId > max ? userId : max;
+                    });
+                var newUserId = maximumUserId + 1;
+
+                var user = new JObject();
+                user["userId"] = newUserId;
+                user["userName"] = GetParameterValue(command, "userName", "");
+                _userData.Add(user);
+
+                return newUserId;
             }
         }
 
         private class DeleteUserProcedure : MockedStoredProcedure
         {
-            private JArray _userData;
+            private readonly JArray _userData;
 
             public DeleteUserProcedure(JArray userData)
             {
@@ -121,8 +137,13 @@ namespace Prius.Tests
 
             public override long NonQuery(ICommand command)
             {
-                // You can delete a new row to the data here for a full simulation of what the database does
-                return 1;
+                var userId = GetParameterValue(command, "userId", 0);
+                var users = _userData.Children().Where(o => o["userId"].Value<int>() == userId).ToList();
+
+                foreach (var user in users)
+                    _userData.Remove(user);
+
+                return users.Count;
             }
         }
 
@@ -133,7 +154,7 @@ namespace Prius.Tests
         {
             using (var context = _contextFactory.Create("myData"))
             {
-                using (var command = _commandFactory.CreateStoredProcedure("sp_GetUsers"))
+                using (var command = _commandFactory.CreateStoredProcedure("sp_GetUser"))
                 {
                     command.AddParameter("userId", 3);
                     using (var data = context.ExecuteEnumerable<UserDataContract>(command))
@@ -153,7 +174,7 @@ namespace Prius.Tests
         {
             using (var context = _contextFactory.Create("myData"))
             {
-                using (var command = _commandFactory.CreateStoredProcedure("sp_GetUsers"))
+                using (var command = _commandFactory.CreateStoredProcedure("sp_GetUser"))
                 {
                     command.AddParameter("userId", 2);
                     using (var reader = context.ExecuteReader(command))
@@ -174,11 +195,25 @@ namespace Prius.Tests
         {
             using (var context = _contextFactory.Create("myData"))
             {
+                int userId;
                 using (var command = _commandFactory.CreateStoredProcedure("sp_CreateUser"))
                 {
                     command.AddParameter("userName", "fred");
-                    var userId = context.ExecuteScalar<int>(command);
+                    userId = context.ExecuteScalar<int>(command);
                     Assert.AreEqual(5, userId);
+                }
+                using (var command = _commandFactory.CreateStoredProcedure("sp_GetUser"))
+                {
+                    command.AddParameter("userId", userId);
+                    using (var reader = context.ExecuteReader(command))
+                    {
+                        Assert.IsTrue(reader.Read());
+
+                        Assert.AreEqual(userId, reader.Get<int>("userId"));
+                        Assert.AreEqual("fred", reader.Get<string>("userName"));
+
+                        Assert.IsFalse(reader.Read());
+                    }
                 }
             }
         }

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>The ORM for people who like stored procedures</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>

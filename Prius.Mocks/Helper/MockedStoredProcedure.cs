@@ -46,5 +46,17 @@ namespace Prius.Mocks.Helper
             }
             _rowsAffected = rowsAffected ?? _results.Data.LongCount();
         }
+
+        protected T GetParameterValue<T>(ICommand command, string parameterName, T defaultValue)
+        {
+
+            var parameters = command.GetParameters();
+            if (parameters == null) return defaultValue;
+
+            var parameter = parameters.FirstOrDefault(p => string.Compare(p.Name, parameterName, StringComparison.InvariantCultureIgnoreCase) == 0);
+            if (parameter == null) return defaultValue;
+
+            return (T)Convert.ChangeType(parameter.Value, typeof(T));
+        }
     }
 }

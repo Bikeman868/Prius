@@ -12,7 +12,11 @@ namespace Prius.Mocks.Helper
 
         public MockedResultSet(JArray data, Func<JObject, bool> predicate = null, IEnumerable<JProperty> schema = null)
         {
-            if (data != null)
+            if (data == null)
+            {
+                Data = new JObject[0];
+            }
+            else
             {
                 Data = data.Children().Cast<JObject>();
                 if (predicate != null) Data = Data.Where(predicate);

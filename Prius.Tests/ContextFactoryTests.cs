@@ -82,8 +82,6 @@ namespace Prius.Tests
         [Test]
         public void Should_execute_stored_procedure_and_return_scalar()
         {
-            var mockConnectionFactory = GetMock<MockConnectionFactory, IConnectionFactory>();
-
             using (var command = _commandFactory.CreateStoredProcedure("proc1"))
             {
                 var asyncResult = _context.BeginExecuteScalar(command);
@@ -94,12 +92,10 @@ namespace Prius.Tests
         [Test]
         public void Should_execute_stored_procedure_and_return_rows_affected()
         {
-            var mockConnectionFactory = GetMock<MockConnectionFactory, IConnectionFactory>();
-
             using (var command = _commandFactory.CreateStoredProcedure("proc1"))
             {
                 var asyncResult = _context.BeginExecuteNonQuery(command);
-                Assert.AreEqual(3, _context.EndExecuteNonQuery(asyncResult));
+                Assert.AreEqual(2, _context.EndExecuteNonQuery(asyncResult));
             }
         }
 
