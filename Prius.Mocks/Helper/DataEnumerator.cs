@@ -9,11 +9,11 @@ namespace Prius.Mocks.Helper
 {
     internal class DataEnumerator<T> : IDataEnumerator<T> where T : class
     {
-        private JArray _data;
+        private IMockedResultSet _resultSet;
 
-        public IDataEnumerator<T> Initialize(string dataShapeName, JArray data)
+        public IDataEnumerator<T> Initialize(string dataShapeName, IEnumerable<IMockedResultSet> resultSets)
         {
-            _data = data;
+            _resultSet = resultSets.FirstOrDefault();
             return this;
         }
 
@@ -34,10 +34,10 @@ namespace Prius.Mocks.Helper
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (_data == null)
+            if (_resultSet == null)
                 return new List<T>().GetEnumerator();
 
-            return _data.Select(e => e.ToObject<T>()).GetEnumerator();
+            return _resultSet.Data.Select(jobject => jobject.ToObject<T>()).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

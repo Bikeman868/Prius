@@ -9,22 +9,19 @@ namespace Prius.Mocks.Helper
 {
     internal class DataReader : IDataReader
     {
-        private int _rowNumber;
-        private List<JProperty> _schema;
+        private IEnumerator<IMockedResultSet> _resultSetEnumerator;
+        private IEnumerator<JObject> _rowEnumerator;
 
-        public JArray Data { get; private set; }
+        public IEnumerable<IMockedResultSet> ResultSets { get; private set; }
 
-        public IDataReader Initialize(string dataShapeName, JArray data)
+        public IDataReader Initialize(string dataShapeName, IEnumerable<IMockedResultSet> resultSets)
         {
             DataShapeName = dataShapeName;
-            Data = data;
-            _rowNumber = -1;
+            ResultSets = resultSets;
 
-            if (data != null && data.Count > 0)
-            {
-                if (data.First is JObject)
-                    _schema = (data.First as JObject).Properties().ToList();
-            }
+            _resultSetEnumerator = resultSets.GetEnumerator();
+            if (_resultSetEnumerator.Current != null && _resultSetEnumerator.Current.Data != null)
+                _rowEnumerator = _resultSetEnumerator.Current.Data.GetEnumerator();
 
             return this;
         }
@@ -35,7 +32,9 @@ namespace Prius.Mocks.Helper
         {
             get
             {
-                return _schema == null ? 0 : _schema.Count;
+                if (_resultSetEnumerator == null || _resultSetEnumerator.Current == null) return 0;
+                var schema = _resultSetEnumerator.Current.Schema;
+                return schema == null ? 0 : schema.Count();
             }
         }
 
@@ -56,7 +55,9 @@ namespace Prius.Mocks.Helper
         {
             get
             {
-                return ((Data[_rowNumber] as JObject).GetValue(fieldName) as JValue).Value;
+                if (_rowEnumerator == null || _rowEnumerator.Current == null) return null;
+                var field = _rowEnumerator.Current.GetValue(fieldName);
+                return ((JValue)field).Value;
             }
         }
 
@@ -64,19 +65,24 @@ namespace Prius.Mocks.Helper
         {
             if (fieldIndex < 0) return null;
 
-            var property = _schema.Skip(fieldIndex).FirstOrDefault();
-            if (property == null) return null;
-            return property.Name;
+            if (_resultSetEnumerator == null || _resultSetEnumerator.Current == null) return null;
+            var schema = _resultSetEnumerator.Current.Schema;
+
+            var property = schema.Skip(fieldIndex).FirstOrDefault();
+            return property == null ? null : property.Name;
         }
 
         public int GetFieldIndex(string fieldName)
         {
-            if (_schema == null) return -1;
+            if (_resultSetEnumerator == null || _resultSetEnumerator.Current == null || _resultSetEnumerator.Current.Schema == null) return -1;
+            var schema = _resultSetEnumerator.Current.Schema;
 
-            for (var i = 0; i < _schema.Count; i++)
+            var i = 0;
+            foreach (var property in schema)
             {
-                if (_schema[i].Name.ToLower() == fieldName.ToLower())
+                if (String.Equals(property.Name, fieldName, StringComparison.InvariantCultureIgnoreCase))
                     return i;
+                i++;
             }
             return -1;
         }
@@ -84,23 +90,21 @@ namespace Prius.Mocks.Helper
         public bool IsNull(int fieldIndex)
         {
             var fieldName = GetFieldName(fieldIndex);
-            var value = (Data[_rowNumber] as JObject).GetValue(fieldName) as JValue;
-            if (value == null) return true;
-            return value.Value == null;
+            if (_rowEnumerator == null || _rowEnumerator.Current == null) return true;
+            var field = _rowEnumerator.Current.GetValue(fieldName);
+            return field == null || field.Type == JTokenType.Null;
         }
 
         public bool Read()
         {
-            if (_rowNumber == Data.Count - 1)
-                return false;
-
-            _rowNumber++;
-            return true;
+            return _rowEnumerator.MoveNext();
         }
 
         public bool NextResult()
         {
-            return Read();
+            var result = _resultSetEnumerator.MoveNext();
+            _rowEnumerator = result ? _resultSetEnumerator.Current.Data.GetEnumerator() : null;
+            return result;
         }
 
         public T Get<T>(int fieldIndex, T defaultValue)
@@ -108,12 +112,16 @@ namespace Prius.Mocks.Helper
             var fieldName = GetFieldName(fieldIndex);
             if (fieldName == null) return defaultValue;
 
-            return ((Data[_rowNumber] as JObject).GetValue(fieldName) as JValue).Value<T>();
+            if (_rowEnumerator == null || _rowEnumerator.Current == null) return defaultValue;
+            var field = _rowEnumerator.Current.GetValue(fieldName) as JValue;
+            return field == null ? defaultValue : field.Value<T>();
         }
 
         public T Get<T>(string fieldName, T defaultValue)
         {
-            return ((Data[_rowNumber] as JObject).GetValue(fieldName) as JValue).Value<T>();
+            if (_rowEnumerator == null || _rowEnumerator.Current == null) return defaultValue;
+            var field = _rowEnumerator.Current.GetValue(fieldName) as JValue;
+            return field == null ? defaultValue : field.Value<T>();
         }
 
         public object Get(int fieldIndex, object defaultValue, Type type)
@@ -121,7 +129,9 @@ namespace Prius.Mocks.Helper
             var fieldName = GetFieldName(fieldIndex);
             if (fieldName == null) return defaultValue;
 
-            return ((Data[_rowNumber] as JObject).GetValue(fieldName) as JValue).Value;
+            if (_rowEnumerator == null || _rowEnumerator.Current == null) return defaultValue;
+            var field = _rowEnumerator.Current.GetValue(fieldName) as JValue;
+            return field == null ? defaultValue : Convert.ChangeType(field.Value, type);
         }
 
         public bool IsReusable { get { return false; } }

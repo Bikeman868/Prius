@@ -22,6 +22,7 @@
     </dependencies>
     <references>
       <reference file="Prius.Mocks.dll"/>
+      <reference file="Prius.Contracts.dll"/>
     </references>
   </metadata>
   <files>

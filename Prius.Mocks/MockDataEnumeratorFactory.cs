@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Moq.Modules;
 using Newtonsoft.Json.Linq;
 using Prius.Contracts.Interfaces;
@@ -17,7 +18,13 @@ namespace Prius.Mocks
         {
             var dataReader = reader as DataReader;
             if (dataReader != null)
-                return new DataEnumerator<T>().Initialize(dataSetName, dataReader.Data);
+                return new DataEnumerator<T>().Initialize(dataSetName, dataReader.ResultSets);
+
+            var schema = new List<JProperty>();
+            for (var fieldIndex = 0; fieldIndex < reader.FieldCount; fieldIndex++)
+            {
+                schema.Add(new JProperty(reader.GetFieldName(fieldIndex), null));
+            }
 
             var data = new JArray();
             while (reader.Read())
@@ -29,7 +36,7 @@ namespace Prius.Mocks
                 }
                 data.Add(row);
             }
-            return new DataEnumerator<T>().Initialize(dataSetName, data);
+            return new DataEnumerator<T>().Initialize(dataSetName, new[]{new MockedResultSet(data, null, schema)});
         }
     }
 }

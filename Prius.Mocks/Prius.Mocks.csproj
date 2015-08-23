@@ -60,6 +60,12 @@
       <Link>Properties\SharedVersion.cs</Link>
     </Compile>
     <Compile Include="Helper\Connection.cs" />
+    <Compile Include="Helper\IMockedRepository.cs" />
+    <Compile Include="Helper\IMockedResultSet.cs" />
+    <Compile Include="Helper\IMockedStoredProcedure.cs" />
+    <Compile Include="Helper\MockedRepository.cs" />
+    <Compile Include="Helper\MockedResultSet.cs" />
+    <Compile Include="Helper\MockedStoredProcedure.cs" />
     <Compile Include="Helper\SyncronousResult.cs" />
     <Compile Include="Helper\DataEnumerator.cs" />
     <Compile Include="Helper\DataReader.cs" />

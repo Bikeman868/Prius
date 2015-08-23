@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Ports;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using Moq.Modules;
@@ -7,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Prius.Contracts.Interfaces;
 using Prius.Mocks;
+using Prius.Mocks.Helper;
 
 namespace Prius.Tests
 {
@@ -25,54 +27,106 @@ namespace Prius.Tests
             _commandFactory = SetupMock<ICommandFactory>();
             _contextFactory = SetupMock<IContextFactory>();
 
+            var usersTable = new JArray();
+            usersTable.Add(JObject.Parse("{userId:1,userName:\"martin\"}"));
+            usersTable.Add(JObject.Parse("{userId:2,userName:\"wilson\"}"));
+            usersTable.Add(JObject.Parse("{userId:3,userName:\"daisy\"}"));
+            usersTable.Add(JObject.Parse("{userId:4,userName:\"nancy\"}"));
+
+            var productTable = new JArray();
+            productTable.Add(JObject.Parse("{productId:1,sku:\"abc45324\"}"));
+            productTable.Add(JObject.Parse("{productId:2,sku:\"gtf34355\"}"));
+            productTable.Add(JObject.Parse("{productId:3,sku:\"iuo76573\"}"));
+            productTable.Add(JObject.Parse("{productId:4,sku:\"zer76576\"}"));
+
+            var mockedRepository = new MockedRepository("MyData");
+            mockedRepository.Add("sp_GetAllUsers", usersTable);
+            mockedRepository.Add("sp_GetUser", new GetUserProcedure(usersTable));
+            mockedRepository.Add("sp_CreateUser", new CraeteUserProcedure(usersTable));
+            mockedRepository.Add("sp_DeleteUser", new DeleteUserProcedure(usersTable));
+
             var mockContextFactory = GetMock<MockContextFactory, IContextFactory>();
-
-            // Mock data returned by the sp_GetUsers stored procedure
-            var proc1Data = new JArray();
-            proc1Data.Add(JObject.Parse("{userId:1,userName:\"martin\"}"));
-            proc1Data.Add(JObject.Parse("{userId:2,userName:\"wilson\"}"));
-            proc1Data.Add(JObject.Parse("{userId:3,userName:\"daisy\"}"));
-            proc1Data.Add(JObject.Parse("{userId:4,userName:\"nancy\"}"));
-            mockContextFactory.ClearMockData("sp_GetUsers");
-            mockContextFactory.AddMockData("sp_GetUsers", proc1Data);
-
-            // Mock data returned by the sp_GetProducts stored procedure
-            var proc2Data = new JArray();
-            proc2Data.Add(JObject.Parse("{productId:1,sku:\"abc45324\"}"));
-            proc2Data.Add(JObject.Parse("{productId:2,sku:\"gtf34355\"}"));
-            proc2Data.Add(JObject.Parse("{productId:3,sku:\"iuo76573\"}"));
-            proc2Data.Add(JObject.Parse("{productId:4,sku:\"zer76576\"}"));
-            mockContextFactory.ClearMockData("sp_GetProducts");
-            mockContextFactory.AddMockData("sp_GetProducts", proc2Data);
-
-            // Define a function that will filter the data according to the parameters passed to the sproc
-            mockContextFactory.SetFilter("sp_GetUsers", UsersFilter);
-
-            // Define what the database does on ExecuteScalar reqests
-            mockContextFactory.SetScalar("sp_CreateUser", parameters => 5);
-
-            // Define what the database does on ExecuteNonQuery reqests
-            mockContextFactory.SetNonQuery("sp_DeleteUser", parameters => 1);
+            mockContextFactory.MockedRepository  = mockedRepository;
         }
 
-        private JArray UsersFilter(JArray data, List<IParameter> commandParameters)
+        #region Stored procedure mocks
+
+        private class GetUserProcedure: MockedStoredProcedure
         {
-            var userIdParameter = (IParameter)null;
-            if (commandParameters != null)
-                userIdParameter = commandParameters.FirstOrDefault(p => string.Compare(p.Name, "userid", StringComparison.InvariantCultureIgnoreCase) == 0);
+            private JArray _userData;
 
-            if (userIdParameter == null)
-                return data;
+            public GetUserProcedure(JArray userData)
+            {
+                _userData = userData;
+            }
 
-            return data
-                .Cast<JObject>()
-                .Where(o => o["userId"].Value<int>() == (int)userIdParameter.Value)
-                .Aggregate(new JArray(), (a, o) =>
-                    {
-                        a.Add(o);
-                        return a;
-                    });
+            public override IEnumerable<IMockedResultSet> Query(ICommand command)
+            {
+                Execute(command);
+                return base.Query(command);
+            }
+
+            public long NonQuery(ICommand command)
+            {
+                Execute(command);
+                return base.NonQuery(command);
+            }
+
+            public T Scalar<T>(ICommand command)
+            {
+                Execute(command);
+                return base.Scalar<T>(command);
+            }
+
+            private void Execute(ICommand command)
+            {
+                var userIdParameter = (IParameter) null;
+                var parameters = command.GetParameters();
+                if (parameters != null)
+                    userIdParameter = parameters.FirstOrDefault(p => string.Compare(p.Name, "userid", StringComparison.InvariantCultureIgnoreCase) == 0);
+
+                if (userIdParameter == null)
+                    SetData(_userData);
+                else
+                {
+                    SetData(_userData, null, o => o["userId"].Value<int>() == (int)userIdParameter.Value);
+                }
+            }
         }
+
+        private class CraeteUserProcedure : MockedStoredProcedure
+        {
+            private JArray _userData;
+
+            public CraeteUserProcedure(JArray userData)
+            {
+                _userData = userData;
+            }
+
+            public override long NonQuery(ICommand command)
+            {
+                // You can add a new row to the data here for a full simulation of what the database does
+                return 1;
+            }
+        }
+
+        private class DeleteUserProcedure : MockedStoredProcedure
+        {
+            private JArray _userData;
+
+            public DeleteUserProcedure(JArray userData)
+            {
+                _userData = userData;
+            }
+
+            public override long NonQuery(ICommand command)
+            {
+                // You can delete a new row to the data here for a full simulation of what the database does
+                return 1;
+            }
+        }
+
+        #endregion
 
         [Test]
         public void Should_execute_stored_procedure_and_return_objects()

@@ -8,28 +8,15 @@ namespace Prius.Mocks.Helper
 {
     internal class Connection : IConnection
     {
-        private string _repositoryName;
+        private readonly IMockedRepository _mockedRepository;
         private ICommand _command;
-        private Dictionary<string, JArray> _mockedData;
-        private Dictionary<string, Func<JArray, List<IParameter>, JArray>> _filters;
-        private Dictionary<string, Func<List<IParameter>, object>> _scalarFunctions;
-        private Dictionary<string, Func<List<IParameter>, long>> _nonQueryFunctions;
 
         public object RepositoryContext { get; set; }
 
-        public IConnection Initialize(
-            string repositoryName, 
-            Dictionary<string, JArray> mockedData,
-            Dictionary<string, Func<JArray, List<IParameter>, JArray>> filters,
-            Dictionary<string, Func<List<IParameter>, object>> scalarFunctions,
-            Dictionary<string, Func<List<IParameter>, long>> nonQueryFunctions)
+        public Connection(IMockedRepository mockedRepository, ICommand command = null)
         {
-            _repositoryName = repositoryName;
-            _mockedData = mockedData;
-            _filters = filters;
-            _scalarFunctions = scalarFunctions;
-            _nonQueryFunctions = nonQueryFunctions;
-            return this;
+            _mockedRepository = mockedRepository;
+            _command = command;
         }
 
         public void BeginTransaction()
@@ -51,42 +38,36 @@ namespace Prius.Mocks.Helper
 
         public IAsyncResult BeginExecuteReader(AsyncCallback callback)
         {
+            if (_command == null)
+                throw new Exception("You must provide a command before executing reader");
             return new SyncronousResult(_command, callback);
         }
 
         public IDataReader EndExecuteReader(IAsyncResult asyncResult)
         {
             var command = asyncResult.AsyncState as ICommand;
-            var procedureName = command.CommandText.ToLower();
 
-            var data = (JArray) null;
-            if (_mockedData.ContainsKey(procedureName))
-                data = _mockedData[procedureName];
+            var procedure = _mockedRepository.GetProcedure(command.CommandText);
+            var results = procedure.Query(command);
 
-            if (_filters.ContainsKey(procedureName))
-                data = _filters[procedureName](data, command.GetParameters().ToList());
-
-            return new DataReader().Initialize(procedureName, data);
+            return new DataReader().Initialize(command.CommandText, results);
         }
 
         public IAsyncResult BeginExecuteEnumerable(AsyncCallback callback)
         {
+            if (_command == null)
+                throw new Exception("You must provide a command before executing enumerable");
             return new SyncronousResult(_command, callback);
         }
 
         public IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult) where T : class
         {
             var command = asyncResult.AsyncState as ICommand;
-            var procedureName = command.CommandText.ToLower();
 
-            var data = (JArray)null;
-            if (_mockedData.ContainsKey(procedureName))
-                data = _mockedData[procedureName];
+            var procedure = _mockedRepository.GetProcedure(command.CommandText);
+            var results = procedure.Query(command);
 
-            if (_filters.ContainsKey(procedureName))
-                data = _filters[procedureName](data, command.GetParameters().ToList());
-
-            return new DataEnumerator<T>().Initialize(procedureName, data);
+            return new DataEnumerator<T>().Initialize(command.CommandText, results);
         }
 
         public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
@@ -97,12 +78,9 @@ namespace Prius.Mocks.Helper
         public long EndExecuteNonQuery(IAsyncResult asyncResult)
         {
             var command = asyncResult.AsyncState as ICommand;
-            var procedureName = command.CommandText.ToLower();
 
-            if (_nonQueryFunctions.ContainsKey(procedureName))
-                return _nonQueryFunctions[procedureName](command.GetParameters().ToList());
-
-            return 0;
+            var procedure = _mockedRepository.GetProcedure(command.CommandText);
+            return procedure.NonQuery(command);
         }
 
         public IAsyncResult BeginExecuteScalar(AsyncCallback callback)
@@ -113,12 +91,9 @@ namespace Prius.Mocks.Helper
         public T EndExecuteScalar<T>(IAsyncResult asyncResult)
         {
             var command = asyncResult.AsyncState as ICommand;
-            var procedureName = command.CommandText.ToLower();
 
-            if (_scalarFunctions.ContainsKey(procedureName))
-                return (T)_scalarFunctions[procedureName](command.GetParameters().ToList());
-
-            return default(T);
+            var procedure = _mockedRepository.GetProcedure(command.CommandText);
+            return procedure.Scalar<T>(command);
         }
 
         public bool IsReusable { get { return false; } }
