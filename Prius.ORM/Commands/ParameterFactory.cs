@@ -6,11 +6,6 @@ namespace Prius.Orm.Commands
 {
     public class ParameterFactory: IParameterFactory
     {
-        public IParameterFactory Initialize()
-        {
-            return this;
-        }
-
         public IParameter Create(string name)
         {
             return new Parameter().Initialize(name, typeof(object), 0, Parameter.DbTypeFrom<object>(), ParameterDirection.Input, null);

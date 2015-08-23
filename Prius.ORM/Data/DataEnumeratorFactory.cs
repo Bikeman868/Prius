@@ -13,11 +13,6 @@ namespace Prius.Orm.Data
             _mapper = mapper;
         }
 
-        public IDataEnumeratorFactory Initialize()
-        {
-            return this;
-        }
-
         public IDataEnumerator<T> Create<T>(IDataReader reader, Action closeAction, string dataSetName, IFactory<T> dataContractFactory) where T : class
         {
             return new DataEnumerator<T>(_mapper).Initialize(reader, closeAction, dataSetName, dataContractFactory);

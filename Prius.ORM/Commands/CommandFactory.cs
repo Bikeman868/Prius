@@ -12,11 +12,6 @@ namespace Prius.Orm.Commands
             _parameterFactory = parameterFactory;
         }
 
-        public ICommandFactory Initialize()
-        {
-            return this;
-        }
-
         public ICommand CreateStoredProcedure(string procedureName, int timeoutSeconds)
         {
             return new Command(_parameterFactory).Initialize(CommandType.StoredProcedure, procedureName, timeoutSeconds);

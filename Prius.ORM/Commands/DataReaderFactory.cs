@@ -13,11 +13,6 @@ namespace Prius.Orm.Commands
             _errorReporter = errorReporter;
         }
 
-        public IDataReaderFactory Initialize()
-        {
-            return this;
-        }
-
         public IDataReader Create(System.Data.SqlClient.SqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
         {
             return new DataReader(_errorReporter).Initialize(reader, dataShapeName, closeAction, errorAction);

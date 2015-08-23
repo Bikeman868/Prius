@@ -24,7 +24,7 @@ namespace Prius.Orm.Connections
         public abstract long EndExecuteNonQuery(IAsyncResult asyncResult);
         public abstract T EndExecuteScalar<T>(IAsyncResult asyncResult);
 
-        public Connection(IDataEnumeratorFactory dataEnumeratorFactory)
+        protected Connection(IDataEnumeratorFactory dataEnumeratorFactory)
         {
             _dataEnumeratorFactory = dataEnumeratorFactory;
         }

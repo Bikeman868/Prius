@@ -22,7 +22,7 @@ namespace Prius.Orm.Connections
         {
             _connectionFactory = connectionFactory;
 
-            _configChangeNotifier = configurationStore.Register<DataAccessLayer>("/dataAccessLayer", ConfigurationChanged);
+            _configChangeNotifier = configurationStore.Register<DataAccessLayer>("/prius", ConfigurationChanged);
         }
 
         protected override void Dispose(bool destructor)

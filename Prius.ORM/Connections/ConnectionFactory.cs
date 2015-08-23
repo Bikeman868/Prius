@@ -19,11 +19,6 @@ namespace Prius.Orm.Connections
             _dataReaderFactory = dataReaderFactory;
         }
 
-        public IConnectionFactory Initialize()
-        {
-            return this;
-        }
-
         public IConnection CreateSqlServer(IRepository repository, ICommand command, string connectionString)
         {
             return new SqlServerConnection(_errorReporter, _dataEnumeratorFactory, _dataReaderFactory)

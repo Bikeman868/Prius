@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 using Prius.Contracts.Interfaces;
 
@@ -10,13 +11,24 @@ namespace Prius.Mocks.Helper
         private string _repositoryName;
         private ICommand _command;
         private Dictionary<string, JArray> _mockedData;
+        private Dictionary<string, Func<JArray, List<IParameter>, JArray>> _filters;
+        private Dictionary<string, Func<List<IParameter>, object>> _scalarFunctions;
+        private Dictionary<string, Func<List<IParameter>, long>> _nonQueryFunctions;
 
         public object RepositoryContext { get; set; }
 
-        public IConnection Initialize(string repositoryName, Dictionary<string, JArray> mockedData)
+        public IConnection Initialize(
+            string repositoryName, 
+            Dictionary<string, JArray> mockedData,
+            Dictionary<string, Func<JArray, List<IParameter>, JArray>> filters,
+            Dictionary<string, Func<List<IParameter>, object>> scalarFunctions,
+            Dictionary<string, Func<List<IParameter>, long>> nonQueryFunctions)
         {
             _repositoryName = repositoryName;
             _mockedData = mockedData;
+            _filters = filters;
+            _scalarFunctions = scalarFunctions;
+            _nonQueryFunctions = nonQueryFunctions;
             return this;
         }
 
@@ -47,10 +59,14 @@ namespace Prius.Mocks.Helper
             var command = asyncResult.AsyncState as ICommand;
             var procedureName = command.CommandText.ToLower();
 
+            var data = (JArray) null;
             if (_mockedData.ContainsKey(procedureName))
-                return new DataReader().Initialize(procedureName, _mockedData[procedureName]);
+                data = _mockedData[procedureName];
 
-            return new DataReader().Initialize(procedureName, null);
+            if (_filters.ContainsKey(procedureName))
+                data = _filters[procedureName](data, command.GetParameters().ToList());
+
+            return new DataReader().Initialize(procedureName, data);
         }
 
         public IAsyncResult BeginExecuteEnumerable(AsyncCallback callback)
@@ -63,10 +79,14 @@ namespace Prius.Mocks.Helper
             var command = asyncResult.AsyncState as ICommand;
             var procedureName = command.CommandText.ToLower();
 
+            var data = (JArray)null;
             if (_mockedData.ContainsKey(procedureName))
-                return new DataEnumerator<T>().Initialize(procedureName, _mockedData[procedureName]);
+                data = _mockedData[procedureName];
 
-            return new DataEnumerator<T>().Initialize(procedureName, null);
+            if (_filters.ContainsKey(procedureName))
+                data = _filters[procedureName](data, command.GetParameters().ToList());
+
+            return new DataEnumerator<T>().Initialize(procedureName, data);
         }
 
         public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
@@ -78,6 +98,9 @@ namespace Prius.Mocks.Helper
         {
             var command = asyncResult.AsyncState as ICommand;
             var procedureName = command.CommandText.ToLower();
+
+            if (_nonQueryFunctions.ContainsKey(procedureName))
+                return _nonQueryFunctions[procedureName](command.GetParameters().ToList());
 
             return 0;
         }
@@ -91,6 +114,9 @@ namespace Prius.Mocks.Helper
         {
             var command = asyncResult.AsyncState as ICommand;
             var procedureName = command.CommandText.ToLower();
+
+            if (_scalarFunctions.ContainsKey(procedureName))
+                return (T)_scalarFunctions[procedureName](command.GetParameters().ToList());
 
             return default(T);
         }
