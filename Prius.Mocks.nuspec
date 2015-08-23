@@ -17,15 +17,16 @@
       <dependency id="Moq" version="4.2.1507.0118" />
       <dependency id="Moq.Modules" version="1.0.0"  />
       <dependency id="Newtonsoft.Json" version="7.0.1" />
+      <dependency id="MySql.Data" version="6.9.7" />
+      <dependency id="Npgsql" version="2.2.5" />
     </dependencies>
     <references>
-      <reference file="Prius.Contracts.dll"/>
       <reference file="Prius.Mocks.dll"/>
     </references>
   </metadata>
   <files>
     <file src="Prius.Contracts\bin\Release\Prius.Contracts.dll" target="lib"/>
-    <file src="Prius.Contracts\bin\Release\Prius.Mocks.dll" target="lib"/>
+    <file src="Prius.Mocks\bin\Release\Prius.Mocks.dll" target="lib"/>
     <file src="*.md" target=""/>
     <file src="*.txt" target=""/>
   </files>

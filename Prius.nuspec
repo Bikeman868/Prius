@@ -14,6 +14,7 @@
     <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
     <tags>ORM database mapping sqlserver mysql postgresql</tags>
     <dependencies>
+      <dependency id="Newtonsoft.Json" version="7.0.1" />
       <dependency id="MySql.Data" version="6.9.7" />
       <dependency id="Npgsql" version="2.2.5" />
       <dependency id="Urchin.Client" version="1.0.1.2" />
@@ -25,7 +26,7 @@
   </metadata>
   <files>
     <file src="Prius.Contracts\bin\Release\Prius.Contracts.dll" target="lib"/>
-    <file src="Prius.Contracts\bin\Release\Prius.ORM.dll" target="lib"/>
+    <file src="Prius.ORM\bin\Release\Prius.ORM.dll" target="lib"/>
     <file src="Prius.Mocks\bin\Release\Prius.Mocks.dll" target="lib"/>
     <file src="Prius.Tests\bin\Release\Prius.Tests.dll" target="lib"/>
     <file src="*.md" target=""/>
