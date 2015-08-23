@@ -88,19 +88,19 @@
     <Compile Include="Connections\RepositoryFactory.cs" />
     <Compile Include="Connections\SqlServerConnection.cs" />
     <Compile Include="IocConfiguration.cs" />
-    <Compile Include="Orm\DataEnumerator.cs" />
-    <Compile Include="Orm\DataEnumeratorFactory.cs" />
-    <Compile Include="Orm\DummyDataEnumerator.cs" />
-    <Compile Include="Orm\EnumerableData.cs" />
-    <Compile Include="Orm\EnumerableDataFactory.cs" />
-    <Compile Include="Orm\Mapper.cs" />
+    <Compile Include="Data\DataEnumerator.cs" />
+    <Compile Include="Data\DataEnumeratorFactory.cs" />
+    <Compile Include="Data\DummyDataEnumerator.cs" />
+    <Compile Include="Data\EnumerableData.cs" />
+    <Compile Include="Data\EnumerableDataFactory.cs" />
+    <Compile Include="Data\Mapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\Disposable.cs" />
     <Compile Include="Utility\EnumerableLocked.cs" />
     <Compile Include="Utility\HistoryBucketQueue.cs" />
     <Compile Include="Utility\PerformanceTimer.cs" />
     <Compile Include="Utility\ThreadSafeDictionary.cs" />
-    <Compile Include="Utility\TypeExtensions.cs" />
+    <Compile Include="Utility\Extensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.csproj">

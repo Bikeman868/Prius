@@ -1,6 +1,6 @@
 ﻿using Prius.Contracts.Interfaces;
 
-namespace Prius.Orm.Orm
+namespace Prius.Orm.Data
 {
     public class EnumerableDataFactory : IEnumerableDataFactory
     {

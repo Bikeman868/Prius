@@ -1,9 +1,4 @@
-﻿using Prius.Contracts.Interfaces;
-using Prius.Orm.Commands;
-using Prius.Orm.Connections;
-using Prius.Orm.Orm;
-
-namespace Prius.Orm
+﻿namespace Prius.Orm
 {
     /*
     public class IocConfiguration : IIocConfig

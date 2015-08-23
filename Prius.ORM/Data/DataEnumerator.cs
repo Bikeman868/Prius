@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Prius.Contracts.Interfaces;
 using Prius.Orm.Utility;
 
-namespace Prius.Orm.Orm
+namespace Prius.Orm.Data
 {
     public class DataEnumerator<T> : Disposable, IDataEnumerator<T> where T: class
     {

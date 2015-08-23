@@ -8,7 +8,6 @@ namespace Prius.Orm.Connections
     public class Context : Disposable, IContext
     {
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
-        private readonly IDataReaderFactory _dataReaderFactory;
         private readonly IErrorReporter _errorReporter;
 
         private IRepository _repository;
@@ -19,20 +18,14 @@ namespace Prius.Orm.Connections
 
         public Context(
             IDataEnumeratorFactory dataEnumeratorFactory, 
-            IDataReaderFactory dataReaderFactory,
-            IErrorReporter errorReporter)
+            IErrorReporter errorReporter,
+            IRepository repository)
         {
             _dataEnumeratorFactory = dataEnumeratorFactory;
-            _dataReaderFactory = dataReaderFactory;
             _errorReporter = errorReporter;
-        }
-
-        public IContext Initialize(IRepository repository)
-        {
             _repository = repository;
             _connection = null;
             _isPrepared = false;
-            return this;
         }
 
         protected override void Dispose(bool destructor)
@@ -104,8 +97,8 @@ namespace Prius.Orm.Connections
         {
             try
             {
-                if (asyncResult is SyncronousResult)
-                    return _dataReaderFactory.Create((Exception)asyncResult.AsyncState);
+                if (asyncResult is SyncronousResult && asyncResult.AsyncState is Exception)
+                    throw (Exception)asyncResult.AsyncState;
                 return _connection.EndExecuteReader(asyncResult);
             }
             catch (Exception ex)
@@ -128,7 +121,7 @@ namespace Prius.Orm.Connections
         public IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult, string dataSetName = null, IFactory<T> dataContractFactory = null) where T : class
         {
             var reader = EndExecuteReader(asyncResult);
-            return _dataEnumeratorFactory.Create<T>(reader, () => reader.Dispose(), dataSetName, dataContractFactory);
+            return _dataEnumeratorFactory.Create(reader, reader.Dispose, dataSetName, dataContractFactory);
         }
 
         #endregion

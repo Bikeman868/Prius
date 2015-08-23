@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Npgsql.2.2.5\lib\net40\Mono.Security.dll</HintPath>
+    </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.2.1507.0118\lib\net40\Moq.dll</HintPath>
     </Reference>
@@ -39,9 +43,17 @@
       <HintPath>..\packages\Moq.Modules.1.0.0\lib\Moq.Modules.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="MySql.Data, Version=6.9.7.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MySql.Data.6.9.7\lib\net40\MySql.Data.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql, Version=2.2.5.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Npgsql.2.2.5\lib\net40\Npgsql.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,31 +63,24 @@
     <Compile Include="..\SharedVersion.cs">
       <Link>Properties\SharedVersion.cs</Link>
     </Compile>
+    <Compile Include="Helper\Connection.cs" />
+    <Compile Include="Helper\SyncronousResult.cs" />
+    <Compile Include="Helper\DataEnumerator.cs" />
+    <Compile Include="Helper\DataReader.cs" />
     <Compile Include="MockCommandFactory.cs" />
+    <Compile Include="MockConnectionFactory.cs" />
     <Compile Include="MockContextFactory.cs" />
+    <Compile Include="MockDataEnumeratorFactory.cs" />
+    <Compile Include="MockDataReaderFactory.cs" />
     <Compile Include="MockMapper.cs" />
+    <Compile Include="MockRepository.cs" />
+    <Compile Include="MockRepositoryFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Stockhouse.IOC.Contracts\Stockhouse.IOC.Contracts.csproj">
-      <Project>{B35FEB8D-4A98-4244-BA39-4CA4677AE8A4}</Project>
-      <Name>Stockhouse.IOC.Contracts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.csproj">
       <Project>{12444D2D-5CCF-41B4-B515-AB42454A5A88}</Project>
       <Name>Prius.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Stockhouse.Shared.Common\Stockhouse.Shared.Common.csproj">
-      <Project>{86CB65EB-A1AD-4072-92A5-6F175CEB6F17}</Project>
-      <Name>Stockhouse.Shared.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Stockhouse.Shared.Contracts\Stockhouse.Shared.Contracts.csproj">
-      <Project>{59520A0E-EB64-4A7F-8D8D-1DC28288BAC9}</Project>
-      <Name>Stockhouse.Shared.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Stockhouse.Shared.Tests\Stockhouse.Shared.Tests.csproj">
-      <Project>{1808EF59-75E4-4F90-B719-B14E774835D5}</Project>
-      <Name>Stockhouse.Shared.Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

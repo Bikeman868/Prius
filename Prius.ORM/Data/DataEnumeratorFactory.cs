@@ -1,7 +1,8 @@
 ﻿using System;
 using Prius.Contracts.Interfaces;
+using Prius.Orm.Data;
 
-namespace Prius.Orm.Orm
+namespace Prius.Orm.Data
 {
     public class DataEnumeratorFactory : IDataEnumeratorFactory
     {
