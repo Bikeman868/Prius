@@ -5,6 +5,15 @@ namespace Prius.Orm.Config
 {
     public class FallbackPolicy
     {
+        public FallbackPolicy()
+        {
+            Name = "default";
+            FailureWindowSeconds = 10;
+            AllowedFailurePercent = 100;
+            WarningFailurePercent = 25;
+            BackOffTime = TimeSpan.FromMinutes(1);
+        }
+
         [JsonProperty("name")]
         public string Name { get; set;}
 

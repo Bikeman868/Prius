@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius.Mocks</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>Reusable mocks for the ORM for people who like stored procedures</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>

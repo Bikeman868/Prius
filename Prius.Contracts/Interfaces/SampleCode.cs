@@ -95,7 +95,8 @@ namespace Prius.Contracts.Interfaces
                 {
                     _command.Unlock();
                 }
-                return context.ExecuteEnumerable<Profile>().FirstOrDefault();
+                var asyncResult = context.BeginExecuteEnumerable();
+                return context.EndExecuteEnumerable<Profile>(asyncResult).FirstOrDefault();
             }
         }
 

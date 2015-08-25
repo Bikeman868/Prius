@@ -6,6 +6,12 @@ namespace Prius.Orm.Config
 
     public class Database
     {
+        public Database()
+        {
+            ServerType = ServerType.SqlServer;
+            Enabled = true;
+        }
+
         [JsonProperty("name")]
         public string Name { get; set; }
 

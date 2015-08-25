@@ -6,8 +6,15 @@ namespace Prius.Orm.Config
 {
     public class Cluster : ConfigurationElement
     {
+        public Cluster()
+        {
+            DatabaseNames = new List<string>();
+            Enabled = true;
+            FallbackPolicyName = "default";
+        }
+
         [JsonProperty("databases")]
-        public List<string> Databases { get; set; }
+        public List<string> DatabaseNames { get; set; }
 
         [JsonProperty("sequence")]
         public int SequenceNumber { get; set; }

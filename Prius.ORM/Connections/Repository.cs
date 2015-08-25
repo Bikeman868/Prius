@@ -61,31 +61,42 @@ namespace Prius.Orm.Connections
                 ? new Dictionary<string, FallbackPolicy>() 
                 : config.FallbackPolicies.ToDictionary(p => p.Name);
 
-            var servers = config.Databases == null
+            var databases = config.Databases == null
                 ? new Dictionary<string, Database>()
                 : config.Databases.ToDictionary(s => s.Name);
 
-            _groups = repositoryConfiguration.Clusters
-                .Where(group => group.Enabled)
-                .OrderBy(group => group.SequenceNumber)
-                .Select(group => new Group().Initialize
-                    (
-                        this,
-                        fallbackPolicies[group.FallbackPolicyName].FailureWindowSeconds,
-                        fallbackPolicies[group.FallbackPolicyName].AllowedFailurePercent / 100f,
-                        fallbackPolicies[group.FallbackPolicyName].WarningFailurePercent / 100f,
-                        fallbackPolicies[group.FallbackPolicyName].BackOffTime,
-                        group.Databases
-                            .Select(s => servers[s])
-                            .Where(server => server.Enabled)
-                            .OrderBy(server => server.SequenceNumber)
-                            .Select(server => new Server
-                            (
-                                server.ServerType,
-                                server.ConnectionString
-                            ))
-                    ))
-                .ToArray();
+            var groups = repositoryConfiguration.Clusters
+                .Where(cluster => cluster.Enabled)
+                .OrderBy(cluster => cluster.SequenceNumber)
+                .Select(cluster =>
+                {
+                    FallbackPolicy fallbackPolicy;
+                    if (!fallbackPolicies.TryGetValue(cluster.FallbackPolicyName, out fallbackPolicy))
+                        fallbackPolicy = new FallbackPolicy();
+
+                    var servers = cluster.DatabaseNames
+                        .Select(databaseName =>
+                        {
+                            Database database;
+                            return databases.TryGetValue(databaseName, out database)
+                                ? database
+                                : null;
+                        })
+                        .Where(database => database != null && database.Enabled)
+                        .OrderBy(database => database.SequenceNumber)
+                        .Select(database => new Server(database.ServerType, database.ConnectionString));
+
+                    return new Group().Initialize
+                        (
+                            this,
+                            fallbackPolicy.FailureWindowSeconds,
+                            fallbackPolicy.AllowedFailurePercent / 100f,
+                            fallbackPolicy.WarningFailurePercent / 100f,
+                            fallbackPolicy.BackOffTime,
+                            servers
+                        );
+                });
+            _groups = groups.ToArray();
         }
 
         public IConnection GetConnection(ICommand command)
