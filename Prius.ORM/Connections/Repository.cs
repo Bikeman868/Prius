@@ -44,15 +44,26 @@ namespace Prius.Orm.Connections
 
         private void ConfigurationChanged(DataAccessLayer config)
         {
-            var repositoryConfiguration = config.Repositories.FirstOrDefault(r => string.Compare(r.Name, Name, StringComparison.InvariantCultureIgnoreCase) == 0);
+            if (config == null || config.Repositories == null)
+            {
+                _groups = new Group[0];
+                return;
+            }
+
+            var repositoryConfiguration = config.Repositories.FirstOrDefault(r => string.Equals(r.Name, Name, StringComparison.InvariantCultureIgnoreCase));
             if (repositoryConfiguration == null)
             {
                 _groups = new Group[0];
                 return;
             }
 
-            var fallbackPolicies = config.FallbackPolicies.ToDictionary(p => p.Name);
-            var servers = config.Servers.ToDictionary(s => s.Name);
+            var fallbackPolicies = config.FallbackPolicies == null 
+                ? new Dictionary<string, FallbackPolicy>() 
+                : config.FallbackPolicies.ToDictionary(p => p.Name);
+
+            var servers = config.Databases == null
+                ? new Dictionary<string, Database>()
+                : config.Databases.ToDictionary(s => s.Name);
 
             _groups = repositoryConfiguration.Clusters
                 .Where(group => group.Enabled)
