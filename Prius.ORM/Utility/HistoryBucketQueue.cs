@@ -14,12 +14,13 @@ namespace Prius.Orm.Utility
     /// </summary>
     public class HistoryBucketQueue<TBucket, TItem> : IHistoryBucketQueue<TBucket, TItem>
     {
-        private Action<TBucket, TItem> _accumulateAction;
-        private Action<TBucket, long> _clearAction;
-        private TBucket[] _buckets;
+        private readonly Action<TBucket, TItem> _accumulateAction;
+        private readonly Action<TBucket, long> _clearAction;
+        private readonly TBucket[] _buckets;
+        private readonly long _ticksPerBucket;
+
         private int _headIndex;
         private long _headTicks;
-        private long _ticksPerBucket;
 
         public bool EnumerateHead { get; set; }
 

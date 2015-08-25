@@ -54,9 +54,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.IO" />
     <Reference Include="System.Xml" />
-    <Reference Include="Urchin.Client, Version=1.0.1.2, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Urchin.Client, Version=1.0.2.3, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Urchin.Client.1.0.1.2\lib\net40\Urchin.Client.dll</HintPath>
+      <HintPath>..\packages\Urchin.Client.1.0.2.3\lib\net40\Urchin.Client.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
