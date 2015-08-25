@@ -43,12 +43,7 @@ namespace Prius.Orm.Data
         {
             _defaultFactory = defaultFactory;
             _errorReporter = errorReporter;
-        }
-
-        public IMapper Initialize()
-        {
             _typeDefinitions = new ThreadSafeDictionary<string, TypeDefinition>();
-            return this;
         }
 
         private TypeDefinition<T> GetTypeDefinition<T>(string dataSetName, IFactory<T> dataContractFactory) where T : class

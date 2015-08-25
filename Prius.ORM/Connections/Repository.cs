@@ -218,7 +218,7 @@ namespace Prius.Orm.Connections
 
                 foreach (var server in _servers) server.Group = this;
 
-                _history = new HistoryBucketQueue<HistoryBucket, bool>().Initialize(
+                _history = new HistoryBucketQueue<HistoryBucket, bool>(
                     TimeSpan.FromSeconds(failureWindowSeconds),
                     20,
                     () => new HistoryBucket(),

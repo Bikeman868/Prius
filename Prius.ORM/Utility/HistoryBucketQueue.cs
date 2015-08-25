@@ -23,7 +23,7 @@ namespace Prius.Orm.Utility
 
         public bool EnumerateHead { get; set; }
 
-        public IHistoryBucketQueue<TBucket, TItem> Initialize(
+        public HistoryBucketQueue(
             TimeSpan depth,
             int bucketCount,
             Func<TBucket> createBucketAction,
@@ -40,7 +40,6 @@ namespace Prius.Orm.Utility
             _ticksPerBucket = PerformanceTimer.SecondsToTicks(depth.TotalSeconds / bucketCount);
 
             Clear();
-            return this;
         }
 
         public void Add(TItem item)

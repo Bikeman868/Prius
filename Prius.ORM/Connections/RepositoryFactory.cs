@@ -38,9 +38,16 @@ namespace Prius.Orm.Connections
         {
             var oldRepositories = _repositories;
 
-            _repositories = config.Repositories.ToDictionary(
-                r => r.Name.ToLower(), 
-                r => new Repository(_connectionFactory, _configurationStore).Initialize(r.Name));
+            if (config == null || config.Repositories == null || config.Repositories.Count == 0)
+            {
+                _repositories = new Dictionary<string, IRepository>();
+            }
+            else
+            {
+                _repositories = config.Repositories.ToDictionary(
+                    r => r.Name.ToLower(),
+                    r => new Repository(_connectionFactory, _configurationStore).Initialize(r.Name));
+            }
 
             if (oldRepositories != null)
             {
@@ -61,7 +68,7 @@ namespace Prius.Orm.Connections
                 IRepository repository;
                 if (repositories.TryGetValue(repositoryName.ToLower(), out repository))
                     return repository;
-                throw new Exception("No configuration for repository '" + repositoryName + "' in /dataAccessLayer");
+                throw new Exception("No configuration for repository '" + repositoryName + "' in /prius");
             }
         }
     }

@@ -86,11 +86,6 @@ namespace Prius.Orm.Utility
         {
         }
 
-        public IPerformanceTimer Initialize()
-        {
-            return this;
-        }
-
         public IPerformanceTimer Initialize(Int64 startTicks)
         {
             _startTime = startTicks;

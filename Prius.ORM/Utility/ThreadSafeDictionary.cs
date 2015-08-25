@@ -27,14 +27,8 @@ namespace Prius.Orm.Utility
 
         public ThreadSafeDictionary()
         {
-        }
-
-        public IThreadSafeDictionary<TKey, TValue> Initialize()
-        {
             _dictionary = new Dictionary<TKey, TValue>();
             _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-
-            return this;
         }
 
         public void Add(TKey key, TValue value)
@@ -181,7 +175,7 @@ namespace Prius.Orm.Utility
         {
             get
             {
-                return new EnumerableLocked<TKey>().Initialize(Keys,
+                return new EnumerableLocked<TKey>(Keys,
                     () =>
                     {
                         if (!_lock.TryEnterReadLock(_lockTimeout))
@@ -195,7 +189,7 @@ namespace Prius.Orm.Utility
         {
             get
             {
-                return new EnumerableLocked<TValue>().Initialize(Values,
+                return new EnumerableLocked<TValue>(Values,
                     () =>
                     {
                         if (!_lock.TryEnterReadLock(_lockTimeout))
@@ -209,7 +203,7 @@ namespace Prius.Orm.Utility
         {
             get
             {
-                return new EnumerableLocked<KeyValuePair<TKey, TValue>>().Initialize(this,
+                return new EnumerableLocked<KeyValuePair<TKey, TValue>>(this,
                     () =>
                     {
                         if (!_lock.TryEnterReadLock(_lockTimeout))

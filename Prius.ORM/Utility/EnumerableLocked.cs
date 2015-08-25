@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Prius.Contracts.Interfaces;
 
 namespace Prius.Orm.Utility
@@ -13,13 +11,11 @@ namespace Prius.Orm.Utility
         private Action _unlockAction;
         private bool _locked;
 
-        public IDisposableEnumerable<T> Initialize(IEnumerable<T> enumerable, Action lockAction, Action unlockAction)
+        public EnumerableLocked(IEnumerable<T> enumerable, Action lockAction, Action unlockAction)
         {
             _enumerable = enumerable;
             _lockAction = lockAction;
             _unlockAction = unlockAction;
-
-            return this;
         }
 
         public IEnumerator<T> GetEnumerator()
