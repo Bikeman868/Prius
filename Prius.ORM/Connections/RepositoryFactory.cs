@@ -21,6 +21,7 @@ namespace Prius.Orm.Connections
             IConfigurationStore configurationStore)
         {
             _connectionFactory = connectionFactory;
+            _configurationStore = configurationStore;
 
             _configChangeNotifier = configurationStore.Register<DataAccessLayer>("/prius", ConfigurationChanged);
         }
