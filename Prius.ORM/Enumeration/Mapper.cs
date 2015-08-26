@@ -7,7 +7,7 @@ using Prius.Contracts.Attributes;
 using Prius.Contracts.Interfaces;
 using Prius.Orm.Utility;
 
-namespace Prius.Orm.Data
+namespace Prius.Orm.Enumeration
 {
     /// <summary>
     /// Provides flexible and extremely efficient mapping between data readers and data contracts

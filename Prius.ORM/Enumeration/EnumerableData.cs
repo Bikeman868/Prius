@@ -2,7 +2,7 @@
 using Prius.Contracts.Interfaces;
 using Prius.Orm.Utility;
 
-namespace Prius.Orm.Data
+namespace Prius.Orm.Enumeration
 {
     public class EnumerableData<T> : Disposable, IDisposableEnumerable<T> where T : class
     {

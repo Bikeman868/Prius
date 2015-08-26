@@ -14,9 +14,6 @@ namespace Prius.Mocks
         {
             var emptyResults = new[] {new MockedResultSet(null)};
 
-            mock.Setup(f => f.Create(It.IsAny<Exception>()))
-                .Returns((Exception e) => new DataReader().Initialize(null, emptyResults));
-
             mock.Setup(f => f.Create(It.IsAny<MySql.Data.MySqlClient.MySqlDataReader>(), It.IsAny<string>(), It.IsAny<Action>(), It.IsAny<Action>()))
                 .Returns((MySql.Data.MySqlClient.MySqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction) => new DataReader().Initialize(dataShapeName, emptyResults));
 

@@ -132,7 +132,6 @@ namespace Prius.Orm.SqlServer
             {
                 _repository.RecordFailure(this);
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteReader on SQL Server " + _repository.Name, _repository, this);
-                asyncContext.Result = _dataReaderFactory.Create(ex);
                 if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
                     _connection.Close();
                 throw;

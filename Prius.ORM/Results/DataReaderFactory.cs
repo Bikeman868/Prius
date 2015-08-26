@@ -2,8 +2,7 @@
 using Npgsql;
 using Prius.Contracts.Interfaces;
 
-
-namespace Prius.Orm.Commands
+namespace Prius.Orm.Results
 {
     public class DataReaderFactory : IDataReaderFactory
     {
@@ -27,11 +26,6 @@ namespace Prius.Orm.Commands
         public IDataReader Create(NpgsqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
         {
             return new PostgreSql.DataReader(_errorReporter).Initialize(reader, dataShapeName, closeAction, errorAction);
-        }
-
-        public IDataReader Create(Exception exception)
-        {
-            return new DummyDataReader().Initialize(exception);
         }
     }
 }

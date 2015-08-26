@@ -165,7 +165,6 @@ namespace Prius.Orm.PostgreSql
             {
                 _repository.RecordFailure(this);
                 _errorReporter.ReportError(ex, "Failed to ExecuteReader on PostgrSql " + _repository.Name, _repository, this);
-                asyncContext.Result = _dataReaderFactory.Create(ex);
                 if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open) _connection.Close();
                 throw;
             }
