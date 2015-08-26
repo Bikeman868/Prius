@@ -5,9 +5,9 @@ using Prius.Contracts.Attributes;
 using Prius.Contracts.Interfaces;
 using Prius.Orm.Utility;
 
-namespace Prius.Orm.Connections
+namespace Prius.Orm.SqlServer
 {
-    public class SqlServerConnection : Connection
+    public class Connection : Connections.Connection
     {
         private readonly IErrorReporter _errorReporter;
         private readonly IDataReaderFactory _dataReaderFactory;
@@ -21,7 +21,7 @@ namespace Prius.Orm.Connections
 
         #region Lifetime
 
-        public SqlServerConnection(
+        public Connection(
             IErrorReporter errorReporter,
             IDataEnumeratorFactory dataEnumeratorFactory, 
             IDataReaderFactory dataReaderFactory)

@@ -16,7 +16,8 @@ namespace Prius.Tests
     /// This is a slightly unusual unit test, because it tests the mocks that applications
     /// will use in their unit tests.
     /// </summary>
-    public class MockContextFactoryTests: TestBase
+    [TestFixture]
+    public class MockContextFactoryTests : TestBase
     {
         private IContextFactory _contextFactory;
         private ICommandFactory _commandFactory;

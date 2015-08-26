@@ -76,6 +76,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MapperTests.cs" />
     <Compile Include="MockContextFactoryTests.cs" />
     <Compile Include="ContextFactoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

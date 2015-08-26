@@ -4,9 +4,9 @@ using MySql.Data.MySqlClient;
 using Prius.Contracts.Interfaces;
 using Prius.Orm.Utility;
 
-namespace Prius.Orm.Connections
+namespace Prius.Orm.MySql
 {
-    public class MySqlServerConnection : Connection
+    public class Connection : Connections.Connection
     {
         private readonly IErrorReporter _errorReporter;
         private readonly IDataReaderFactory _dataReaderFactory;
@@ -20,7 +20,7 @@ namespace Prius.Orm.Connections
 
         #region Lifetime
 
-        public MySqlServerConnection(
+        public Connection(
             IErrorReporter errorReporter,
             IDataEnumeratorFactory dataEnumeratorFactory, 
             IDataReaderFactory dataReaderFactory)

@@ -5,9 +5,9 @@ using NpgsqlTypes;
 using Prius.Contracts.Interfaces;
 using Prius.Orm.Utility;
 
-namespace Prius.Orm.Connections
+namespace Prius.Orm.PostgreSql
 {
-    public class PostgreSqlConnection : Connection
+    public class Connection : Connections.Connection
     {
         private readonly IErrorReporter _errorReporter;
         private readonly IDataReaderFactory _dataReaderFactory;
@@ -24,7 +24,7 @@ namespace Prius.Orm.Connections
 
         #region Lifetime
 
-        public PostgreSqlConnection(
+        public Connection(
             IErrorReporter errorReporter,
             IDataEnumeratorFactory dataEnumeratorFactory, 
             IDataReaderFactory dataReaderFactory)

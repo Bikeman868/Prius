@@ -37,7 +37,7 @@ namespace Prius.Orm.Connections
         public IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult) where T: class
         {
             var reader = EndExecuteReader(asyncResult);
-            return _dataEnumeratorFactory.Create<T>(reader, () => reader.Dispose());
+            return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
         }
 
         protected class AsyncContext

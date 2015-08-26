@@ -2,23 +2,23 @@
 using Prius.Contracts.Interfaces;
 using Prius.Orm.Utility;
 
-namespace Prius.Orm.Commands
+namespace Prius.Orm.MySql
 {
-    public class MySqlDataReader : Disposable, IDataReader
+    public class DataReader : Disposable, IDataReader
     {
         private readonly IErrorReporter _errorReporter;
 
-        private MySql.Data.MySqlClient.MySqlDataReader _reader;
+        private global::MySql.Data.MySqlClient.MySqlDataReader _reader;
         private bool _hasErrors;
         private Action _errorAction;
         private Action _closeAction;
 
-        public MySqlDataReader(IErrorReporter errorReporter)
+        public DataReader(IErrorReporter errorReporter)
         {
             _errorReporter = errorReporter;
         }
 
-        public IDataReader Initialize(MySql.Data.MySqlClient.MySqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
+        public IDataReader Initialize(global::MySql.Data.MySqlClient.MySqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
         {
             _reader = reader;
             DataShapeName = dataShapeName;

@@ -1,14 +1,15 @@
 ﻿using System;
+using Npgsql;
 using Prius.Contracts.Interfaces;
 using Prius.Orm.Utility;
 
-namespace Prius.Orm.Commands
+namespace Prius.Orm.PostgreSql
 {
     public class DataReader : Disposable, IDataReader
     {
         private readonly IErrorReporter _errorReporter;
 
-        private System.Data.SqlClient.SqlDataReader _reader;
+        private NpgsqlDataReader _reader;
         private bool _hasErrors;
         private Action _errorAction;
         private Action _closeAction;
@@ -18,7 +19,7 @@ namespace Prius.Orm.Commands
             _errorReporter = errorReporter;
         }
 
-        public IDataReader Initialize(System.Data.SqlClient.SqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
+        public IDataReader Initialize(NpgsqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
         {
             _reader = reader;
             DataShapeName = dataShapeName;
@@ -110,15 +111,7 @@ namespace Prius.Orm.Commands
                 type = type.GetGenericArguments()[0];
             }
             if (type.IsEnum) type = typeof(int);
-            try
-            {
-                return Convert.ChangeType(_reader[fieldIndex], type);
-            }
-            catch (Exception ex)
-            {
-                var msg = string.Format("DataReader failed to get field #{0} with type {1} as type {2}", fieldIndex, _reader.GetDataTypeName(fieldIndex), type.Name);
-                throw new Exception(msg, ex);
-            }
+            return Convert.ChangeType(_reader[fieldIndex], type);
         }
 
         public T Get<T>(int fieldIndex, T defaultValue)

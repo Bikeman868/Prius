@@ -2,6 +2,7 @@
 using Npgsql;
 using Prius.Contracts.Interfaces;
 
+
 namespace Prius.Orm.Commands
 {
     public class DataReaderFactory : IDataReaderFactory
@@ -15,17 +16,17 @@ namespace Prius.Orm.Commands
 
         public IDataReader Create(System.Data.SqlClient.SqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
         {
-            return new DataReader(_errorReporter).Initialize(reader, dataShapeName, closeAction, errorAction);
+            return new SqlServer.DataReader(_errorReporter).Initialize(reader, dataShapeName, closeAction, errorAction);
         }
 
-        public IDataReader Create(MySql.Data.MySqlClient.MySqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
+        public IDataReader Create(global::MySql.Data.MySqlClient.MySqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
         {
-            return new MySqlDataReader(_errorReporter).Initialize(reader, dataShapeName, closeAction, errorAction);
+            return new MySql.DataReader(_errorReporter).Initialize(reader, dataShapeName, closeAction, errorAction);
         }
 
         public IDataReader Create(NpgsqlDataReader reader, string dataShapeName, Action closeAction, Action errorAction)
         {
-            return new PostgresDataReader(_errorReporter).Initialize(reader, dataShapeName, closeAction, errorAction);
+            return new PostgreSql.DataReader(_errorReporter).Initialize(reader, dataShapeName, closeAction, errorAction);
         }
 
         public IDataReader Create(Exception exception)

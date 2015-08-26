@@ -1,6 +1,7 @@
 ﻿using System;
 using Prius.Contracts.Interfaces;
 
+
 namespace Prius.Orm.Connections
 {
     public class ConnectionFactory: IConnectionFactory
@@ -21,19 +22,19 @@ namespace Prius.Orm.Connections
 
         public IConnection CreateSqlServer(IRepository repository, ICommand command, string connectionString)
         {
-            return new SqlServerConnection(_errorReporter, _dataEnumeratorFactory, _dataReaderFactory)
+            return new SqlServer.Connection(_errorReporter, _dataEnumeratorFactory, _dataReaderFactory)
                 .Initialize(repository, command, connectionString);
         }
 
         public IConnection CreateMySql(IRepository repository, ICommand command, string connectionString)
         {
-            return new MySqlServerConnection(_errorReporter, _dataEnumeratorFactory, _dataReaderFactory)
+            return new MySql.Connection(_errorReporter, _dataEnumeratorFactory, _dataReaderFactory)
                 .Initialize(repository, command, connectionString);
         }
 
         public IConnection CreatePostgreSql(IRepository repository, ICommand command, string connectionString, string schema)
         {
-            return new PostgreSqlConnection(_errorReporter, _dataEnumeratorFactory, _dataReaderFactory)
+            return new PostgreSql.Connection(_errorReporter, _dataEnumeratorFactory, _dataReaderFactory)
                 .Initialize(repository, command, connectionString, schema);
         }
 

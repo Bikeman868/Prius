@@ -65,13 +65,13 @@
     </Compile>
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\CommandFactory.cs" />
-    <Compile Include="Commands\MySqlDataReader.cs" />
-    <Compile Include="Commands\DataReader.cs" />
+    <Compile Include="MySql\DataReader.cs" />
+    <Compile Include="SqlServer\DataReader.cs" />
     <Compile Include="Commands\DataReaderFactory.cs" />
     <Compile Include="Commands\DummyDataReader.cs" />
     <Compile Include="Commands\Parameter.cs" />
     <Compile Include="Commands\ParameterFactory.cs" />
-    <Compile Include="Commands\PostgresDataReader.cs" />
+    <Compile Include="PostgreSql\DataReader.cs" />
     <Compile Include="Config\FallbackPolicy.cs" />
     <Compile Include="Config\Repository.cs" />
     <Compile Include="Config\DataAccessLayer.cs" />
@@ -82,11 +82,11 @@
     <Compile Include="Connections\ConnectionFactory.cs" />
     <Compile Include="Connections\Context.cs" />
     <Compile Include="Connections\ContextFactory.cs" />
-    <Compile Include="Connections\MySqlConnection.cs" />
-    <Compile Include="Connections\PostgreSqlConnection.cs" />
+    <Compile Include="MySql\Connection.cs" />
+    <Compile Include="PostgreSql\Connection.cs" />
     <Compile Include="Connections\Repository.cs" />
     <Compile Include="Connections\RepositoryFactory.cs" />
-    <Compile Include="Connections\SqlServerConnection.cs" />
+    <Compile Include="SqlServer\Connection.cs" />
     <Compile Include="IocConfiguration.cs" />
     <Compile Include="Data\DataEnumerator.cs" />
     <Compile Include="Data\DataEnumeratorFactory.cs" />
