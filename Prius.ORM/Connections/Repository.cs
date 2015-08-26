@@ -30,7 +30,7 @@ namespace Prius.Orm.Connections
         public IRepository Initialize(string name)
         {
             Name = name;
-            _configChangeNotifier = _configurationStore.Register<DataAccessLayer>("/prius", ConfigurationChanged);
+            _configChangeNotifier = _configurationStore.Register<PriusConfig>("/prius", ConfigurationChanged);
             return this;
         }
 
@@ -42,7 +42,7 @@ namespace Prius.Orm.Connections
             base.Dispose(destructor);
         }
 
-        private void ConfigurationChanged(DataAccessLayer config)
+        private void ConfigurationChanged(PriusConfig config)
         {
             if (config == null || config.Repositories == null)
             {

@@ -23,7 +23,7 @@ namespace Prius.Orm.Connections
             _connectionFactory = connectionFactory;
             _configurationStore = configurationStore;
 
-            _configChangeNotifier = configurationStore.Register<DataAccessLayer>("/prius", ConfigurationChanged);
+            _configChangeNotifier = configurationStore.Register<PriusConfig>("/prius", ConfigurationChanged);
         }
 
         protected override void Dispose(bool destructor)
@@ -34,7 +34,7 @@ namespace Prius.Orm.Connections
             base.Dispose(destructor);
         }
 
-        private void ConfigurationChanged(DataAccessLayer config)
+        private void ConfigurationChanged(PriusConfig config)
         {
             var oldRepositories = _repositories;
 

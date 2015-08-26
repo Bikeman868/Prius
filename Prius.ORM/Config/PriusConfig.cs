@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 
 namespace Prius.Orm.Config
 {
-    public class DataAccessLayer
+    public class PriusConfig
     {
-        public DataAccessLayer()
+        public PriusConfig()
         {
             Databases = new List<Database>();
             FallbackPolicies = new List<FallbackPolicy>();

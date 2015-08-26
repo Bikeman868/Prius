@@ -73,7 +73,7 @@
     <Compile Include="PostgreSql\DataReader.cs" />
     <Compile Include="Config\FallbackPolicy.cs" />
     <Compile Include="Config\Repository.cs" />
-    <Compile Include="Config\DataAccessLayer.cs" />
+    <Compile Include="Config\PriusConfig.cs" />
     <Compile Include="Config\Database.cs" />
     <Compile Include="Config\Cluster.cs" />
     <Compile Include="Config\ServerType.cs" />
