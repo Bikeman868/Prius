@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Prius.Mocks.Helper
 {
-    public class MockedResultSet: IMockedResultSet
+    internal class MockedResultSet : IMockedResultSet
     {
         public IEnumerable<JObject> Data { get; private set; }
         public IEnumerable<JProperty> Schema { get; private set; }

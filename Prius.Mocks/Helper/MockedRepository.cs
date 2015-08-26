@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Prius.Mocks.Helper
 {
-    public class MockedRepository: IMockedRepository
+    public class MockedRepository : IMockedRepository
     {
         private Dictionary<string, IMockedStoredProcedure> _storedProcedures = new Dictionary<string, IMockedStoredProcedure>();
         private IMockedStoredProcedure _notMockedProcedure = new MockedStoredProcedure();

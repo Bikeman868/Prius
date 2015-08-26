@@ -6,7 +6,7 @@ using Prius.Contracts.Interfaces;
 
 namespace Prius.Mocks.Helper
 {
-    public class MockedStoredProcedure: IMockedStoredProcedure
+    public class MockedStoredProcedure : IMockedStoredProcedure
     {
         protected long _rowsAffected;
         protected object _scalar;

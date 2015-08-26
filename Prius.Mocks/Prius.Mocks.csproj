@@ -74,6 +74,7 @@
     <Compile Include="MockContextFactory.cs" />
     <Compile Include="MockDataEnumeratorFactory.cs" />
     <Compile Include="MockDataReaderFactory.cs" />
+    <Compile Include="MockFactory.cs" />
     <Compile Include="MockMapper.cs" />
     <Compile Include="MockRepository.cs" />
     <Compile Include="MockRepositoryFactory.cs" />
