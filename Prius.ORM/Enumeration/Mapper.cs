@@ -165,6 +165,7 @@ namespace Prius.Orm.Enumeration
                     else if (type == typeof(Single)) AddField<Single>(fieldName, property, defaultValue);
                     else if (type == typeof(Double)) AddField<Double>(fieldName, property, defaultValue);
                     else if (type == typeof(DateTime)) AddField<DateTime>(fieldName, property, defaultValue);
+                    else if (type == typeof(TimeSpan)) AddField<TimeSpan>(fieldName, property, defaultValue);
                     else if (type == typeof(Boolean)) AddField<Boolean>(fieldName, property, defaultValue);
                     else if (type == typeof(Decimal)) AddField<Decimal>(fieldName, property, defaultValue);
                     else if (type == typeof(Guid)) AddField<Guid>(fieldName, property, defaultValue);
@@ -175,6 +176,7 @@ namespace Prius.Orm.Enumeration
                     else if (type == typeof(Single?)) AddField<Single?>(fieldName, property, defaultValue);
                     else if (type == typeof(Double?)) AddField<Double?>(fieldName, property, defaultValue);
                     else if (type == typeof(DateTime?)) AddField<DateTime?>(fieldName, property, defaultValue);
+                    else if (type == typeof(TimeSpan?)) AddField<TimeSpan?>(fieldName, property, defaultValue);
                     else if (type == typeof(Boolean?)) AddField<Boolean?>(fieldName, property, defaultValue);
                     else if (type == typeof(Decimal?)) AddField<Decimal?>(fieldName, property, defaultValue);
                     else if (type == typeof(Guid?)) AddField<Guid?>(fieldName, property, defaultValue);
