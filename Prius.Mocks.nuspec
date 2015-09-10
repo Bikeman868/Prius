@@ -2,17 +2,17 @@
 <package >
   <metadata>
     <id>Prius.Mocks</id>
-    <version>1.0.3</version>
-    <title>Reusable mocks for the ORM for people who like stored procedures</title>
+    <version>1.0.5</version>
+    <title>Prius mocks to allow you to mock your database in unit tests</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Reusable mocks that you can use to mock Prius in your unit tests</description>
+    <description>Reusable mocks that you can use to mock your database if you use Prius as your ORM.</description>
     <copyright>Copyright 2015</copyright>
     <releaseNotes>First tested and stable release</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
     <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
-    <tags>ORM database mapping sqlserver mysql postgresql mock moq</tags>
+    <tags>ORM database mapping sqlserver mysql postgresql mock moq prius</tags>
     <dependencies>
       <dependency id="Moq" version="4.2.1507.0118" />
       <dependency id="Moq.Modules" version="1.0.0"  />
