@@ -112,6 +112,37 @@ For ultimate flexibility you can also implement the `IDataContract` interface
         }
     }
 
+## Building Prius into your application
+The recommended method if integration is to use an IoC container - but you do not have to.
+If you are using IoC, then you need to map these Prius interfaces onto classes that are
+provided by Prius. As always with IoC you can also substitute the Prius implementation
+for your own implementation to customize the behaviour.
+
+| Interface                | Class                   |
+| ------------------------ | ----------------------- |
+| `ICommandFactory`        | `CommandFactory`        |
+| `IConnectionFactory`     | `ConnectionFactory`     |
+| `IContextFactory`        | `ContextFactory`        |
+| `IDataEnumeratorFactory` | `DataEnumeratorFactory` |
+| `IDataReaderFactory`     | `DataReaderFactory`     |
+| `IMapper`                | `Mapper`                |
+| `IParameterFactory`      | `ParameterFactory`      |
+| `IRepositoryFactory`     | `RepositoryFactory`     |
+| `IEnumerableDataFactory` | `EnumerableDataFactory` |
+
+In addition you must write classes in your application that implement these interfaces,
+and register them with your IoC container:
+
+| Interface        | Description |
+| ---------------- | ----------- |
+| `IFactory`       | Used to construct instances when you map database results onto classes |
+| `IErrorReporter` | Used to report errors |
+
+It is recommended that you implement `IFactory` usign your IoC container so that you can
+map the results from the database onto objects that have dependencies. If you are mapping
+only data contracts with default public constructors, then you can write a simpler and faster
+versiono of `IFactory` that calls the default public constructor instead.
+
 ## Supported Databases
 In this version, Prius supports Microsoft SQL Server, MySQL and Postgresql. This is an open 
 source project, and adding support for another database only means adding 3 new source files, 
