@@ -141,7 +141,9 @@ and register them with your IoC container:
 It is recommended that you implement `IFactory` usign your IoC container so that you can
 map the results from the database onto objects that have dependencies. If you are mapping
 only data contracts with default public constructors, then you can write a simpler and faster
-versiono of `IFactory` that calls the default public constructor instead.
+version of `IFactory` that calls the default public constructor instead.
+
+> Note that Prius uses Urchin for its configuration, so Urchin must also be registered in your IoC container. See Urchin documentation for how to do this.
 
 ## Supported Databases
 In this version, Prius supports Microsoft SQL Server, MySQL and Postgresql. This is an open 
