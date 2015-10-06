@@ -129,6 +129,7 @@ for your own implementation to customize the behaviour.
 | `IParameterFactory`      | `ParameterFactory`      |
 | `IRepositoryFactory`     | `RepositoryFactory`     |
 | `IEnumerableDataFactory` | `EnumerableDataFactory` |
+| `IAsyncEnumerableFactory` | `AsyncEnumerableFactory` |
 
 In addition you must write classes in your application that implement these interfaces,
 and register them with your IoC container:

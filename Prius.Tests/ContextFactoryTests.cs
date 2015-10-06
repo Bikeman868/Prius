@@ -9,6 +9,7 @@ using Prius.Contracts.Interfaces;
 using Prius.Mocks;
 using Prius.Mocks.Helper;
 using Prius.Orm.Connections;
+using Prius.Orm.Enumeration;
 
 namespace Prius.Tests
 {
@@ -42,6 +43,31 @@ namespace Prius.Tests
             {
                 var asyncResult = _context.BeginExecuteEnumerable(command);
                 using (var dataContracts = _context.EndExecuteEnumerable<TestDataContract>(asyncResult))
+                {
+                    var dataContractList = dataContracts.ToList();
+
+                    Assert.AreEqual(2, dataContractList.Count);
+
+                    Assert.AreEqual(10, dataContractList[0].Id);
+                    Assert.AreEqual("name1", dataContractList[0].Name);
+
+                    Assert.AreEqual(20, dataContractList[1].Id);
+                    Assert.AreEqual("name2", dataContractList[1].Name);
+                }
+            }
+        }
+
+        [Test]
+        public void Should_execute_stored_procedure_asynchronously_and_return_objects()
+        {
+            var command = _commandFactory.CreateStoredProcedure("proc1");
+            var asyncResult = _context.BeginExecuteEnumerable(command);
+
+            IAsyncEnumerableFactory asyncEnumerableFactory = new AsyncEnumerableFactory();
+            using (var asyncEnumerable = asyncEnumerableFactory.Create<TestDataContract>(_context, command, asyncResult))
+            {
+                asyncEnumerable.AsyncWaitHandle.WaitOne();
+                using (var dataContracts = asyncEnumerable.GetResults())
                 {
                     var dataContractList = dataContracts.ToList();
 

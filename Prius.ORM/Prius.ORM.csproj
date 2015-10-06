@@ -65,6 +65,8 @@
     </Compile>
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\CommandFactory.cs" />
+    <Compile Include="Enumeration\AsyncEnumerable.cs" />
+    <Compile Include="Enumeration\AsyncEnumerableFactory.cs" />
     <Compile Include="MySql\DataReader.cs" />
     <Compile Include="SqlServer\DataReader.cs" />
     <Compile Include="Results\DataReaderFactory.cs" />

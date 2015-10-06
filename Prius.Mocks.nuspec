@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius.Mocks</id>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <title>Prius mocks to allow you to mock your database in unit tests</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>

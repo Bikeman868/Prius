@@ -36,6 +36,8 @@
       <Link>Properties\SharedVersion.cs</Link>
     </Compile>
     <Compile Include="Enumerations\CommandType.cs" />
+    <Compile Include="Interfaces\IAsyncEnumerableFactory.cs" />
+    <Compile Include="Interfaces\IAsyncEnumerable.cs" />
     <Compile Include="Interfaces\ICommand.cs" />
     <Compile Include="Interfaces\ICommandFactory.cs" />
     <Compile Include="Interfaces\IConnection.cs" />
