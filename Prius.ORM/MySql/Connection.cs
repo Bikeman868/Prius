@@ -140,6 +140,8 @@ namespace Prius.Orm.MySql
             {
                 if (asyncContext.InitiallyClosed) _connection.Open();
                 var reader = _mySqlCommand.ExecuteReader();
+                if (reader == null)
+                    throw new Exception("MySQL command did not return a reader");
 
                 foreach (var parameter in _command.GetParameters())
                     parameter.StoreOutputValue(parameter);
