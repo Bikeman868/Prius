@@ -173,8 +173,36 @@ This is a sample Urchin configuration for Prius:
     {
         prius:{
             databases:[
-                {name:"db1", type:"SqlServer", connectionString:""},
-                {name:"db2", type:"MySQL", connectionString:""}
+                {
+				    name:"db1", 
+					type:"SqlServer", 
+					connectionString:"",
+					procedures:
+					[
+					    {name:"Sproc1", timeout:3},
+					    {name:"Sproc2", timeout:7}
+					]
+				},
+                {
+				    name:"db2", 
+					type:"MySQL", 
+					connectionString:"",
+					procedures:
+					[
+					    {name:"Sproc1", timeout:6},
+					    {name:"Sproc2", timeout:15}
+					]
+				},
+                {
+				    name:"db3", 
+					type:"MySQL", 
+					connectionString:"",
+					procedures:
+					[
+					    {name:"Sproc1", timeout:6},
+					    {name:"Sproc2", timeout:15}
+					]
+				}
             ],
             fallbackPolicies:[
                 {name:"primary", allowedFailurePercent:20, backOffTime:"00:01:00"},
@@ -185,7 +213,7 @@ This is a sample Urchin configuration for Prius:
                      name:"users",
                      clusters:[
                          {sequence:1, databases:["db1"], fallbackPolicy:"primary"},
-                         {sequence:2, databases:["db2"], fallbackPolicy:"backup"}
+                         {sequence:2, databases:["db2","db3"], fallbackPolicy:"backup"}
                      ]
                 }
             ]
@@ -194,13 +222,15 @@ This is a sample Urchin configuration for Prius:
 
 What this configuration example does is:
 
-1. Defines two database connections, one to SqlServer and one to MySQL. I left the connection strings blank to keep the example simple.
+1. Defines database connections, one to SqlServer database and two MySQL databases. I left the connection strings blank to keep the example simple.
 2. Defines a 'primary' fallback policy that will fall over to the backup server for 1 minute if more than 20% of database requests error or timeout.
 3. Defines a 'backup' fallback policy that will not fail over even when the error rate is 100%.
-4. Defines a 'users' repository that uses Microsoft SQL server, but fails over to MySQL if SQL Server is slow or unavailable.
+4. Defines a 'users' repository that uses Microsoft SQL server initially, but fails over to a pair of MySQL databases if SQL Server is slow or unavailable.
 
 > Note that because the code you write in your application is identical for all databases, it is possible for Prius to fall back from SQL Server to MySQL.
 
 > Note that for this to work, SQL Server and MySQL must contain all the same stored procedures.
 
 > Note that when you call the `Create()` method of `IContextFactory`, it is the name of the repository that you pass. In this example `_contextFactory.Create("users");`
+
+> Note that you can define timeout values for each stored procedure on each server. Any stored procedures that you dont define timeouts for will default to 5 seconds.
