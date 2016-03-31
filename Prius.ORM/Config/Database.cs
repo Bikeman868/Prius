@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System.Collections.Generic;
+using System.Configuration;
 using Newtonsoft.Json;
 
 namespace Prius.Orm.Config
@@ -26,5 +27,8 @@ namespace Prius.Orm.Config
 
         [JsonProperty("enabled")]
         public bool Enabled { get; set; }
+
+        [JsonProperty("procedures")]
+        public List<StoredProcedure> StoredProcedures { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius</id>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <title>Prius ORM for people who like stored procedures</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -12,7 +12,7 @@
     <releaseNotes>Added support for returning async results from data access layer</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
     <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
-    <tags>ORM database mapping sqlserver mysql postgresql procedures</tags>
+    <tags>ORM database mapping sqlserver mysql mariadb postgresql procedures</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="7.0.1" />
       <dependency id="MySql.Data" version="6.9.7" />

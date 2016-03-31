@@ -9,7 +9,7 @@ namespace Prius.Contracts.Interfaces
     {
         CommandType CommandType { get; }
         string CommandText { get; }
-        int TimeoutSeconds { get; set; }
+        int? TimeoutSeconds { get; set; }
 
         IParameter AddParameter(string name);
         IParameter AddParameter(string name, System.Data.SqlDbType dbType, ParameterDirection direction = ParameterDirection.Output);

@@ -16,15 +16,15 @@ namespace Prius.Mocks
             mock.Setup(m =>
                 m.CreateSql(
                     It.IsAny<string>(),
-                    It.IsAny<int>()))
-                .Returns((string sql, int timeoutSeconds) =>
+                    It.IsAny<int?>()))
+                .Returns((string sql, int? timeoutSeconds) =>
                     new Command().Initialize(sql, CommandType.SQL, timeoutSeconds));
 
             mock.Setup(m =>
                 m.CreateStoredProcedure(
                     It.IsAny<string>(),
-                    It.IsAny<int>()))
-                .Returns((string procedureName, int timeoutSeconds) =>
+                    It.IsAny<int?>()))
+                .Returns((string procedureName, int? timeoutSeconds) =>
                     new Command().Initialize(procedureName, CommandType.StoredProcedure, timeoutSeconds));
         }
 
@@ -32,7 +32,7 @@ namespace Prius.Mocks
         {
             private List<IParameter> _parameters = new List<IParameter>();
 
-            public ICommand Initialize(string commandText, CommandType commandType, int timeoutSeconds)
+            public ICommand Initialize(string commandText, CommandType commandType, int? timeoutSeconds)
             {
                 CommandText = commandText;
                 CommandType = commandType;
@@ -45,7 +45,7 @@ namespace Prius.Mocks
 
             public string CommandText { get; private set; }
 
-            public int TimeoutSeconds { get; set; }
+            public int? TimeoutSeconds { get; set; }
 
             public IParameter AddParameter(string name)
             {

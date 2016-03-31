@@ -104,11 +104,17 @@ namespace Prius.Orm.PostgreSql
 
         public override void SetCommand(ICommand command)
         {
-            _command = new NpgsqlCommand(string.Format("{0}.{1}", _schema,command.CommandText), _connection, _transaction)
-                           {
-                               CommandType = (System.Data.CommandType) command.CommandType,
-                               CommandTimeout = command.TimeoutSeconds
-                           };
+            _command = new NpgsqlCommand(
+                string.Format("{0}.{1}", _schema,command.CommandText), 
+                _connection,
+                _transaction)
+                {
+                    CommandType = (System.Data.CommandType) command.CommandType,
+                };
+
+            if (command.TimeoutSeconds.HasValue)
+                _command.CommandTimeout = command.TimeoutSeconds.Value;
+
             foreach (var parameter in command.GetParameters())
             {
                 if (parameter.DbType == System.Data.SqlDbType.Structured)

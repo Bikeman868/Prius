@@ -44,16 +44,21 @@ namespace Prius.Orm.Connections
 
         private void ConfigurationChanged(PriusConfig config)
         {
+            Action nullConfig = () =>
+                {
+                    _groups = new Group[0];
+                };
+
             if (config == null || config.Repositories == null)
             {
-                _groups = new Group[0];
+                nullConfig();
                 return;
             }
 
             var repositoryConfiguration = config.Repositories.FirstOrDefault(r => string.Equals(r.Name, Name, StringComparison.InvariantCultureIgnoreCase));
             if (repositoryConfiguration == null)
             {
-                _groups = new Group[0];
+                nullConfig();
                 return;
             }
 
@@ -84,7 +89,10 @@ namespace Prius.Orm.Connections
                         })
                         .Where(database => database != null && database.Enabled)
                         .OrderBy(database => database.SequenceNumber)
-                        .Select(database => new Server(database.ServerType, database.ConnectionString));
+                        .Select(database => new Server(
+                            database.ServerType, 
+                            database.ConnectionString, 
+                            database.StoredProcedures == null ? null : database.StoredProcedures.ToDictionary(p => p.Name.ToLower(), p => p.TimeoutSeconds)));
 
                     return new Group().Initialize
                         (
@@ -105,6 +113,9 @@ namespace Prius.Orm.Connections
 
             if (server == null)
                 return null;
+
+            if (!command.TimeoutSeconds.HasValue)
+                SetTimeout(command, server);
 
             IConnection result = null;
             switch (server.ServerType)
@@ -160,6 +171,27 @@ namespace Prius.Orm.Connections
                 sb.AppendFormat("Group[{0}]={1}; ", groupIndex, groups[groupIndex].IsOnline() ? "online" : "failed");
             }
             return sb.ToString();
+        }
+
+        private void SetTimeout(ICommand command, Server server)
+        {
+            const int defaultTimeout = 5;
+
+            if (ReferenceEquals(command, null))
+                return;
+
+            if (ReferenceEquals(server, null) || string.IsNullOrEmpty(command.CommandText))
+            {
+                command.TimeoutSeconds = defaultTimeout;
+                return;
+            }
+
+            var key = command.CommandText.ToLower();
+            lock (server.CommandTimeouts)
+            {
+                int timeout;
+                command.TimeoutSeconds = server.CommandTimeouts.TryGetValue(key, out timeout) ? timeout : defaultTimeout;
+            }
         }
 
         private void RecordFailover(Group group)
@@ -327,11 +359,13 @@ namespace Prius.Orm.Connections
             public string HostName { get; private set; }
             public string InstanceName { get; private set; }
             public string SchemaName { get; private set; }
+            public IDictionary<string, int> CommandTimeouts { get; private set; }
 
-            public Server(ServerType serverType, string connectionString)
+            public Server(ServerType serverType, string connectionString, IDictionary<string, int> commandTimeouts)
             {
                 ServerType = serverType;
                 ConnectionString = connectionString;
+                CommandTimeouts = commandTimeouts ?? new Dictionary<string, int>();
 
                 var connectionParameters = connectionString.Split(';')
                     .Select(cs => new { Key = cs.Substring(0, cs.IndexOf('=')), Value = cs.Substring(cs.IndexOf('=') + 1) })

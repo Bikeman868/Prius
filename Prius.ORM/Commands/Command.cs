@@ -17,14 +17,14 @@ namespace Prius.Orm.Commands
 
         public CommandType CommandType { get; private set; }
         public string CommandText { get; private set; }
-        public int TimeoutSeconds { get; set; }
+        public int? TimeoutSeconds { get; set; }
 
         public Command(IParameterFactory parameterFactory)
         {
             _parameterFactory = parameterFactory;
         }
 
-        public ICommand Initialize(CommandType commandType, string commandText, int timeoutSeconds)
+        public ICommand Initialize(CommandType commandType, string commandText, int? timeoutSeconds)
         {
             CommandType = commandType;
             CommandText = commandText;

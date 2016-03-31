@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Configuration;
 using Newtonsoft.Json;
 
 namespace Prius.Orm.Config
 {
-    public class Cluster : ConfigurationElement
+    public class Cluster
     {
         public Cluster()
         {

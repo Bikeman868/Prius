@@ -98,7 +98,9 @@ namespace Prius.Orm.MySql
 
             _mySqlCommand = new MySqlCommand(command.CommandText, _connection, _transaction);
             _mySqlCommand.CommandType = (System.Data.CommandType)command.CommandType;
-            _mySqlCommand.CommandTimeout = command.TimeoutSeconds;
+
+            if (command.TimeoutSeconds.HasValue)
+                _mySqlCommand.CommandTimeout = command.TimeoutSeconds.Value;
 
             foreach (var parameter in command.GetParameters())
             {
@@ -119,7 +121,7 @@ namespace Prius.Orm.MySql
                         parameter.StoreOutputValue = p => p.Value = mySqlParameter.Value;
                         break;
                     case Contracts.Attributes.ParameterDirection.ReturnValue:
-                        throw new NotImplementedException("ORM does not support return values with MySQL");
+                        throw new NotImplementedException("Prius does not support return values with MySQL");
                 }
             }
         }

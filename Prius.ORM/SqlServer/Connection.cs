@@ -99,7 +99,8 @@ namespace Prius.Orm.SqlServer
 
             _sqlCommand = new SqlCommand(command.CommandText, _connection, _transaction);
             _sqlCommand.CommandType = (System.Data.CommandType)command.CommandType;
-            _sqlCommand.CommandTimeout = command.TimeoutSeconds;
+            if (command.TimeoutSeconds.HasValue)
+                _sqlCommand.CommandTimeout = command.TimeoutSeconds.Value;
             foreach (var parameter in command.GetParameters())
             {
                 var sqlParameter = _sqlCommand.Parameters.Add("@" + parameter.Name, parameter.DbType, (int)parameter.Size);
