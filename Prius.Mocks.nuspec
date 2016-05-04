@@ -3,7 +3,7 @@
   <metadata>
     <id>Prius.Mocks</id>
     <version>1.0.7</version>
-    <title>Prius mocks to allow you to mock your database in unit tests</title>
+    <title>Prius.Mocks - mock your database</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
