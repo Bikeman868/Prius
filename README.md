@@ -112,6 +112,54 @@ For ultimate flexibility you can also implement the `IDataContract` interface
         }
     }
 
+## How does Prius stack up
+Prius is all about convenience, programmer productivity and runtime performence. I tried
+to make it as easy as possible to use and very easy to understand without any compromise
+to runtime performance.
+
+In the Visual Studio solution for Prius there are projects that you can run to test the
+runtime performance of Prius on your hardware, and compare Prius to other alternatives.
+The results of running these tests on my hardware are summarized in the following table:
+
+|Test                          |Iterations   |Baseline|Prius   |EF      |ADO.Net |
+|------------------------------|-------------|--------|--------|--------|--------|
+|Do nothing                    |  1          |   84us |        |        |        |
+|Do nothing                    |  1000       |    7ns |        |        |        |
+|One customer                  |  1          |  2.7ms |        |        |        |
+|One customer                  |  100        |  0.9us |        |        |        |
+|One customer with orders      |  1          |    1ms |        |        |        |
+|One customer with orders      |  100        |    2us |        |        |        |
+|Select customers              |  1          |   18ms |        |        |        |
+|Select customers              |  100        |  1.7ms |        |        |        |
+|Select customers with orders  |  1          |  4.6ms |        |        |        |
+|Select customers with orders  |  100        |  3.7ms |        |        |        |
+|All customers                 |  1          |    1ms |        |        |        |
+|All customers                 |  100        |  0.8ms |        |        |        |
+|All customers with orders     |  1          |    3ms |        |        |        |
+|All customers with orders     |  100        |  1.7ms |        |        |        |
+
+###The projects contain
+
+Prius.Performance.Shared contains the actual tests. This makes sure there is a level
+playing field between the technologies being tested. The test defines a customer with
+orders and a data access layer that can retrieve customers and lazily load their orders.
+The data access layer is implemented in each technology and the exact same tests are
+run against each implementation.
+
+Prius.Performance.Dummy contains a data access layer that does no data access. This can
+be used as a baseline for comparing the other technologies.
+
+Prius.Performance.Prius contains a data access layer implementation that uses Prius so
+that we can measure how fast Prius is.
+
+Prius.Performance.EntityFramework contains a data access layer implementation that uses 
+the Microsofts Entity Framework so that we can measure how fast it is for the same set of 
+tests.
+
+Prius.Performance.Ado contains a data access layer implementation that uses 
+the Microsofts ADO.Net Framework that we can measure how fast it is for the same set of 
+tests.
+
 ## Building Prius into your application
 The recommended method if integration is to use an IoC container - but you do not have to.
 If you are using IoC, then you need to map these Prius interfaces onto classes that are
