@@ -1,7 +1,7 @@
 ﻿using Microsoft.Practices.Unity;
 using Prius.Contracts.Interfaces;
 
-namespace Prius.Performance.Prius
+namespace Prius.Performance.Prius.Integration
 {
     public class Factory: IFactory
     {

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using Prius.Contracts.Interfaces;
 using Prius.Orm.Commands;
 using Prius.Orm.Connections;
 using Prius.Orm.Enumeration;
 using Prius.Orm.Results;
+using Prius.Performance.Prius.Integration;
 using Prius.Performance.Prius.Model;
 using Prius.Performance.Shared;
 using Urchin.Client.Data;

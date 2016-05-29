@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using Prius.Contracts.Interfaces;
 
-namespace Prius.Performance.Prius
+namespace Prius.Performance.Prius.Integration
 {
     public class ErrorReporter : IErrorReporter
     {
