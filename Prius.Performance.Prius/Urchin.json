@@ -6,7 +6,7 @@
             {
                 "name": "localSqlExpress",
                 "type": "SqlServer",
-                "connectionString": "Data Source=localhost\\SQLEXPRESS;Initial Catalog=PriusPerformanceTests;Integrated Security=SSPI;"
+                "connectionString": "Data Source=.\\SQLEXPRESS;Initial Catalog=PriusPerformanceTests;Integrated Security=SSPI;"
             }
         ],
         "fallbackPolicies": 
@@ -17,9 +17,7 @@
         [
             {
                 "name": "performanceTest",
-                "clusters": [
-                    { "sequence": 1, "databases": [ "localSqlExpress" ], "fallbackPolicy": "noFallback" }
-                ]
+                "clusters": [{ "sequence": 1, "databases": [ "localSqlExpress" ], "fallbackPolicy": "noFallback" }]
             }
         ]
     }

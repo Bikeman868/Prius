@@ -34,10 +34,24 @@ namespace Prius.Performance.Shared
             {
                 var customerList = _dataAccessLayer.GetCustomers(
                     customers => customers
-                        .Where(c => c.FamilyName.StartsWith("A"))
+                        .Where(c => c.FamilyName.StartsWith("J"))
                         .OrderByDescending(c => c.DateOfBirth)
                         .Take(10), 
                     false);
+            });
+
+            RunTest("get select customers then lazy load orders", resultWriter, new[] { 1, 100 }, () =>
+            {
+                var customerList = _dataAccessLayer.GetCustomers(
+                    customers => customers
+                        .Where(c => c.FamilyName.StartsWith("J"))
+                        .OrderByDescending(c => c.DateOfBirth)
+                        .Take(10),
+                    false);
+
+                IList<IOrder> orders;
+                foreach (var customer in customerList)
+                    orders = customer.Orders;
             });
 
             RunTest("get select customers with orders", resultWriter, new[] { 1, 100 }, () =>
@@ -49,7 +63,7 @@ namespace Prius.Performance.Shared
                             var age = c.CalculateAge();
                             return age >= 18 && age <= 65;
                         })
-                        .OrderBy(c => c.FamilyName),
+                        .OrderBy(c => c.Orders.Count),
                     true);
             });
 

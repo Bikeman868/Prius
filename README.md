@@ -112,31 +112,35 @@ For ultimate flexibility you can also implement the `IDataContract` interface
         }
     }
 
-## How does Prius stack up
+## How does Prius compare with the alternatives
 Prius is all about convenience, programmer productivity and runtime performence. I tried
 to make it as easy as possible to use and very easy to understand without any compromise
-to runtime performance.
+to runtime performance. Under the hood Prius uses ADO.Net to connect to the database and
+adds a object mapping layer on top, so it is hard for ot to me faster than ADO.Net, but
+you ccan see from the table below that the difference is vey small most of the time.
 
 In the Visual Studio solution for Prius there are projects that you can run to test the
 runtime performance of Prius on your hardware, and compare Prius to other alternatives.
 The results of running these tests on my hardware are summarized in the following table:
 
-|Test                          |Iterations |Baseline|Prius   |EF      |ADO.Net |
-|------------------------------|-----------|--------|--------|--------|--------|
-|Do nothing                    |  1        |   84us |   45us |        |        |
-|Do nothing                    |  1000     |    7ns |    5ns |        |        |
-|Retrieve one customer         |  1        |  2.7ms |  102ms |        |        |
-|Retrieve one customer         |  100      |  0.9us | 0.27ms |        |        |
-|One customer with orders      |  1        |    1ms |   13ms |        |        |
-|One customer with orders      |  100      |    2us | 0.67ms |        |        |
-|Selected customers            |  1        |   18ms |   13ms |        |        |
-|Selected customers            |  100      |  1.7ms |   10ms |        |        |
-|Selected customers with orders|  1        |  4.6ms |  303ms |        |        |
-|Selected customers with orders|  100      |  3.7ms |  284ms |        |        |
-|All customers                 |  1        |    1ms |   11ms |        |        |
-|All customers                 |  100      |  0.8ms |   10ms |        |        |
-|All customers with orders     |  1        |    3ms |  281ms |        |        |
-|All customers with orders     |  100      |  1.7ms |  287ms |        |        |
+|Test                                |Iterations |Baseline|Prius   |EF      |ADO.Net |
+|------------------------------------|-----------|--------|--------|--------|--------|
+|Do nothing                          |  1        |   59us |   45us |        |   95us |
+|Do nothing                          |  1000     |    7ns |    6ns |        |   10ns |
+|Retrieve one customer               |  1        |  2.7ms |   88ms |        |   94ms |
+|Retrieve one customer               |  100      |  0.9us | 0.26ms |        | 0.25ms |
+|One customer with orders            |  1        |    1ms |   11ms |        |  7.5ms |
+|One customer with orders            |  100      |    2us | 0.61ms |        | 0.77ms |
+|Selected customers                  |  1        |   18ms |   14ms |        |    9ms |
+|Selected customers                  |  100      |  1.7ms |   12ms |        |  5.2ms |
+|Selected customers lazy load orders |  1        |  2.6ms |   17ms |        |   11ms |
+|Selected customers lazy load orders |  100      |  1.3ms |   17ms |        |  7.8ms |
+|Selected customers with orders      |  1        |  4.6ms |  297ms |        |  572ms |
+|Selected customers with orders      |  100      |  3.7ms |  283ms |        |  591ms |
+|All customers                       |  1        |    1ms |   11ms |        |  3.8ms |
+|All customers                       |  100      |  0.8ms |   10ms |        |  2.4ms |
+|All customers with orders           |  1        |    3ms |  275ms |        |  480ms |
+|All customers with orders           |  100      |  1.7ms |  281ms |        |  518ms |
 
 ###Notes
 Each test was run once and the time taken recorded in this table, then the test was 
@@ -155,7 +159,7 @@ from the DB and constructing/filling the objects.
 I ran these tests on a 4GB Microsoft Surface Pro 3 with i5 processor. 
 The software was Microsoft Visual Studio 2013 and SQL Server 2014 Express.
 
-###The performance testing projects contain
+###The performance testing projects
 
 Prius.Performance.Shared contains the actual tests. This makes sure there is a level
 playing field between the technologies being tested. The test defines a customer with
