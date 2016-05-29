@@ -14,7 +14,7 @@ namespace Prius.Performance.Shared
         DateTime? ShippedDate { get; set; }
         Decimal OrderTotal { get; set; }
         Decimal TaxAmount { get; set; }
-        Decimal ShippingAmmount { get; set; }
+        Decimal ShippingAmount { get; set; }
         Decimal InvoiceTotal { get; set; }
     }
 }

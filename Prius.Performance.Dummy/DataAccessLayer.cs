@@ -17,7 +17,8 @@ namespace Prius.Performance.Dummy
                 CustomerId = customerId,
                 DateOfBirth = DateTime.UtcNow.AddDays(_random.NextDouble() * -30000 - 5000),
                 GivenNames = RandomGivenNames(),
-                FamilyName = RandomFamilyName()
+                FamilyName = RandomFamilyName(),
+                Email = "customer" + customerId + "@mailinator.com"
             };
 
             if (preloadOrders)

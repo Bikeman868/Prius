@@ -368,6 +368,7 @@ namespace Prius.Orm.Connections
                 CommandTimeouts = commandTimeouts ?? new Dictionary<string, int>();
 
                 var connectionParameters = connectionString.Split(';')
+                    .Where(cs => !string.IsNullOrEmpty(cs) && cs.Contains('='))
                     .Select(cs => new { Key = cs.Substring(0, cs.IndexOf('=')), Value = cs.Substring(cs.IndexOf('=') + 1) })
                     .ToDictionary(t => t.Key);
 

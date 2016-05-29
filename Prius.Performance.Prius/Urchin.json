@@ -1,0 +1,26 @@
+{
+    "prius": 
+    {
+        "databases": 
+        [
+            {
+                "name": "localSqlExpress",
+                "type": "SqlServer",
+                "connectionString": "Data Source=localhost\\SQLEXPRESS;Initial Catalog=PriusPerformanceTests;Integrated Security=SSPI;"
+            }
+        ],
+        "fallbackPolicies": 
+        [
+            { "name": "noFallback", "allowedFailurePercent": 100 }
+        ],
+        "repositories": 
+        [
+            {
+                "name": "performanceTest",
+                "clusters": [
+                    { "sequence": 1, "databases": [ "localSqlExpress" ], "fallbackPolicy": "noFallback" }
+                ]
+            }
+        ]
+    }
+}

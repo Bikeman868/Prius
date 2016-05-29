@@ -30,7 +30,7 @@ namespace Prius.Performance.Shared
                 var orderCount = customer.Orders.Count;
             });
 
-            RunTest("get select customers", resultWriter, new[] { 1, 100, 1000 }, () => 
+            RunTest("get select customers", resultWriter, new[] { 1, 100 }, () => 
             {
                 var customerList = _dataAccessLayer.GetCustomers(
                     customers => customers
@@ -40,7 +40,7 @@ namespace Prius.Performance.Shared
                     false);
             });
 
-            RunTest("get select customers with orders", resultWriter, new[] { 1, 100, 1000 }, () =>
+            RunTest("get select customers with orders", resultWriter, new[] { 1, 100 }, () =>
             {
                 var customerList = _dataAccessLayer.GetCustomers(
                     customers => customers

@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Performance.Shared", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Performance.Dummy", "Prius.Performance.Dummy\Prius.Performance.Dummy.csproj", "{235FD817-4455-4A06-84F2-B2E4F97305E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Performance.Prius", "Prius.Performance.Prius\Prius.Performance.Prius.csproj", "{69413137-79AB-4E45-B3A2-F1FB58B2CDA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{235FD817-4455-4A06-84F2-B2E4F97305E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{235FD817-4455-4A06-84F2-B2E4F97305E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{235FD817-4455-4A06-84F2-B2E4F97305E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69413137-79AB-4E45-B3A2-F1FB58B2CDA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69413137-79AB-4E45-B3A2-F1FB58B2CDA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69413137-79AB-4E45-B3A2-F1FB58B2CDA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69413137-79AB-4E45-B3A2-F1FB58B2CDA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

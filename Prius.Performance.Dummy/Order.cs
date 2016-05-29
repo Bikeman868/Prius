@@ -11,7 +11,7 @@ namespace Prius.Performance.Dummy
         public DateTime? ShippedDate { get; set; }
         public decimal OrderTotal { get; set; }
         public decimal TaxAmount { get; set; }
-        public decimal ShippingAmmount { get; set; }
+        public decimal ShippingAmount { get; set; }
         public decimal InvoiceTotal { get; set; }
     }
 }

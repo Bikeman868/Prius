@@ -121,24 +121,41 @@ In the Visual Studio solution for Prius there are projects that you can run to t
 runtime performance of Prius on your hardware, and compare Prius to other alternatives.
 The results of running these tests on my hardware are summarized in the following table:
 
-|Test                          |Iterations   |Baseline|Prius   |EF      |ADO.Net |
-|------------------------------|-------------|--------|--------|--------|--------|
-|Do nothing                    |  1          |   84us |        |        |        |
-|Do nothing                    |  1000       |    7ns |        |        |        |
-|One customer                  |  1          |  2.7ms |        |        |        |
-|One customer                  |  100        |  0.9us |        |        |        |
-|One customer with orders      |  1          |    1ms |        |        |        |
-|One customer with orders      |  100        |    2us |        |        |        |
-|Select customers              |  1          |   18ms |        |        |        |
-|Select customers              |  100        |  1.7ms |        |        |        |
-|Select customers with orders  |  1          |  4.6ms |        |        |        |
-|Select customers with orders  |  100        |  3.7ms |        |        |        |
-|All customers                 |  1          |    1ms |        |        |        |
-|All customers                 |  100        |  0.8ms |        |        |        |
-|All customers with orders     |  1          |    3ms |        |        |        |
-|All customers with orders     |  100        |  1.7ms |        |        |        |
+|Test                          |Iterations |Baseline|Prius   |EF      |ADO.Net |
+|------------------------------|-----------|--------|--------|--------|--------|
+|Do nothing                    |  1        |   84us |   45us |        |        |
+|Do nothing                    |  1000     |    7ns |    5ns |        |        |
+|Retrieve one customer         |  1        |  2.7ms |  102ms |        |        |
+|Retrieve one customer         |  100      |  0.9us | 0.27ms |        |        |
+|One customer with orders      |  1        |    1ms |   13ms |        |        |
+|One customer with orders      |  100      |    2us | 0.67ms |        |        |
+|Selected customers            |  1        |   18ms |   13ms |        |        |
+|Selected customers            |  100      |  1.7ms |   10ms |        |        |
+|Selected customers with orders|  1        |  4.6ms |  303ms |        |        |
+|Selected customers with orders|  100      |  3.7ms |  284ms |        |        |
+|All customers                 |  1        |    1ms |   11ms |        |        |
+|All customers                 |  100      |  0.8ms |   10ms |        |        |
+|All customers with orders     |  1        |    3ms |  281ms |        |        |
+|All customers with orders     |  100      |  1.7ms |  287ms |        |        |
 
-###The projects contain
+###Notes
+Each test was run once and the time taken recorded in this table, then the test was 
+run again multiple times and the average time recorded in this table. The tests were
+done like that because there is often a startup cost (for example Prius uses reflection
+to build a map one time only, so the very first usage takes longer). Most real-world
+applications will call the database many times for the same type of data, so the values
+in this table for multiple iterations are the most useful ones.
+
+The 'Do nothing' test just tests an empty statement and is included so you can see the
+overhead of the testing framework itself. The 'Baseline' project implements the data
+access layer by constructing objects and filling them with random data. This enables
+you to get an idea of how long that part of the operation takes compared to retrieving 
+from the DB and constructing/filling the objects.
+
+I ran these tests on a 4GB Microsoft Surface Pro 3 with i5 processor. 
+The software was Microsoft Visual Studio 2013 and SQL Server 2014 Express.
+
+###The performance testing projects contain
 
 Prius.Performance.Shared contains the actual tests. This makes sure there is a level
 playing field between the technologies being tested. The test defines a customer with
@@ -150,7 +167,10 @@ Prius.Performance.Dummy contains a data access layer that does no data access. T
 be used as a baseline for comparing the other technologies.
 
 Prius.Performance.Prius contains a data access layer implementation that uses Prius so
-that we can measure how fast Prius is.
+that we can measure how fast Prius is. This project is also a good example of a fairly
+minimal application that has Prius integrated into it. It also demonstrates a number
+of ways to work with Prius, for example stored procedures that return multiple result
+sets, executing multiple queries in parallel, data contracts with injected dependencies etc.
 
 Prius.Performance.EntityFramework contains a data access layer implementation that uses 
 the Microsofts Entity Framework so that we can measure how fast it is for the same set of 
