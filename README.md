@@ -123,22 +123,22 @@ The results of running these tests on my hardware are summarized in the followin
 
 |Test                                |Iterations |Baseline|Prius   |EF      |ADO.Net |
 |------------------------------------|-----------|--------|--------|--------|--------|
-|Do nothing                          |  1        |   59us |   45us |        |   95us |
-|Do nothing                          |  1000     |    7ns |    6ns |        |   10ns |
-|Retrieve one customer               |  1        |  2.7ms |   88ms |        |   94ms |
-|Retrieve one customer               |  100      |  0.9us | 0.26ms |        | 0.25ms |
-|One customer with orders            |  1        |    1ms |   11ms |        |  7.5ms |
-|One customer with orders            |  100      |    2us | 0.61ms |        | 0.77ms |
-|Selected customers                  |  1        |   18ms |   14ms |        |    9ms |
-|Selected customers                  |  100      |  1.7ms |   12ms |        |  5.2ms |
-|Selected customers lazy load orders |  1        |  2.6ms |   17ms |        |   11ms |
-|Selected customers lazy load orders |  100      |  1.3ms |   17ms |        |  7.8ms |
-|Selected customers with orders      |  1        |  4.6ms |  297ms |        |  572ms |
-|Selected customers with orders      |  100      |  3.7ms |  283ms |        |  591ms |
-|All customers                       |  1        |    1ms |   11ms |        |  3.8ms |
-|All customers                       |  100      |  0.8ms |   10ms |        |  2.4ms |
-|All customers with orders           |  1        |    3ms |  275ms |        |  480ms |
-|All customers with orders           |  100      |  1.7ms |  281ms |        |  518ms |
+|Do nothing                          |  1        |   51us |   32us |        |   39us |
+|Do nothing                          |  1000     |    6ns |    5ns |        |    6ns |
+|Retrieve one customer               |  1        |  1.8ms |   93ms |        |   78ms |
+|Retrieve one customer               |  100      |  0.9us | 0.28ms |        | 0.25ms |
+|One customer with orders            |  1        |  2.2ms |   14ms |        |  7.2ms |
+|One customer with orders            |  100      |  4.8us | 1.68ms |        | 0.22ms |
+|Selected customers                  |  1        |   12ms |   19ms |        | 11.5ms |
+|Selected customers                  |  100      |  1.7ms |   15ms |        |  3.3ms |
+|Selected customers lazy load orders |  1        |  2.9ms |   22ms |        |  8.6ms |
+|Selected customers lazy load orders |  100      |  1.7ms |   22ms |        | 10.4ms |
+|Selected customers with orders      |  1        |  3.4ms |  208ms |        |  794ms |
+|Selected customers with orders      |  100      |  2.5ms |  127ms |        |  589ms |
+|All customers                       |  1        |  1.1ms |  9.6ms |        |  3.2ms |
+|All customers                       |  100      |  1.2ms |  9.6ms |        |  2.5ms |
+|All customers with orders           |  1        |    3ms |  125ms |        |  501ms |
+|All customers with orders           |  100      |  1.2ms |  121ms |        |  513ms |
 
 ###Notes
 Each test was run once and the time taken recorded in this table, then the test was 
@@ -244,40 +244,40 @@ will allow you for example to fail all applications over to a backup database se
 changing a rule on the Urchin configuration service.
 
 This is a sample Urchin configuration for Prius:
-
+```
     {
         prius:{
             databases:[
                 {
-				    name:"db1", 
-					type:"SqlServer", 
-					connectionString:"",
-					procedures:
-					[
-					    {name:"Sproc1", timeout:3},
-					    {name:"Sproc2", timeout:7}
-					]
-				},
+    			    name:"db1", 
+    				type:"SqlServer", 
+    				connectionString:"",
+    				procedures:
+    				[
+    				    {name:"Sproc1", timeout:3},
+    				    {name:"Sproc2", timeout:7}
+    				]
+    			},
                 {
-				    name:"db2", 
-					type:"MySQL", 
-					connectionString:"",
-					procedures:
-					[
-					    {name:"Sproc1", timeout:6},
-					    {name:"Sproc2", timeout:15}
-					]
-				},
+    			    name:"db2", 
+    				type:"MySQL", 
+    				connectionString:"",
+    				procedures:
+    				[
+    				    {name:"Sproc1", timeout:6},
+    				    {name:"Sproc2", timeout:15}
+    				]
+    			},
                 {
-				    name:"db3", 
-					type:"MySQL", 
-					connectionString:"",
-					procedures:
-					[
-					    {name:"Sproc1", timeout:6},
-					    {name:"Sproc2", timeout:15}
-					]
-				}
+    			    name:"db3", 
+    				type:"MySQL", 
+    				connectionString:"",
+    				procedures:
+    				[
+    				    {name:"Sproc1", timeout:6},
+    				    {name:"Sproc2", timeout:15}
+    				]
+    			}
             ],
             fallbackPolicies:[
                 {name:"primary", allowedFailurePercent:20, backOffTime:"00:01:00"},
@@ -294,7 +294,7 @@ This is a sample Urchin configuration for Prius:
             ]
         }
     }
-
+```
 What this configuration example does is:
 
 1. Defines database connections, one to SqlServer database and two MySQL databases. I left the connection strings blank to keep the example simple.
@@ -312,4 +312,222 @@ What this configuration example does is:
 
 ##Prius recipies
 
-###How can
+###Inject Prius interfaces into my data access class
+```
+    using Prius.Contracts.Interfaces;
+
+    public class DataAccessLayer : IDataAccessLayer
+    {
+        private readonly IContextFactory _contextFactory;
+        private readonly ICommandFactory _commandFactory;
+        private readonly IMapper _mapper;
+        private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
+    
+        public DataAccessLayer(
+            IContextFactory contextFactory,
+            ICommandFactory commandFactory,
+            IMapper mapper,
+            IDataEnumeratorFactory dataEnumeratorFactory)
+        {
+            _contextFactory = contextFactory;
+            _commandFactory = commandFactory;
+            _mapper = mapper;
+            _dataEnumeratorFactory = dataEnumeratorFactory;
+        }
+	}
+```
+> Note that you always need IContextFactory and ICommandFactory. The other interfaces are only needed for some more advanced techniques.
+
+###Execute a stored procedure and return a list of objects
+```
+    public IList<ICustomer> GetCustomers()
+    {
+        using (var context = _contextFactory.Create("MyData"))
+        {
+            using (var command = _commandFactory.CreateStoredProcedure("sp_GetAllCustomers"))
+            {
+                using (var data = context.ExecuteEnumerable<Customer>(command))
+                    return data.ToList();
+            }
+        }
+    }
+```
+
+###Execute a stored procedure and return a single objects
+```
+    public ICustomer GetCustomer(int customerId)
+    {
+        using (var context = _contextFactory.Create("MyData"))
+        {
+            using (var command = _commandFactory.CreateStoredProcedure("sp_GetCustomer"))
+            {
+    			command.AddParameter("CustomerID", customerId);
+                using (var data = context.ExecuteEnumerable<Customer>(command))
+                    return data.FirstOrDefault();
+            }
+        }
+    }
+```
+
+##Execute a stored procedure that returns no data
+```
+    public ICustomer DeleteCustomer(int customerId)
+    {
+        using (var context = _contextFactory.Create("MyData"))
+        {
+            using (var command = _commandFactory.CreateStoredProcedure("sp_DeleteCustomer"))
+            {
+    			command.AddParameter("CustomerID", customerId);
+                context.ExecuteNonQuery(command));
+            }
+        }
+    }
+```
+
+###Execute a stored procedure with output parameters
+```
+    public bool InsertCustomer(ICustomer customer)
+    {
+        using (var context = _contextFactory.Create("MyData"))
+        {
+            using (var command = _commandFactory.CreateStoredProcedure("sp_InsertCustomer"))
+            {
+    			var idParam = command.AddParameter("CustomerID", SqlDbType.Int);
+                var rowsAffected = context.ExecuteNonQuery(command));
+    
+    			if (rowsAffected != 1)
+    			    return false;
+    
+    			customer.CustomerId = (int)idParam.Value;
+    			return true;
+            }
+        }
+    }
+```
+
+###Execute a stored procedure that returns multiple sets of data
+Note that the context.ExecuteEnumerable method is a shorthand syntax that works for the most common use case of a 
+single data set. To work with multiple sets of data you have to use a slightly more verbose syntax, but this results
+in the same internal operation.
+
+In this example the stored procedure returns a single customer record in the first data set and a list of the 
+customer's orders in the second data set. This example therefore demonstrates two different techniques
+```
+    public ICustomer GetCustomerAndOrders(int customerId)
+	{
+       using (var command = _commandFactory.CreateStoredProcedure("dbo.sp_GetCustomerAndOrders"))
+       {
+           command.AddParameter("CustomerID", customerId);
+           using (var context = _contextFactory.Create("MyData"))
+           {
+               using (var reader = context.ExecuteReader(command))
+               {
+                   if (reader.Read())
+                   {
+                       var customer = _mapper.Map<Customer>(reader);
+                       if (reader.NextResult())
+                       {
+                           using (var orderEnumerator = _dataEnumeratorFactory.Create<Order>(reader))
+                               customer.Orders = orderEnumerator.Cast<IOrder>().ToList();
+                       }
+                       return customer;
+                   }
+               }
+           }
+       }
+    }
+
+```
+
+###Execute two stored procedures at the same time
+Note that the database context can only have one open data reader at a time, so you will need multiple context objects.
+You could next using statements, but this can get very deep if you have many concurrent requests. In this example
+I used a try...finally instead.
+
+Note that if you are using .Net 4.5 or higher then you can use the async...await mechanism for this instead.
+
+```
+    public ICustomer GetCustomersAndOrders(int customerId)
+    {
+        var customerContext = _contextFactory.Create("MyData");
+        var customerCommand = _commandFactory.CreateStoredProcedure("dbo.sp_GetCustomer");
+		customersCommand.AddParameter("CustomerID", customerId);
+
+        var ordersContext = _contextFactory.Create("MyData");
+        var ordersCommand = _commandFactory.CreateStoredProcedure("dbo.sp_GetCustomerOrders");
+		ordersCommand.AddParameter("CustomerID", customerId);
+    
+        try
+        {
+            var customerResult = customerContext.BeginExecuteEnumerable(customerCommand);
+            var ordersResult = ordersContext.BeginExecuteEnumerable(ordersCommand);
+            WaitHandle.WaitAll(new[] { customerResult.AsyncWaitHandle, ordersResult.AsyncWaitHandle });
+    
+			Customer customer;
+            using (var customerRecords = customerContext.EndExecuteEnumerable<Customer>(customerResult))
+                customer = customerRecords.FirstOrDefault();
+
+			if (customer == null)
+				return null;
+
+            using (var orderRecords = ordersContext.EndExecuteEnumerable<Order>(ordersResult))
+                customer.Orders = orderRecords.ToList();
+        }
+        finally
+        {
+            customerContext.Dispose();
+            customerCommand.Dispose();
+            ordersContext.Dispose();
+            ordersCommand.Dispose();
+        }
+    }
+```
+
+###Combine the results of two or more stored procedures into one object
+This example assumes that news articles have a very large 'content' column that isn't required most of the time,
+so the `sp_GetNewsArticle` stored procedure does not return the 'content' column. There is a separate stored 
+procedure that only returns the 'content' column.
+
+Note that in this example both stored procedures are in the same database, but you
+could have the second stored procedure in a different database, and this database could even use a different
+database technology.
+
+```
+    public class NewsArticle
+    {
+        public long NewsArticleId { get; set; }
+        public DateTime PublishedDate { get; set; }
+        public string Source { get; set; }
+        public string Headline { get; set; }
+        public string Content { get; set; }
+    }
+    
+    public NewsArticle GetNewsArticle(long newsArticleId, bool includeContent = false)
+    {
+        using (var context = _contextFactory.Create("MyData"))
+        {
+            NewsArticle newsArticle;
+            using (var command = _commandFactory.CreateStoredProcedure("sp_GetNewsArticle"))
+            {
+                command.AddParameter("NewsArticleID", newsArticleId);
+                using (var data = context.ExecuteEnumerable<NewsArticle>(command))
+                    newsArticle = data.FirstOrDefault();
+            }
+    
+            if (includeContent && newsArticle != null)
+            {
+                using (var command = _commandFactory.CreateStoredProcedure("sp_GetNewsArticleContent"))
+                {
+                    command.AddParameter("NewsArticleID", newsArticleId);
+                    using (var reader = context.ExecuteReader(command))
+                    {
+                        if (reader.Read())
+                            _mapper.Fill(newsArticle, reader);
+                    }
+                }
+            }
+    
+            return newsArticle;
+        }
+    }
+```
