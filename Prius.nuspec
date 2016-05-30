@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>Prius</id>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
     <title>Prius ORM for people who like stored procedures</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Fast and robust layer for accessing databases. SQL Server, MySQL and PostgrSQL. For people that mostly use stored procedures.</description>
-    <copyright>Copyright 2015</copyright>
+    <copyright>Copyright 2016</copyright>
     <releaseNotes>Added support for returning async results from data access layer</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
     <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
