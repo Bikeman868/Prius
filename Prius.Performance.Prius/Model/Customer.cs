@@ -22,19 +22,10 @@ namespace Prius.Performance.Prius.Model
             _contextFactory = contextFactory;
         }
 
-        [Mapping("CustomerID")]
         public long CustomerId { get; set; }
-
-        [Mapping("GivenNames")]
         public string GivenNames { get; set; }
-
-        [Mapping("FamilyName")]
         public string FamilyName { get; set; }
-
-        [Mapping("DateOfBirth")]
         public DateTime DateOfBirth { get; set; }
-
-        [Mapping("Email")]
         public string Email { get; set; }
 
         public IList<IOrder> Orders 

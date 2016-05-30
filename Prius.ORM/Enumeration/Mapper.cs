@@ -57,6 +57,7 @@ namespace Prius.Orm.Enumeration
         private TypeDefinition<T> CreateTypeDefinition<T>(string dataSetName, IFactory<T> dataContractFactory) where T : class
         {
             var typedTypeDefinition = new TypeDefinition<T>(_defaultFactory, _errorReporter).Initialize(dataSetName, dataContractFactory);
+            var hasMappings = false;
 
             // Add mappings for fields that have [Mapping] attributes attached
             foreach (var property in typeof(T).GetProperties())
@@ -66,10 +67,11 @@ namespace Prius.Orm.Enumeration
                     .Select(a => a as MappingAttribute)
                     .Where(a => a != null))
                 {
-                    if (mappingAttribute.DefaultValue != null && !property.PropertyType.IsAssignableFrom(mappingAttribute.DefaultValue.GetType()))
+                    if (mappingAttribute.DefaultValue != null && !property.PropertyType.IsInstanceOfType(mappingAttribute.DefaultValue))
                         throw new Exception("The default value in the mapping attribute must match the type of property the mapping references. Field: " + mappingAttribute.FieldName + ", Type: " + typeof(T).FullName);
 
                     typedTypeDefinition.AddField(mappingAttribute.FieldName, property, mappingAttribute.DefaultValue);
+                    hasMappings = true;
                 }
             }
 
@@ -80,12 +82,26 @@ namespace Prius.Orm.Enumeration
                 try
                 {
                     dataContract.AddMappings(typedTypeDefinition, dataSetName);
+                    hasMappings = true;
                 }
                 finally
                 {
                     var disposable = dataContract as IDisposable;
                     if (disposable != null)
                         disposable.Dispose();
+                }
+            }
+
+            if (!hasMappings)
+            {
+                foreach (var property in typeof(T).GetProperties())
+                {
+                    var type = property.PropertyType;
+                    if (type.IsAbstract || type.IsArray || type.IsGenericType || type.IsNotPublic)
+                        continue;
+
+                    var defaultValue = type.IsValueType ? Activator.CreateInstance(type) : null;
+                    typedTypeDefinition.AddField(property.Name, property, defaultValue);
                 }
             }
 

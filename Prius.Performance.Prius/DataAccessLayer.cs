@@ -128,7 +128,8 @@ namespace Prius.Performance.Prius
                             return c;
                         });
 
-                    return selector(customerList).ToList();
+                    var result = selector(customerList).ToList();
+                    return result;
                 }
             }
             finally

@@ -115,9 +115,7 @@ For ultimate flexibility you can also implement the `IDataContract` interface
 ## How does Prius compare with the alternatives
 Prius is all about convenience, programmer productivity and runtime performence. I tried
 to make it as easy as possible to use and very easy to understand without any compromise
-to runtime performance. Under the hood Prius uses ADO.Net to connect to the database and
-adds a object mapping layer on top, so it is hard for ot to me faster than ADO.Net, but
-you ccan see from the table below that the difference is vey small most of the time.
+to runtime performance.
 
 In the Visual Studio solution for Prius there are projects that you can run to test the
 runtime performance of Prius on your hardware, and compare Prius to other alternatives.
@@ -156,8 +154,13 @@ access layer by constructing objects and filling them with random data. This ena
 you to get an idea of how long that part of the operation takes compared to retrieving 
 from the DB and constructing/filling the objects.
 
-I ran these tests on a 4GB Microsoft Surface Pro 3 with i5 processor. 
-The software was Microsoft Visual Studio 2013 and SQL Server 2014 Express.
+Prius uses ADO.Net to connect to the database, and adds an object mapping layer on top.
+You can see the cost of the ORM and other Prius features (such as load balancing
+and failover) by comparing Prius with ADO.Net.
+
+I ran these tests on a 4GB Microsoft Surface Pro 3 with i5 processor and an external
+240GB SSD connected via USB 3.0. The software was Windows 10, Visual Studio 2013 and 
+SQL Server 2014 Express.
 
 ###The performance testing projects
 
@@ -306,3 +309,7 @@ What this configuration example does is:
 > Note that when you call the `Create()` method of `IContextFactory`, it is the name of the repository that you pass. In this example `_contextFactory.Create("users");`
 
 > Note that you can define timeout values for each stored procedure on each server. Any stored procedures that you dont define timeouts for will default to 5 seconds.
+
+##Prius recipies
+
+###How can
