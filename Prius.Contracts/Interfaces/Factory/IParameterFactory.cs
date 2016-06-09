@@ -1,7 +1,8 @@
-﻿using Prius.Contracts.Attributes;
-using System;
+﻿using System;
+using Prius.Contracts.Attributes;
+using Prius.Contracts.Interfaces.Commands;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Factory
 {
     public interface IParameterFactory
     {

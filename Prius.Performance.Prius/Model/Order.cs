@@ -1,6 +1,7 @@
 ﻿using System;
 using Prius.Performance.Shared;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
 
 namespace Prius.Performance.Prius.Model
 {

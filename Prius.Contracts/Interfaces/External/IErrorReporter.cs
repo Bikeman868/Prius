@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.External
 {
     /// <summary>
     /// Defines the mechanism for reporting errors

@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Threading;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.External;
+using Prius.Contracts.Interfaces.Factory;
 using Prius.Orm.Utility;
 
 namespace Prius.Orm.Connections

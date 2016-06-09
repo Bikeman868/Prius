@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.External;
 using Prius.Orm.Utility;
 
 namespace Prius.Orm.Enumeration

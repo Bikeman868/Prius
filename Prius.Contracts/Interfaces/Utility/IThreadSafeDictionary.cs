@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Prius.Contracts.Interfaces.Commands;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Utility
 {
     public interface IThreadSafeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {

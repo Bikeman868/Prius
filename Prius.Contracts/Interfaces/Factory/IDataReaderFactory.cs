@@ -1,7 +1,8 @@
 ﻿using System;
 using Npgsql;
+using Prius.Contracts.Interfaces.Commands;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Factory
 {
     public interface IDataReaderFactory
     {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Prius.Contracts.Interfaces
+﻿namespace Prius.Contracts.Interfaces.Utility
 {
     public interface IPerformanceTimer
     {

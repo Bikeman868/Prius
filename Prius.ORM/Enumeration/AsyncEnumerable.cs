@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.External;
 
 namespace Prius.Orm.Enumeration
 {

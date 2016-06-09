@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.External;
 
 namespace Prius.Performance.Prius.Integration
 {

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Commands
 {
     public interface IAsyncEnumerable<T>: IAsyncResult, IDisposable where T: class
     {

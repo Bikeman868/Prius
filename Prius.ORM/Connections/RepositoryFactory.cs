@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.Factory;
 using Prius.Orm.Config;
 using Prius.Orm.Utility;
 using Urchin.Client.Interfaces;

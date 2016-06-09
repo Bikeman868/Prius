@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Utility
 {
     /// <summary>
     /// Provides a container for buckets of items where the buckets slip

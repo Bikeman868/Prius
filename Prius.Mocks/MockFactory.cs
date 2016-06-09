@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Moq.Modules;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.External;
 
 namespace Prius.Mocks
 {

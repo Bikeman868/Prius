@@ -1,5 +1,8 @@
 ﻿using System.Linq;
 using Prius.Contracts.Attributes;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.Factory;
 
 namespace Prius.Contracts.Interfaces
 {

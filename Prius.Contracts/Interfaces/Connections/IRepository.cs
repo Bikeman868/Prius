@@ -1,6 +1,7 @@
 ﻿using System;
+using Prius.Contracts.Interfaces.Commands;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Connections
 {
     public interface IRepository: IDisposable
     {

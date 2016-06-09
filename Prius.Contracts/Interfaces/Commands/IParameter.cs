@@ -1,7 +1,7 @@
 ﻿using System;
 using Prius.Contracts.Attributes;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Commands
 {
     public interface IParameter: IDisposable
     {

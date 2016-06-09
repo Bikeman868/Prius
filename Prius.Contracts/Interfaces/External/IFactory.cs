@@ -1,4 +1,4 @@
-﻿namespace Prius.Contracts.Interfaces
+﻿namespace Prius.Contracts.Interfaces.External
 {
     public interface IFactory
     {

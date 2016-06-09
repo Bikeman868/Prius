@@ -2,6 +2,9 @@
 using Moq;
 using Moq.Modules;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.Factory;
 using Prius.Mocks.Helper;
 
 namespace Prius.Mocks

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.Utility;
 
 namespace Prius.Orm.Utility
 {

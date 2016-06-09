@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
 
 namespace Prius.Mocks.Helper
 {

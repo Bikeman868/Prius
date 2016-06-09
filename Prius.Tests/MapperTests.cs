@@ -5,6 +5,8 @@ using System.Text;
 using Moq.Modules;
 using NUnit.Framework;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.External;
+using Prius.Contracts.Interfaces.Factory;
 using Prius.Orm.Enumeration;
 
 namespace Prius.Tests

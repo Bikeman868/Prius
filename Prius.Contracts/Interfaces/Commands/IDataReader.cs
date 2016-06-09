@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Commands
 {
     public interface IDataReader : IDisposable
     {

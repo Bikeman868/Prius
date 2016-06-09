@@ -1,4 +1,7 @@
-﻿namespace Prius.Contracts.Interfaces
+﻿using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.External;
+
+namespace Prius.Contracts.Interfaces
 {
     public interface IMapper
     {

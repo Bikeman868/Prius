@@ -5,6 +5,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.External;
+using Prius.Contracts.Interfaces.Utility;
 using Prius.Orm.Utility;
 
 namespace Prius.Orm.Enumeration

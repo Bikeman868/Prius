@@ -2,6 +2,8 @@
 using System.IO;
 using Microsoft.Practices.Unity;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.External;
+using Prius.Contracts.Interfaces.Factory;
 using Prius.Orm.Commands;
 using Prius.Orm.Connections;
 using Prius.Orm.Enumeration;

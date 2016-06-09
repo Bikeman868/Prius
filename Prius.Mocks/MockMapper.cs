@@ -6,6 +6,8 @@ using Prius.Contracts.Interfaces;
 using Prius.Contracts.Attributes;
 using System.Reflection;
 using System.Linq.Expressions;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.External;
 
 namespace Prius.Mocks
 {

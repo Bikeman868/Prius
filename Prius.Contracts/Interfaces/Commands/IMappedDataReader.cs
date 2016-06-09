@@ -1,4 +1,4 @@
-﻿namespace Prius.Contracts.Interfaces
+﻿namespace Prius.Contracts.Interfaces.Commands
 {
     public interface IMappedDataReader<TDataContract>: IDataReader where TDataContract : class
     {

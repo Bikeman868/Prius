@@ -3,6 +3,7 @@ using Moq;
 using Moq.Modules;
 using Newtonsoft.Json.Linq;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Factory;
 using Prius.Mocks.Helper;
 using DataReader = Prius.Mocks.Helper.DataReader;
 

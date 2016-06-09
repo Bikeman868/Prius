@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Utility;
 
 namespace Prius.Orm.Utility
 {

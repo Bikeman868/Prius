@@ -7,6 +7,9 @@ using Moq.Modules;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.Factory;
 using Prius.Mocks;
 using Prius.Mocks.Helper;
 

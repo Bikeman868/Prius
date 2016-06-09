@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Prius.Contracts.Enumerations;
 using Prius.Contracts.Attributes;
+using Prius.Contracts.Enumerations;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Commands
 {
     public interface ICommand : IDisposable
     {

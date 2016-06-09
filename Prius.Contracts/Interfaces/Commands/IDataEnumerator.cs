@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Commands
 {
     public interface IDataEnumerator<T> : IDisposable, IEnumerable<T> where T: class
     {

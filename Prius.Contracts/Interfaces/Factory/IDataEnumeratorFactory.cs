@@ -1,6 +1,8 @@
 ﻿using System;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.External;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Factory
 {
     public interface IDataEnumeratorFactory
     {

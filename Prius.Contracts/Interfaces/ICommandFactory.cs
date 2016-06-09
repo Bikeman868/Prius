@@ -1,4 +1,6 @@
-﻿namespace Prius.Contracts.Interfaces
+﻿using Prius.Contracts.Interfaces.Commands;
+
+namespace Prius.Contracts.Interfaces
 {
     public interface ICommandFactory
     {

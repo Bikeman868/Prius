@@ -5,6 +5,8 @@ using System.Text;
 using Moq;
 using Moq.Modules;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.Factory;
 
 namespace Prius.Mocks
 {

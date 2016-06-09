@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Utility;
 
 namespace Prius.Orm.Utility
 {

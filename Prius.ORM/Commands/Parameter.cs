@@ -1,6 +1,7 @@
 ﻿using System;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
 using Prius.Orm.Utility;
 
 namespace Prius.Orm.Commands

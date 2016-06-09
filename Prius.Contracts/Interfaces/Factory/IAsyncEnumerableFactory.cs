@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.External;
 
-namespace Prius.Contracts.Interfaces
+namespace Prius.Contracts.Interfaces.Factory
 {
     public interface IAsyncEnumerableFactory
     {

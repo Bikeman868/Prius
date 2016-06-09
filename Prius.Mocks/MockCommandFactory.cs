@@ -6,6 +6,8 @@ using Prius.Contracts.Interfaces;
 using Moq;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Enumerations;
+using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.Factory;
 
 namespace Prius.Mocks
 {
