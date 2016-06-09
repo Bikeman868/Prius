@@ -8,8 +8,6 @@ provides a lot of convenience. The advanced code generation techniques
 is uses also gives it much higher performance than coding ADO.Net 
 the long handed way.
 
-> In benchmarks, Prius was typically between 2 and 4 times faster than using a `SqlConnection` and `DataReader`. This is because Prius uses the Linq compiler to generate machine code at run-time that performs mapping as efficiently as possible.
-
 Apart from being convenient and fast, Prius also adds enterprise level features 
 like measuring database performance, and switching to alternate connections, 
 and throttling database access to allow the database to recover from 
@@ -140,7 +138,7 @@ The results of running these tests on my hardware are summarized in the followin
 |All customers with orders           |  1        |    3ms |  125ms |        |  501ms |
 |All customers with orders           |  100      |  1.2ms |  121ms |        |  513ms |
 
-###Notes
+### Performance Testing Notes
 Each test was run once and the time taken recorded in this table, then the test was 
 run again multiple times and the average time recorded in this table. The tests were
 done like that because there is often a startup cost (for example Prius uses reflection
@@ -162,7 +160,7 @@ I ran these tests on a 4GB Microsoft Surface Pro 3 with i5 processor and an exte
 240GB SSD connected via USB 3.0. The software was Windows 10, Visual Studio 2013 and 
 SQL Server 2014 Express.
 
-###The performance testing projects
+### The performance testing projects
 
 Prius.Performance.Shared contains the actual tests. This makes sure there is a level
 playing field between the technologies being tested. The test defines a customer with
