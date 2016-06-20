@@ -141,7 +141,7 @@ to runtime performance.
 | Can easily handle stored procedures that return multiple data sets | Yes   | No      | No         | No  |
 | Separates code and configuration for things like stored procedure timeout | Yes   | No      | No         | No  |
 
-# EF refers to the Microsoft Entity Framework.
+EF refers to the Microsoft Entity Framework.
 
 ## Performance comparison
 
