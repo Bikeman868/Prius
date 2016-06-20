@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ioc.Modules">
+      <HintPath>..\packages\Ioc.Modules.1.0.4\lib\Ioc.Modules.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Npgsql.2.2.5\lib\net40\Mono.Security.dll</HintPath>
@@ -69,6 +72,7 @@
     <Compile Include="Enumeration\AsyncEnumerable.cs" />
     <Compile Include="Enumeration\AsyncEnumerableFactory.cs" />
     <Compile Include="MySql\DataReader.cs" />
+    <Compile Include="Package.cs" />
     <Compile Include="SqlServer\DataReader.cs" />
     <Compile Include="Results\DataReaderFactory.cs" />
     <Compile Include="Commands\Parameter.cs" />

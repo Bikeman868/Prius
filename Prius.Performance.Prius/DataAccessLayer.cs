@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Prius.Contracts.Interfaces;
-using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.Performance.Prius.Model;
 using Prius.Performance.Shared;

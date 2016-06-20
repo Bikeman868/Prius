@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Ioc.Modules;
 using Microsoft.Practices.Unity;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.External;
@@ -47,30 +48,10 @@ namespace Prius.Performance.Prius
         private static UnityContainer ConfigureIoc()
         {
             var container = new UnityContainer();
+            container.RegisterInstance(container);
 
-            // Register application classes
-            container.RegisterType<IDataAccessLayer, DataAccessLayer>(new ContainerControlledLifetimeManager());
-            container.RegisterType<ICustomer, Customer>(new TransientLifetimeManager());
-            container.RegisterType<IOrder, Order>(new TransientLifetimeManager());
-
-            // Register application provided interfaces that Prius depends on
-            container.RegisterInstance<IFactory>(new Factory(container));
-            container.RegisterType<IErrorReporter, ErrorReporter>(new ContainerControlledLifetimeManager());
-
-            // Register Urchin configuration management system
-            container.RegisterType<IConfigurationStore, ConfigurationStore>(new ContainerControlledLifetimeManager());
-             
-            // Register classes defined within the Prius library
-            container.RegisterType<ICommandFactory, CommandFactory>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IConnectionFactory, ConnectionFactory>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IContextFactory, ContextFactory>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IDataEnumeratorFactory, DataEnumeratorFactory>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IDataReaderFactory, DataReaderFactory>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IMapper, Mapper>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IParameterFactory, ParameterFactory>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IRepositoryFactory, RepositoryFactory>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IEnumerableDataFactory, EnumerableDataFactory>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IAsyncEnumerableFactory, AsyncEnumerableFactory>(new ContainerControlledLifetimeManager());
+            var packageLocator = new PackageLocator().ProbeBinFolderAssemblies();
+            Ioc.Modules.Unity.Registrar.Register(packageLocator, container);
 
             return container;
         }

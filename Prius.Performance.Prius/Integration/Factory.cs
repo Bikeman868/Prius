@@ -1,5 +1,4 @@
 ﻿using Microsoft.Practices.Unity;
-using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.External;
 
 namespace Prius.Performance.Prius.Integration

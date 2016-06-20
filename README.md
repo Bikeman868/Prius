@@ -115,6 +115,36 @@ Prius is all about convenience, programmer productivity and runtime performence.
 to make it as easy as possible to use and very easy to understand without any compromise
 to runtime performance.
 
+## Feature comparison matrix
+
+| Feature                                         | Prius | ADO.Net | nHibernate | EF  |
+|-------------------------------------------------|-------|---------|------------|-----|
+| Supports SQL Server                             | Yes   | Yes     | Yes        | Yes |
+| Supports MySQL                                  | Yes   | Yes     | Yes        | Yes |
+| Supports Postgsql                               | Yes   | Yes     | Yes        | Yes |
+| Easy to add support for other databases         | Yes   | No      | No         | No  |
+| Provides load balancing                         | Yes   | No      | No         | No  |
+| Provides fail over                              | Yes   | No      | No         | No  |
+| Monitors database health                        | Yes   | No      | No         | No  |
+| Can map results from queries onto objects       | Yes   | No      | Yes        | Yes |
+| Has built-in lazy loading                       | No    | No      | Yes        | Yes |
+| Can execute parameterized ad-hoc queries        | Yes   | Yes     | Yes        | Yes |
+| Can execute stored procedures                   | Yes   | Yes     | Yes        | Yes |
+| Can execute asynchronous requests               | Yes   | Yes     | Yes        | Yes |
+| Can generate efficient SQL from LINQ            | No    | No      | Yes        | Yes |
+| Can use IoC container to construst data models  | Yes   | No      | No         | No  |
+| Can generate database from data model           | No    | No      | Yes        | Yes |
+| Can generate data model from the database       | No    | No      | Yes        | Yes |
+| Can fill any class with query results           | Yes   | No      | No         | No  |
+| Can use data model from external library        | Yes   | No      | No         | No  |
+| Can fill objects using results from multiple stored procedure calls | Yes   | No      | No         | No  |
+| Can easily handle stored procedures that return multiple data sets | Yes   | No      | No         | No  |
+| Separates code and configuration for things like stored procedure timeout | Yes   | No      | No         | No  |
+
+# EF refers to the Microsoft Entity Framework.
+
+## Performance comparison
+
 In the Visual Studio solution for Prius there are projects that you can run to test the
 runtime performance of Prius on your hardware, and compare Prius to other alternatives.
 The results of running these tests on my hardware are summarized in the following table:
@@ -186,33 +216,44 @@ the Microsofts ADO.Net Framework that we can measure how fast it is for the same
 tests.
 
 ## Building Prius into your application
+
+### Using `Ioc.Modules`
+
+If you are already using the `Ioc.Modules` NuGet package in your application then most
+of the IoC configuration will happen automatically. You will need to implement two interfaces
+in your application, and add them to an `Ioc.Modules` package class.
+
+The interfaces you need to implement are:
+
+| Interface        | Description |
+| ---------------- | ----------- |
+| `IFactory`       | Used to construct instances when you map database results onto classes. You only have to implement a couple of very simple methods. |
+| `IErrorReporter` | Used to report errors. This interface also defines a couple of very straightforward methods. |
+
+### Without using `Ioc.Modules`
+
 The recommended method if integration is to use an IoC container - but you do not have to.
 If you are using IoC, then you need to map these Prius interfaces onto classes that are
 provided by Prius. As always with IoC you can also substitute the Prius implementation
 for your own implementation to customize the behaviour.
 
-| Interface                | Class                   |
-| ------------------------ | ----------------------- |
-| `ICommandFactory`        | `CommandFactory`        |
-| `IConnectionFactory`     | `ConnectionFactory`     |
-| `IContextFactory`        | `ContextFactory`        |
-| `IDataEnumeratorFactory` | `DataEnumeratorFactory` |
-| `IDataReaderFactory`     | `DataReaderFactory`     |
-| `IMapper`                | `Mapper`                |
-| `IParameterFactory`      | `ParameterFactory`      |
-| `IRepositoryFactory`     | `RepositoryFactory`     |
-| `IEnumerableDataFactory` | `EnumerableDataFactory` |
+| Interface                 | Class                    |
+| ------------------------- | ------------------------ |
+| `ICommandFactory`         | `CommandFactory`         |
+| `IConnectionFactory`      | `ConnectionFactory`      |
+| `IContextFactory`         | `ContextFactory`         |
+| `IDataEnumeratorFactory`  | `DataEnumeratorFactory`  |
+| `IDataReaderFactory`      | `DataReaderFactory`      |
+| `IMapper`                 | `Mapper`                 |
+| `IParameterFactory`       | `ParameterFactory`       |
+| `IRepositoryFactory`      | `RepositoryFactory`      |
+| `IEnumerableDataFactory`  | `EnumerableDataFactory`  |
 | `IAsyncEnumerableFactory` | `AsyncEnumerableFactory` |
 
-In addition you must write classes in your application that implement these interfaces,
-and register them with your IoC container:
+In addition you must write classes in your application that implement the interfaces described 
+above in the section about using `Ioc.Modules`
 
-| Interface        | Description |
-| ---------------- | ----------- |
-| `IFactory`       | Used to construct instances when you map database results onto classes |
-| `IErrorReporter` | Used to report errors |
-
-It is recommended that you implement `IFactory` usign your IoC container so that you can
+It is recommended that you implement `IFactory` using your IoC container so that you can
 map the results from the database onto objects that have dependencies. If you are mapping
 only data contracts with default public constructors, then you can write a simpler and faster
 version of `IFactory` that calls the default public constructor instead.

@@ -12,7 +12,7 @@ namespace Prius.Performance.Dummy
 
         public ICustomer GetCustomer(long customerId, bool preloadOrders)
         {
-            var customer = new Performance.Dummy.Customer(customerId, LoadCustomerOrders)
+            var customer = new Customer(customerId, LoadCustomerOrders)
             {
                 CustomerId = customerId,
                 DateOfBirth = DateTime.UtcNow.AddDays(_random.NextDouble() * -30000 - 5000),
