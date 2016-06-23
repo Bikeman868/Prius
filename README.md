@@ -84,7 +84,9 @@ You can also use different names in the database and in your C#.
       public string Description { get; set; }
     }
 
-For ultimate flexibility you can also implement the `IDataContract` interface
+For greater flexibility you can also implement the `IDataContract` interface, in
+this case any declarative mappings will be applied first, then your `IDataContract`
+implementation can override them if it wants.
 
     internal enum Enum1 { Value1, Value2, Value3 }
     
@@ -96,7 +98,7 @@ For ultimate flexibility you can also implement the `IDataContract` interface
         public string Title { get; set; }
         public Enum1 MyEnum { get; set; }
     
-        public void AddMappings(ITypeDefinition<Contract2> typeDefinition, string dataSetName)
+        public void AddMappings(ITypeDefinition<SampleDataContract> typeDefinition, string dataSetName)
         {
             typeDefinition.AddField("name", c => c.Name, string.Empty);
             typeDefinition.AddField("value", c => c.Value, -1);
@@ -109,6 +111,47 @@ For ultimate flexibility you can also implement the `IDataContract` interface
             Title = Name + "=" + Value;
         }
     }
+
+For ultimate flexibility you can also implement the `IDataContract` interface in a way that
+creates different field mappings for different stored procedures. This is useful only
+when your database returns the same data but returns different column names depending on
+which stored procedure you call (this would be pretty messed up I know, but I have had
+to work with legacy databases that have this problem.)
+
+    internal enum Enum1 { Value1, Value2, Value3 }
+    
+    internal class SampleDataContract: IDataContract<SampleDataContract>
+    {
+        public string Name { get; set; }
+        public int Value { get; set; }
+        public string Description { get; set; }
+        public string Title { get; set; }
+        public Enum1 MyEnum { get; set; }
+    
+        public void AddMappings(ITypeDefinition<SampleDataContract> typeDefinition, string dataSetName)
+        {
+			if (string.Equals(dataSetName, "someWeirdSproc", StringComparison.OrdinalIgnoreCase))
+			{
+				typeDefinition.AddField("n", c => c.Name, string.Empty);
+				typeDefinition.AddField("v", c => c.Value, -1);
+				typeDefinition.AddField("d", (c, v) => c.Description = v.ToLower(), string.Empty);
+				typeDefinition.AddField("e", c => c.MyEnum, Enum1.Value1);
+			}
+			else
+			{
+				typeDefinition.AddField("name", c => c.Name, string.Empty);
+				typeDefinition.AddField("value", c => c.Value, -1);
+				typeDefinition.AddField("descr", (c, v) => c.Description = v.ToLower(), string.Empty);
+				typeDefinition.AddField("enum", c => c.MyEnum, Enum1.Value1);
+			}
+        }
+    
+        public void SetCalculated(IDataReader dataReader, string dataSetName)
+        {
+            Title = Name + "=" + Value;
+        }
+    }
+
 
 ## How does Prius compare with the alternatives
 Prius is all about convenience, programmer productivity and runtime performence. I tried
@@ -230,6 +273,33 @@ The interfaces you need to implement are:
 | `IFactory`       | Used to construct instances when you map database results onto classes. You only have to implement a couple of very simple methods. |
 | `IErrorReporter` | Used to report errors. This interface also defines a couple of very straightforward methods. |
 
+Your `Package.cs` file should look something like this:
+
+    using System.Collections.Generic;
+    using Ioc.Modules;
+    using Prius.Contracts.Interfaces.External;
+    
+    namespace MyApp
+    {
+        [Package]
+        public class Package: IPackage
+        {
+            public string Name { get { return "My application"; } }
+    
+            public IList<IocRegistration> IocRegistrations
+            {
+                get 
+                {
+                    return new List<IocRegistration>
+                    {
+                        new IocRegistration().Init<IFactory, PriusFactory>(),
+                        new IocRegistration().Init<IErrorReporter, PriusErrorReporter>(),
+                    };
+                }
+            }
+        }
+    }
+
 ### Without using `Ioc.Modules`
 
 The recommended method if integration is to use an IoC container - but you do not have to.
@@ -258,7 +328,9 @@ map the results from the database onto objects that have dependencies. If you ar
 only data contracts with default public constructors, then you can write a simpler and faster
 version of `IFactory` that calls the default public constructor instead.
 
-> Note that Prius uses Urchin for its configuration, so Urchin must also be registered in your IoC container. See Urchin documentation for how to do this.
+> Note that Prius uses Urchin for its configuration, so Urchin must also be registered in your IoC container. 
+> See Urchin documentation for how to do this. Note that if you are using `Ioc.Modules` then Urchin will
+> be configured in your IoC container automatically.
 
 ## Supported Databases
 In this version, Prius supports Microsoft SQL Server, MySQL and Postgresql. This is an open 
