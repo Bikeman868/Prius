@@ -5,35 +5,39 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{2D8713EB-1151-4114-8052-9C714FC8885F}</ProjectGuid>
+    <ProjectGuid>{7373D140-EE4B-49E1-97FE-4BCEA9EFC5AE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Prius.Orm</RootNamespace>
     <AssemblyName>Prius.Orm</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Net45\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Net45\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ioc.Modules">
-      <HintPath>..\packages\Ioc.Modules.1.0.4\lib\Ioc.Modules.dll</HintPath>
+    <Reference Include="Ioc.Modules, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Ioc.Modules.1.0.9\lib\net45\Ioc.Modules.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -57,9 +61,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.IO" />
     <Reference Include="System.Xml" />
-    <Reference Include="Urchin.Client, Version=1.0.2.3, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Urchin.Client, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Urchin.Client.1.0.2.3\lib\net40\Urchin.Client.dll</HintPath>
+      <HintPath>..\packages\Urchin.Client.1.2.0\lib\net45\Urchin.Client.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -93,7 +97,6 @@
     <Compile Include="Connections\Repository.cs" />
     <Compile Include="Connections\RepositoryFactory.cs" />
     <Compile Include="SqlServer\Connection.cs" />
-    <Compile Include="IocConfiguration.cs" />
     <Compile Include="Enumeration\DataEnumerator.cs" />
     <Compile Include="Enumeration\DataEnumeratorFactory.cs" />
     <Compile Include="Enumeration\DummyDataEnumerator.cs" />
@@ -109,14 +112,14 @@
     <Compile Include="Utility\Extensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.csproj">
-      <Project>{12444D2D-5CCF-41B4-B515-AB42454A5A88}</Project>
-      <Name>Prius.Contracts</Name>
-    </ProjectReference>
+    <None Include="app.config" />
+    <None Include="packages.Prius.ORM.Net45.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.Net45.csproj">
+      <Project>{abb21658-6682-4e95-b633-e19e60782070}</Project>
+      <Name>Prius.Contracts.Net45</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

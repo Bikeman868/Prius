@@ -82,17 +82,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Prius.ORM\Prius.ORM.csproj">
+    <ProjectReference Include="..\Prius.ORM\Prius.ORM.Net40.csproj">
       <Project>{2D8713EB-1151-4114-8052-9C714FC8885F}</Project>
-      <Name>Prius.ORM</Name>
+      <Name>Prius.ORM.Net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.csproj">
+    <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.Net40.csproj">
       <Project>{12444D2D-5CCF-41B4-B515-AB42454A5A88}</Project>
-      <Name>Prius.Contracts</Name>
+      <Name>Prius.Contracts.Net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Prius.Mocks\Prius.Mocks.csproj">
+    <ProjectReference Include="..\Prius.Mocks\Prius.Mocks.Net40.csproj">
       <Project>{1D0C1219-DF33-4A4C-AF7E-65A33FDFE13F}</Project>
-      <Name>Prius.Mocks</Name>
+      <Name>Prius.Mocks.Net40</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

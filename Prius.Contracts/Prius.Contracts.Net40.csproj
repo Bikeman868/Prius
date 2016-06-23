@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{12444D2D-5CCF-41B4-B515-AB42454A5A88}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Prius.Contracts</RootNamespace>
+    <AssemblyName>Prius.Contracts</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Net40\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Net40\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedVersion.cs">
+      <Link>Properties\SharedVersion.cs</Link>
+    </Compile>
+    <Compile Include="Enumerations\CommandType.cs" />
+    <Compile Include="Interfaces\IContextExtensions.cs" />
+    <Compile Include="Interfaces\IConnectionExtensions.cs" />
+    <Compile Include="Interfaces\Factory\IAsyncEnumerableFactory.cs" />
+    <Compile Include="Interfaces\Commands\IAsyncEnumerable.cs" />
+    <Compile Include="Interfaces\Commands\ICommand.cs" />
+    <Compile Include="Interfaces\ICommandFactory.cs" />
+    <Compile Include="Interfaces\Connections\IConnection.cs" />
+    <Compile Include="Interfaces\Factory\IConnectionFactory.cs" />
+    <Compile Include="Interfaces\Connections\IContext.cs" />
+    <Compile Include="Interfaces\IContextFactory.cs" />
+    <Compile Include="Interfaces\IDataContract.cs" />
+    <Compile Include="Interfaces\Commands\IDataEnumerator.cs" />
+    <Compile Include="Interfaces\Factory\IDataEnumeratorFactory.cs" />
+    <Compile Include="Interfaces\IDataReader.cs" />
+    <Compile Include="Interfaces\Factory\IDataReaderFactory.cs" />
+    <Compile Include="Interfaces\Commands\IDisposableEnumerable.cs" />
+    <Compile Include="Interfaces\Factory\IEnumerableDataFactory.cs" />
+    <Compile Include="Interfaces\External\IErrorReporter.cs" />
+    <Compile Include="Interfaces\External\IFactory.cs" />
+    <Compile Include="Interfaces\Utility\IHistoryBucketQueue.cs" />
+    <Compile Include="Interfaces\Commands\IMappedDataReader.cs" />
+    <Compile Include="Interfaces\IMapper.cs" />
+    <Compile Include="Interfaces\Commands\IParameter.cs" />
+    <Compile Include="Interfaces\Factory\IParameterFactory.cs" />
+    <Compile Include="Interfaces\Utility\IPerformanceTimer.cs" />
+    <Compile Include="Interfaces\Connections\IRepository.cs" />
+    <Compile Include="Interfaces\Factory\IRepositoryFactory.cs" />
+    <Compile Include="Interfaces\Utility\IThreadSafeDictionary.cs" />
+    <Compile Include="Interfaces\ITypeDefinition.cs" />
+    <Compile Include="Attributes\MappingAttribute.cs" />
+    <Compile Include="Attributes\ParameterDirection.cs" />
+    <Compile Include="Interfaces\SampleCode.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.Prius.Contracts.Net40.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MySql.Data, Version=6.9.7.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MySql.Data.6.9.7\lib\net40\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql, Version=2.2.5.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Npgsql.2.2.5\lib\net40\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>

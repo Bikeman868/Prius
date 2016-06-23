@@ -33,12 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ioc.Modules, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Ioc.Modules, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Ioc.Modules.1.0.4\lib\Ioc.Modules.dll</HintPath>
+      <HintPath>..\packages\Ioc.Modules.1.0.9\lib\net40\Ioc.Modules.dll</HintPath>
     </Reference>
-    <Reference Include="Ioc.Modules.Unity">
-      <HintPath>..\packages\Ioc.Modules.Unity.1.0.0\lib\Ioc.Modules.Unity.dll</HintPath>
+    <Reference Include="Ioc.Modules.Unity, Version=1.0.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Ioc.Modules.Unity.1.0.9\lib\net40\Ioc.Modules.Unity.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -63,9 +64,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Urchin.Client, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Urchin.Client, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Urchin.Client.1.1.0\lib\net40-Client\Urchin.Client.dll</HintPath>
+      <HintPath>..\packages\Urchin.Client.1.2.0\lib\net40\Urchin.Client.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -87,13 +88,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.csproj">
+    <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.Net40.csproj">
       <Project>{12444d2d-5ccf-41b4-b515-ab42454a5a88}</Project>
-      <Name>Prius.Contracts</Name>
+      <Name>Prius.Contracts.Net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Prius.ORM\Prius.ORM.csproj">
+    <ProjectReference Include="..\Prius.ORM\Prius.ORM.Net40.csproj">
       <Project>{2d8713eb-1151-4114-8052-9c714fc8885f}</Project>
-      <Name>Prius.ORM</Name>
+      <Name>Prius.ORM.Net40</Name>
     </ProjectReference>
     <ProjectReference Include="..\Prius.Performance.Shared\Prius.Performance.Shared.csproj">
       <Project>{dd3846ea-a3bd-4e9b-8718-b35ee4ea5245}</Project>
