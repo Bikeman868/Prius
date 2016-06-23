@@ -63,7 +63,7 @@ By default database columns are mapped to properties with the same name:
 You can also use different names in the database and in your C#.
 
     /// <summary>
-    /// An example of a data contract with declarative mapping to sql fields
+    /// An example of a data contract with declarative mapping to DB columns
     /// </summary>
     internal class User
     {
@@ -84,9 +84,45 @@ You can also use different names in the database and in your C#.
       public string Description { get; set; }
     }
 
+> Note that column names are case insensitive.
+
+> Note that if you don't add any `[Mapping]` attributes to your data contract
+> then Prius will map all public properties into database columns with the same
+> names. If you add one or more `[Mapping]` attributes then properties without
+> `[Mapping]` attributes will not be mapped and will not have their values
+> set by Prius (unless you also implement `IDataContract` - see below).
+
+> Note that you can add multiple `[Mapping]` attributes to one property, in
+> which case database columns with any of these names will map to this property.
+> This is useful when different stored procedures return the same column with
+> different names because of column aliasing.
+
+Note that Prius also allows you to add declarative field mappings to interfaces
+instead of concrete types. Note that when you do this the `IFactory` that you 
+provide to Prius must be capable of constructing objects from interface types.
+To use the mappings defined for an interface, pass the interface type when
+calling the `ExecuteEnumerable()` method.
+
+You might want to use interface data contracts instead of concrete class types because:
+
+1. You want to have more than one way to map to a class onto the database. You 
+can make the class implement multiple interfaces and decorate each interface 
+with different `[Mapping]` attributes.
+
+2. You want to return objects whose type is imported from a DLL that you do not
+have source code for and therefore can not have `[Mapping]` attributes added
+to it. In this case you can inherit from the imported type and
+add an interface to the derrived class decorated with `[Mapping]` attributes.
+This is more efficient than defining a new class and copying the data using
+something like `AutoMapper`.
+
+3. You just prefer using interfaces. There is nothing wrong with concrete data
+contracts provided they do not define any methods, but some developers prefer to
+define everything in terms of interfaces.
+
 For greater flexibility you can also implement the `IDataContract` interface, in
 this case any declarative mappings will be applied first, then your `IDataContract`
-implementation can override them if it wants.
+implementation will execute, and can modify the mappings.
 
     internal enum Enum1 { Value1, Value2, Value3 }
     
@@ -113,10 +149,12 @@ implementation can override them if it wants.
     }
 
 For ultimate flexibility you can also implement the `IDataContract` interface in a way that
-creates different field mappings for different stored procedures. This is useful only
-when your database returns the same data but returns different column names depending on
-which stored procedure you call (this would be pretty messed up I know, but I have had
-to work with legacy databases that have this problem.)
+creates different column mappings for different stored procedures. This is useful only
+when your database returns different data in the same column names depending on
+which stored procedure you call, for example if some stored procedures return age as a string
+and others return age as an integer even though they both return essentially the same data
+(this would be pretty messed up I know, but I have had to work with legacy databases that have 
+these kinds of problems).
 
     internal enum Enum1 { Value1, Value2, Value3 }
     
@@ -408,18 +446,32 @@ This is a sample Urchin configuration for Prius:
 ```
 What this configuration example does is:
 
-1. Defines database connections, one to SqlServer database and two MySQL databases. I left the connection strings blank to keep the example simple.
-2. Defines a 'primary' fallback policy that will fall over to the backup server for 1 minute if more than 20% of database requests error or timeout.
-3. Defines a 'backup' fallback policy that will not fail over even when the error rate is 100%.
-4. Defines a 'users' repository that uses Microsoft SQL server initially, but fails over to a pair of MySQL databases if SQL Server is slow or unavailable.
+1. Defines database connections, one to SqlServer database and two MySQL databases.
+I left the connection strings blank to keep the example simple.
 
-> Note that because the code you write in your application is identical for all databases, it is possible for Prius to fall back from SQL Server to MySQL.
+2. Defines a 'primary' fallback policy that will fall over to the backup server 
+for 1 minute if more than 20% of database requests error or timeout.
+
+3. Defines a 'backup' fallback policy that will not fail over even when the error rate is 100%.
+
+4. Defines a 'users' repository that uses Microsoft SQL server initially, but fails 
+over to a pair of MySQL databases if SQL Server is slow or unavailable.
+
+> Note that because the code you write in your application is identical for all 
+> databases, it is possible for Prius to fall back from SQL Server to MySQL.
 
 > Note that for this to work, SQL Server and MySQL must contain all the same stored procedures.
 
-> Note that when you call the `Create()` method of `IContextFactory`, it is the name of the repository that you pass. In this example `_contextFactory.Create("users");`
+> Note that when you call the `Create()` method of `IContextFactory`, it is the 
+> name of the repository that you pass. In this example `_contextFactory.Create("users");`
 
-> Note that you can define timeout values for each stored procedure on each server. Any stored procedures that you dont define timeouts for will default to 5 seconds.
+> Note that you can define timeout values for each stored procedure on each server. 
+> Any stored procedures that you dont define timeouts for will default to 5 seconds.
+
+> Note that you can also pass a timeout value in the code that calls the 
+> stored procedure, but this is generally less maintainable than the 
+> configuration based approach. Remember that Prius uses the Urchin rules 
+> based configuration management system that can define environment specific rules.
 
 ##Prius recipies
 
@@ -447,7 +499,7 @@ What this configuration example does is:
         }
 	}
 ```
-> Note that you always need IContextFactory and ICommandFactory. The other interfaces are only needed for some more advanced techniques.
+> Note that you always need `IContextFactory` and `ICommandFactory`. The other interfaces are only needed for some more advanced techniques.
 
 ###Execute a stored procedure and return a list of objects
 ```
@@ -464,7 +516,7 @@ What this configuration example does is:
     }
 ```
 
-###Execute a stored procedure and return a single objects
+###Execute a stored procedure and return a single object
 ```
     public ICustomer GetCustomer(int customerId)
     {
@@ -639,6 +691,36 @@ database technology.
             }
     
             return newsArticle;
+        }
+    }
+```
+
+###Execute a stored procedure and map DB columns using an interface
+```
+	public interface ICustomer
+	{
+		[Mapping("fld_CustomerID")]
+		long Id { get; set; }
+
+		[Mapping("fld_CustomerName")]
+		string Name { get; set; }
+	}
+
+	internal class Customer: ICustomer
+	{
+		public long Id { get; set; }
+		pulic string Name { get; set; }
+	}
+
+    public IList<ICustomer> GetCustomers()
+    {
+        using (var context = _contextFactory.Create("MyData"))
+        {
+            using (var command = _commandFactory.CreateStoredProcedure("sp_GetAllCustomers"))
+            {
+                using (var data = context.ExecuteEnumerable<ICustomer>(command))
+                    return data.ToList();
+            }
         }
     }
 ```
