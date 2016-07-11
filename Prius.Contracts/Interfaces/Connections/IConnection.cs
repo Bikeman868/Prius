@@ -13,6 +13,11 @@ namespace Prius.Contracts.Interfaces.Connections
 
         void SetCommand(ICommand command);
 
+        IDataReader ExecuteReader();
+        IDataEnumerator<T> ExecuteEnumerable<T>() where T : class;
+        long ExecuteNonQuery();
+        T ExecuteScalar<T>();
+
         IAsyncResult BeginExecuteReader(AsyncCallback callback = null);
         IDataReader EndExecuteReader(IAsyncResult asyncResult);
 

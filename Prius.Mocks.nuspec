@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius.Mocks</id>
-    <version>1.1.6</version>
+    <version>1.1.7</version>
     <title>Prius.Mocks - mock your database</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -19,16 +19,14 @@
       <dependency id="Newtonsoft.Json" version="7.0.1" />
       <dependency id="MySql.Data" version="6.9.7" />
       <dependency id="Npgsql" version="2.2.5" />
+      <dependency id="Prius" version="1.1.7" />
     </dependencies>
     <references>
       <reference file="Prius.Mocks.dll"/>
-      <reference file="Prius.Contracts.dll"/>
     </references>
   </metadata>
   <files>
-    <file src="Prius.Contracts\bin\Net40\Release\Prius.Contracts.dll" target="lib\net40"/>
     <file src="Prius.Mocks\bin\Net40\Release\Prius.Mocks.dll" target="lib\net40"/>
-    <file src="Prius.Contracts\bin\Net45\Release\Prius.Contracts.dll" target="lib\net45"/>
     <file src="Prius.Mocks\bin\Net45\Release\Prius.Mocks.dll" target="lib\net45"/>
     <file src="*.md" target=""/>
     <file src="*.txt" target=""/>

@@ -82,7 +82,10 @@ namespace Prius.Orm.Connections
         public IAsyncResult BeginExecuteReader(ICommand command, AsyncCallback callback)
         {
             if (command != null) PrepareCommand(command);
-            if (!_isPrepared) throw new ApplicationException("You must call the PrepareCommand() method before calling BeginExecuteReader() or pass the command to the BeginExecuteReader() method");
+            if (!_isPrepared)
+                throw new ApplicationException(
+                    "You must call the PrepareCommand() method before calling BeginExecuteReader() " +
+                    "or pass the command to the BeginExecuteReader() method");
             try
             {
                 if (_connection == null)
@@ -113,6 +116,27 @@ namespace Prius.Orm.Connections
             }
         }
 
+        public IDataReader ExecuteReader(ICommand command)
+        {
+            if (command != null) PrepareCommand(command);
+            if (!_isPrepared) 
+                throw new ApplicationException(
+                    "You must call the PrepareCommand() method before calling ExecuteReader() " +
+                    "or pass the command to the ExecuteReader() method");
+            try
+            {
+                if (_connection == null)
+                    throw new Exception("Empty connection.");
+                return _connection.ExecuteReader();
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(_connection);
+                _errorReporter.ReportError(ex, "Failed to ExecuteReader on " + _repository.Name, _repository, _connection);
+                throw;
+            }
+        }
+
         #endregion
 
         #region ExecuteEnumerable
@@ -128,6 +152,15 @@ namespace Prius.Orm.Connections
             return _dataEnumeratorFactory.Create(reader, reader.Dispose, dataSetName, dataContractFactory);
         }
 
+        public IDataEnumerator<T> ExecuteEnumerable<T>(
+            ICommand command, 
+            string dataSetName = null, 
+            IFactory<T> dataContractFactory = null) where T : class
+        {
+            var reader = ExecuteReader(command);
+            return _dataEnumeratorFactory.Create(reader, reader.Dispose, dataSetName, dataContractFactory);
+        }
+
         #endregion
 
         #region ExecuteNonQuery
@@ -135,7 +168,10 @@ namespace Prius.Orm.Connections
         public IAsyncResult BeginExecuteNonQuery(ICommand command, AsyncCallback callback)
         {
             if (command != null) PrepareCommand(command);
-            if (!_isPrepared) throw new ApplicationException("You must call the PrepareCommand() method before calling BeginExecuteNonQuery() or pass the command to the BeginExecuteNonQuery() method");
+            if (!_isPrepared) 
+                throw new ApplicationException(
+                    "You must call the PrepareCommand() method before calling BeginExecuteNonQuery() "+
+                    "or pass the command to the BeginExecuteNonQuery() method");
             try
             {
                 if (_connection == null)
@@ -167,6 +203,27 @@ namespace Prius.Orm.Connections
             }
         }
 
+        public long ExecuteNonQuery(ICommand command)
+        {
+            if (command != null) PrepareCommand(command);
+            if (!_isPrepared)
+                throw new ApplicationException(
+                    "You must call the PrepareCommand() method before calling ExecuteNonQuery() " +
+                    "or pass the command to the ExecuteNonQuery() method");
+            if (_connection == null)
+                return 0L;
+            try
+            {
+                return _connection.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(_connection);
+                _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on " + _repository.Name, _repository, _connection);
+                throw;
+            }
+        }
+
         #endregion
 
         #region ExecuteScalar
@@ -174,7 +231,10 @@ namespace Prius.Orm.Connections
         public IAsyncResult BeginExecuteScalar(ICommand command, AsyncCallback callback)
         {
             if (command != null) PrepareCommand(command);
-            if (!_isPrepared) throw new ApplicationException("You must call the PrepareCommand() method before calling BeginExecuteScalar() or pass the command to the BeginExecuteScalar() method");
+            if (!_isPrepared) 
+                throw new ApplicationException(
+                    "You must call the PrepareCommand() method before calling BeginExecuteScalar() "+
+                    "or pass the command to the BeginExecuteScalar() method");
             try
             {
                 if (_connection == null)
@@ -201,6 +261,27 @@ namespace Prius.Orm.Connections
             {
                 _repository.RecordFailure(_connection);
                 _errorReporter.ReportError(ex, "Failed to EndExecuteScalar on " + _repository.Name, _repository, _connection);
+                throw;
+            }
+        }
+
+        public T ExecuteScalar<T>(ICommand command)
+        {
+            if (command != null) PrepareCommand(command);
+            if (!_isPrepared)
+                throw new ApplicationException(
+                    "You must call the PrepareCommand() method before calling ExecuteScalar() " +
+                    "or pass the command to the ExecuteScalar() method");
+            if (_connection == null)
+                return default(T);
+            try
+            {
+                return _connection.ExecuteScalar<T>();
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(_connection);
+                _errorReporter.ReportError(ex, "Failed to ExecuteScalar on " + _repository.Name, _repository, _connection);
                 throw;
             }
         }

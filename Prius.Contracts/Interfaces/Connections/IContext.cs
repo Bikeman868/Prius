@@ -12,10 +12,22 @@ namespace Prius.Contracts.Interfaces.Connections
 
         // Command execution
         IConnection PrepareCommand(ICommand command);
+        IDataReader ExecuteReader(ICommand command);
+        IDataEnumerator<T> ExecuteEnumerable<T>(
+            ICommand command, 
+            string dataSetName = null, 
+            IFactory<T> dataContractFactory = null) where T : class;
+        long ExecuteNonQuery(ICommand command);
+        T ExecuteScalar<T>(ICommand command);
+
+        // Async execution
         IAsyncResult BeginExecuteReader(ICommand command = null, AsyncCallback callback = null);
         IDataReader EndExecuteReader(IAsyncResult asyncResult);
         IAsyncResult BeginExecuteEnumerable(ICommand command = null, AsyncCallback callback = null);
-        IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult, string dataSetName = null, IFactory<T> dataContractFactory = null) where T : class;
+        IDataEnumerator<T> EndExecuteEnumerable<T>(
+            IAsyncResult asyncResult, 
+            string dataSetName = null, 
+            IFactory<T> dataContractFactory = null) where T : class;
         IAsyncResult BeginExecuteNonQuery(ICommand command = null, AsyncCallback callback = null);
         long EndExecuteNonQuery(IAsyncResult asyncResult);
         IAsyncResult BeginExecuteScalar(ICommand command = null, AsyncCallback callback = null);

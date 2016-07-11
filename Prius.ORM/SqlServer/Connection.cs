@@ -185,6 +185,49 @@ namespace Prius.Orm.SqlServer
             }
         }
 
+        public override IDataReader ExecuteReader()
+        {
+            var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
+            var startTime = PerformanceTimer.TimeNow;
+
+            try
+            {
+                if (initiallyClosed) _connection.Open();
+                var reader = _sqlCommand.ExecuteReader();
+
+                foreach (var parameter in _command.GetParameters())
+                    parameter.StoreOutputValue(parameter);
+
+                var dataShapeName = _connection.DataSource + ":" + _connection.Database + ":" + _sqlCommand.CommandType + ":" + _sqlCommand.CommandText;
+
+                return _dataReaderFactory.Create(
+                    reader,
+                    dataShapeName,
+                    () =>
+                        {
+                            reader.Dispose();
+                            _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime));
+                            if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
+                                _connection.Close();
+                        },
+                    () =>
+                        {
+                            _repository.RecordFailure(this);
+                            if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
+                                _connection.Close();
+                        }
+                    );
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteReader on SQL Server " + _repository.Name, _repository, this);
+                if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
+                    _connection.Close();
+                throw;
+            }
+        }
+
         #endregion
 
         #region ExecuteNonQuery
@@ -239,6 +282,36 @@ namespace Prius.Orm.SqlServer
             }
         }
 
+        public override long ExecuteNonQuery()
+        {
+            var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
+            var startTime = PerformanceTimer.TimeNow;
+
+            try
+            {
+                if (initiallyClosed) _connection.Open();
+                var rowsAffacted = _sqlCommand.ExecuteNonQuery();
+                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime));
+
+                foreach (var parameter in _command.GetParameters())
+                    parameter.StoreOutputValue(parameter);
+
+                return rowsAffacted;
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteNonQuery on SQL Server " + _repository.Name, _repository, this);
+                throw;
+            }
+            finally
+            {
+                if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
+                    _connection.Close();
+            }
+        }
+
+
         #endregion
 
         #region ExecuteScalar
@@ -285,6 +358,34 @@ namespace Prius.Orm.SqlServer
             {
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to convert type of result from ExecuteScalar on SQL Server " + _repository.Name, _repository, this);
                 throw;
+            }
+        }
+
+        public override T ExecuteScalar<T>()
+        {
+            var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
+            var startTime = PerformanceTimer.TimeNow;
+
+            try
+            {
+                if (initiallyClosed) _connection.Open();
+                var result = _sqlCommand.ExecuteScalar();
+                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime));
+
+                var resultType = typeof(T);
+                if (resultType.IsNullable()) resultType = resultType.GetGenericArguments()[0];
+                return (T)Convert.ChangeType(result, resultType);
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteScalar on SQL Server " + _repository.Name, _repository, this);
+                throw;
+            }
+            finally
+            {
+                if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
+                    _connection.Close();
             }
         }
 

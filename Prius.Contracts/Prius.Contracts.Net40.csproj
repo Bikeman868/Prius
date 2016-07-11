@@ -13,6 +13,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <BaseIntermediateOutputPath>obj\Net40\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,8 +37,6 @@
       <Link>Properties\SharedVersion.cs</Link>
     </Compile>
     <Compile Include="Enumerations\CommandType.cs" />
-    <Compile Include="Interfaces\IContextExtensions.cs" />
-    <Compile Include="Interfaces\IConnectionExtensions.cs" />
     <Compile Include="Interfaces\Factory\IAsyncEnumerableFactory.cs" />
     <Compile Include="Interfaces\Commands\IAsyncEnumerable.cs" />
     <Compile Include="Interfaces\Commands\ICommand.cs" />

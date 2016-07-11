@@ -1,19 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using Ioc.Modules;
 using Microsoft.Practices.Unity;
-using Prius.Contracts.Interfaces;
-using Prius.Contracts.Interfaces.External;
-using Prius.Contracts.Interfaces.Factory;
-using Prius.Orm.Commands;
-using Prius.Orm.Connections;
-using Prius.Orm.Enumeration;
-using Prius.Orm.Results;
-using Prius.Performance.Prius.Integration;
-using Prius.Performance.Prius.Model;
 using Prius.Performance.Shared;
-using Urchin.Client.Data;
-using Urchin.Client.Interfaces;
 using Urchin.Client.Sources;
 
 namespace Prius.Performance.Prius
@@ -50,7 +40,7 @@ namespace Prius.Performance.Prius
             var container = new UnityContainer();
             container.RegisterInstance(container);
 
-            var packageLocator = new PackageLocator().ProbeBinFolderAssemblies();
+            var packageLocator = new PackageLocator().ProbeBinFolderAssemblies().Add(Assembly.GetExecutingAssembly());
             Ioc.Modules.Unity.Registrar.Register(packageLocator, container);
 
             return container;

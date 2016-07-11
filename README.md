@@ -235,19 +235,19 @@ The results of running these tests on my hardware are summarized in the followin
 |Do nothing                          |  1        |   51us |   32us |        |   39us |
 |Do nothing                          |  1000     |    6ns |    5ns |        |    6ns |
 |Retrieve one customer               |  1        |  1.8ms |   93ms |        |   78ms |
-|Retrieve one customer               |  100      |  0.9us | 0.28ms |        | 0.25ms |
+|Retrieve one customer               |  100      |  0.9us | 0.22ms |        | 0.25ms |
 |One customer with orders            |  1        |  2.2ms |   14ms |        |  7.2ms |
-|One customer with orders            |  100      |  4.8us | 1.68ms |        | 0.22ms |
+|One customer with orders            |  100      |  4.8us | 0.76ms |        | 0.22ms |
 |Selected customers                  |  1        |   12ms |   19ms |        | 11.5ms |
-|Selected customers                  |  100      |  1.7ms |   15ms |        |  3.3ms |
-|Selected customers lazy load orders |  1        |  2.9ms |   22ms |        |  8.6ms |
-|Selected customers lazy load orders |  100      |  1.7ms |   22ms |        | 10.4ms |
-|Selected customers with orders      |  1        |  3.4ms |  208ms |        |  794ms |
-|Selected customers with orders      |  100      |  2.5ms |  127ms |        |  589ms |
-|All customers                       |  1        |  1.1ms |  9.6ms |        |  3.2ms |
+|Selected customers                  |  100      |  1.7ms |  6.8ms |        |  3.3ms |
+|Selected customers lazy load orders |  1        |  2.9ms |  8.1ms |        |  8.6ms |
+|Selected customers lazy load orders |  100      |  1.7ms |  6.7ms |        | 10.4ms |
+|Selected customers with orders      |  1        |  3.4ms |  134ms |        |  794ms |
+|Selected customers with orders      |  100      |  2.5ms |  104ms |        |  589ms |
+|All customers                       |  1        |  1.1ms |  6.1ms |        |  3.2ms |
 |All customers                       |  100      |  1.2ms |  9.6ms |        |  2.5ms |
-|All customers with orders           |  1        |    3ms |  125ms |        |  501ms |
-|All customers with orders           |  100      |  1.2ms |  121ms |        |  513ms |
+|All customers with orders           |  1        |    3ms |   99ms |        |  501ms |
+|All customers with orders           |  100      |  1.2ms |  101ms |        |  513ms |
 
 ### Performance Testing Notes
 Each test was run once and the time taken recorded in this table, then the test was 

@@ -18,7 +18,9 @@ namespace Prius.Performance.Prius
             {
                 return new List<IocRegistration>
                 {
-                    new IocRegistration().Init<IDataAccessLayer, DataAccessLayer>(IocLifetime.SingleInstance),
+                    new IocRegistration().Init<IErrorReporter, ErrorReporter>(),
+                    new IocRegistration().Init<IFactory, Factory>(),
+                    new IocRegistration().Init<IDataAccessLayer, DataAccessLayer>(),
                     new IocRegistration().Init<ICustomer, Customer>(IocLifetime.MultiInstance),
                     new IocRegistration().Init<IOrder, Order>(IocLifetime.MultiInstance)
                 };

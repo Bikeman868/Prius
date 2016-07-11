@@ -27,6 +27,21 @@ namespace Prius.Orm.Connections
         public abstract long EndExecuteNonQuery(IAsyncResult asyncResult);
         public abstract T EndExecuteScalar<T>(IAsyncResult asyncResult);
 
+        public virtual IDataReader ExecuteReader()
+        {
+            return EndExecuteReader(BeginExecuteReader(null));
+        }
+
+        public virtual long ExecuteNonQuery()
+        {
+            return EndExecuteNonQuery(BeginExecuteNonQuery(null));
+        }
+
+        public virtual T ExecuteScalar<T>()
+        {
+            return EndExecuteScalar<T>(BeginExecuteScalar(null));
+        }
+
         protected Connection(IDataEnumeratorFactory dataEnumeratorFactory)
         {
             _dataEnumeratorFactory = dataEnumeratorFactory;
@@ -40,6 +55,12 @@ namespace Prius.Orm.Connections
         public IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult) where T: class
         {
             var reader = EndExecuteReader(asyncResult);
+            return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
+        }
+
+        public IDataEnumerator<T> ExecuteEnumerable<T>() where T : class
+        {
+            var reader = ExecuteReader();
             return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
         }
 

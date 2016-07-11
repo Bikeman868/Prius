@@ -98,6 +98,29 @@ namespace Prius.Mocks
             {
                 IsDisposed = true;
             }
+
+            public IDataReader ExecuteReader(ICommand command)
+            {
+                return EndExecuteReader(BeginExecuteReader(command, null));
+            }
+
+            public IDataEnumerator<T> ExecuteEnumerable<T>(
+                ICommand command, 
+                string dataSetName = null, 
+                IFactory<T> dataContractFactory = null) where T : class
+            {
+                return EndExecuteEnumerable(BeginExecuteEnumerable(command, null), dataSetName, dataContractFactory);
+            }
+
+            public long ExecuteNonQuery(ICommand command)
+            {
+                return EndExecuteNonQuery(BeginExecuteNonQuery(command, null));
+            }
+
+            public T ExecuteScalar<T>(ICommand command)
+            {
+                return EndExecuteScalar<T>(BeginExecuteScalar(command, null));
+            }
         }
     }
 }

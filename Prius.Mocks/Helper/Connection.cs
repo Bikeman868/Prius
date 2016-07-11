@@ -98,6 +98,26 @@ namespace Prius.Mocks.Helper
             return procedure.Scalar<T>(command);
         }
 
+        public IDataReader ExecuteReader()
+        {
+            return EndExecuteReader(BeginExecuteReader(null));
+        }
+
+        public long ExecuteNonQuery()
+        {
+            return EndExecuteNonQuery(BeginExecuteNonQuery(null));
+        }
+
+        public T ExecuteScalar<T>()
+        {
+            return EndExecuteScalar<T>(BeginExecuteScalar(null));
+        }
+
+        public IDataEnumerator<T> ExecuteEnumerable<T>() where T : class
+        {
+            return EndExecuteEnumerable<T>(BeginExecuteEnumerable(null));
+        }
+
         public bool IsReusable { get { return false; } }
 
         public bool IsDisposing { get { return false; } }
