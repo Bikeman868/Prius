@@ -33,13 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ioc.Modules, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ioc.Modules.1.1.0\lib\net40\Ioc.Modules.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Ioc.Modules, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Ioc.Modules.1.1.2\lib\net40\Ioc.Modules.dll</HintPath>
     </Reference>
-    <Reference Include="Ioc.Modules.Unity, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ioc.Modules.Unity.1.1.0\lib\net40\Ioc.Modules.Unity.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Ioc.Modules.Unity, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Ioc.Modules.Unity.1.1.2\lib\net40\Ioc.Modules.Unity.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

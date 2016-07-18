@@ -372,6 +372,7 @@ namespace Prius.Orm.SqlServer
                 var result = _sqlCommand.ExecuteScalar();
                 _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime));
 
+                if (result == null) return default(T);
                 var resultType = typeof(T);
                 if (resultType.IsNullable()) resultType = resultType.GetGenericArguments()[0];
                 return (T)Convert.ChangeType(result, resultType);
