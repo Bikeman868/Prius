@@ -497,7 +497,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
             _mapper = mapper;
             _dataEnumeratorFactory = dataEnumeratorFactory;
         }
-	}
+    }
 ```
 > Note that you always need `IContextFactory` and `ICommandFactory`. The other interfaces are only needed for some more advanced techniques.
 
@@ -569,7 +569,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
 ```
 
 ###Execute a stored procedure that returns multiple sets of data
-Note that the context.ExecuteEnumerable method is a shorthand syntax that works for the most common use case of a 
+Note that the `context.ExecuteEnumerable` method is a shorthand syntax that works for the most common use case of a 
 single data set. To work with multiple sets of data you have to use a slightly more verbose syntax, but this results
 in the same internal operation.
 
@@ -603,8 +603,9 @@ customer's orders in the second data set. This example therefore demonstrates tw
 ```
 
 ###Execute two stored procedures at the same time
-Note that the database context can only have one open data reader at a time, so you will need multiple context objects.
-You could next using statements, but this can get very deep if you have many concurrent requests. In this example
+Note that the database context can only have one open data reader at a time, so you will need multiple context 
+objects to execute multiple stored procedures concurrently.
+You could nest using statements, but this can get very deep if you have many concurrent requests. In this example
 I used a try...finally instead.
 
 Note that if you are using .Net 4.5 or higher then you can use the async...await mechanism for this instead.
