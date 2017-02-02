@@ -17,9 +17,9 @@
       <dependency id="Moq" version="4.2.1507.0118" />
       <dependency id="Moq.Modules" version="1.0.0"  />
       <dependency id="Newtonsoft.Json" version="7.0.1" />
-      <dependency id="MySql.Data" version="6.9.7" />
+      <dependency id="MySql.Data" version="6.9.9" />
       <dependency id="Npgsql" version="2.2.5" />
-      <dependency id="Prius" version="1.1.7" />
+      <dependency id="Prius" version="1.1.9" />
     </dependencies>
     <references>
       <reference file="Prius.Mocks.dll"/>

@@ -15,10 +15,10 @@
     <tags>ORM database mapping sqlserver mysql mariadb postgresql procedures</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="7.0.1" />
-      <dependency id="MySql.Data" version="6.9.7" />
+      <dependency id="MySql.Data" version="6.9.9" />
       <dependency id="Npgsql" version="2.2.5" />
       <dependency id="Urchin.Client" version="1.0.1.2" />
-      <dependency id="Ioc.Modules" version="1.0.4" />
+      <dependency id="Ioc.Modules" version="1.1.4" />
     </dependencies>
     <references>
       <reference file="Prius.Contracts.dll"/>
