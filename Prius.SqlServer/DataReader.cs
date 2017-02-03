@@ -1,10 +1,9 @@
 ﻿using System;
 using Prius.Contracts.Interfaces;
-using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.External;
-using Prius.Orm.Utility;
+using Prius.Contracts.Utility;
 
-namespace Prius.Orm.SqlServer
+namespace Prius.SqlServer
 {
     public class DataReader : Disposable, IDataReader
     {

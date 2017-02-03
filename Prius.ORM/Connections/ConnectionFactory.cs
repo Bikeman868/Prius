@@ -20,7 +20,7 @@ namespace Prius.Orm.Connections
         private IDictionary<string, Type> _providers;
         private SortedList<string, Assembly> _probedAssemblies;
 
-        private const string _tracePrefix = "Prius connection factory: ";
+        private const string TracePrefix = "Prius connection factory: ";
         
         public ConnectionFactory(
             IFactory factory)
@@ -89,7 +89,7 @@ namespace Prius.Orm.Connections
                             var msg = "Type " + type.FullName +
                                       " in assembly " + assembly.FullName +
                                       " has the [ProviderAttribute] attribute but does not implement the IConnectionProvider interface.";
-                            Trace.WriteLine(_tracePrefix + msg);
+                            Trace.WriteLine(TracePrefix + msg);
                         }
                     }
                 }
@@ -98,7 +98,7 @@ namespace Prius.Orm.Connections
                     var msg = "Exception whilst examining type " + type.FullName
                               + " in assembly " + assembly.FullName
                               + ". " + ex.Message;
-                    Trace.WriteLine(_tracePrefix + msg);
+                    Trace.WriteLine(TracePrefix + msg);
                 }
             }
         }
@@ -116,7 +116,7 @@ namespace Prius.Orm.Connections
                     catch (ReflectionTypeLoadException ex)
                     {
                         var msg = "Exception probiing assembly " + assembly.FullName + ". " + ex.Message;
-                        Trace.WriteLine(_tracePrefix + msg);
+                        Trace.WriteLine(TracePrefix + msg);
                         if (ex.LoaderExceptions != null)
                         {
                             foreach (var loaderException in ex.LoaderExceptions)
@@ -129,7 +129,7 @@ namespace Prius.Orm.Connections
                     catch (Exception ex)
                     {
                         var msg = "Exception probiing assembly " + assembly.FullName + ". " + ex.Message;
-                        Trace.WriteLine(_tracePrefix + msg);
+                        Trace.WriteLine(TracePrefix + msg);
                     }
                 }
             }
@@ -143,7 +143,7 @@ namespace Prius.Orm.Connections
             var binFolderPath = Path.GetDirectoryName(assemblyPath);
 
             if (ReferenceEquals(binFolderPath, null))
-                throw new Exception(_tracePrefix + "Unable to discover the path to the bin folder");
+                throw new Exception(TracePrefix + "Unable to discover the path to the bin folder");
 
             var assemblyFileNames = Directory.GetFiles(binFolderPath, "*.dll");
 
@@ -153,31 +153,31 @@ namespace Prius.Orm.Connections
                 {
                     try
                     {
-                        Trace.WriteLine(_tracePrefix + "Probing bin folder assembly " + name);
+                        Trace.WriteLine(TracePrefix + "Probing bin folder assembly " + name);
                         return AppDomain.CurrentDomain.Load(name);
                     }
                     catch (FileNotFoundException ex)
                     {
                         var msg = "File not found exception loading " + name + ". " + ex.FileName;
-                        Trace.WriteLine(_tracePrefix + msg);
+                        Trace.WriteLine(TracePrefix + msg);
                         return null;
                     }
                     catch (BadImageFormatException ex)
                     {
                         var msg = "Bad image format exception loading " + name + ". The DLL is probably not a .Net assembly. " + ex.FusionLog;
-                        Trace.WriteLine(_tracePrefix + msg);
+                        Trace.WriteLine(TracePrefix + msg);
                         return null;
                     }
                     catch (FileLoadException ex)
                     {
                         var msg = "File load exception loading " + name + ". " + ex.FusionLog;
-                        Trace.WriteLine(_tracePrefix + msg);
+                        Trace.WriteLine(TracePrefix + msg);
                         return null;
                     }
                     catch (Exception ex)
                     {
                         var msg = "Failed to load assembly " + name + ". " + ex.Message;
-                        Trace.WriteLine(_tracePrefix + msg);
+                        Trace.WriteLine(TracePrefix + msg);
                         return null;
                     }
                 })

@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 using MySql.Data.MySqlClient;
+using Prius.Contracts.Attributes;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
-using Prius.Orm.Utility;
+using Prius.Contracts.Utility;
 
-namespace Prius.Orm.MySql
+namespace Prius.MySql
 {
-    public class Connection : Connections.Connection
+    [Provider("MySql", "MySQL and MariaDB")]
+    public class Connection : Disposable, IConnection, IConnectionProvider
     {
         private readonly IErrorReporter _errorReporter;
-        private readonly IDataReaderFactory _dataReaderFactory;
+        private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
+
+        public object RepositoryContext { get; set; }
 
         private IRepository _repository;
         private ICommand _command;
@@ -26,15 +31,13 @@ namespace Prius.Orm.MySql
 
         public Connection(
             IErrorReporter errorReporter,
-            IDataEnumeratorFactory dataEnumeratorFactory, 
-            IDataReaderFactory dataReaderFactory)
-            : base(dataEnumeratorFactory)
+            IDataEnumeratorFactory dataEnumeratorFactory)
         {
             _errorReporter = errorReporter;
-            _dataReaderFactory = dataReaderFactory;
+            _dataEnumeratorFactory = dataEnumeratorFactory;
         }
 
-        public IConnection Initialize(IRepository repository, ICommand command, string connectionString)
+        public IConnection Open(IRepository repository, ICommand command, string connectionString, string schemaName)
         {
             _repository = repository;
             _connection = new MySqlConnection(connectionString);
@@ -54,7 +57,7 @@ namespace Prius.Orm.MySql
 
         #region Transactions
 
-        public override void BeginTransaction()
+        public void BeginTransaction()
         {
             Commit();
             if (_connection.State == System.Data.ConnectionState.Closed)
@@ -73,7 +76,7 @@ namespace Prius.Orm.MySql
             _transaction = _connection.BeginTransaction();
         }
 
-        public override void Commit()
+        public void Commit()
         {
             if (_transaction != null)
             {
@@ -82,7 +85,7 @@ namespace Prius.Orm.MySql
             }
         }
 
-        public override void Rollback()
+        public void Rollback()
         {
             if (_transaction != null)
             {
@@ -95,7 +98,7 @@ namespace Prius.Orm.MySql
 
         #region Command setup
 
-        public override void SetCommand(ICommand command)
+        public void SetCommand(ICommand command)
         {
             if (command == null) return;
             _command = command;
@@ -132,9 +135,30 @@ namespace Prius.Orm.MySql
 
         #endregion
 
+        #region ExecuteEnumerable
+
+        public IAsyncResult BeginExecuteEnumerable(AsyncCallback callback)
+        {
+            return BeginExecuteReader(callback);
+        }
+
+        public IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult) where T : class
+        {
+            var reader = EndExecuteReader(asyncResult);
+            return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
+        }
+
+        public IDataEnumerator<T> ExecuteEnumerable<T>() where T : class
+        {
+            var reader = ExecuteReader();
+            return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
+        }
+
+        #endregion
+
         #region ExecuteReader
 
-        public override IAsyncResult BeginExecuteReader(AsyncCallback callback)
+        public IAsyncResult BeginExecuteReader(AsyncCallback callback)
         {
             var asyncContext = new AsyncContext
             {
@@ -153,7 +177,7 @@ namespace Prius.Orm.MySql
                     parameter.StoreOutputValue(parameter);
 
                 var dataShapeName = _connection.DataSource + ":" + _connection.Database + ":" + _mySqlCommand.CommandType + ":" + _mySqlCommand.CommandText;
-                asyncContext.Result = _dataReaderFactory.Create(
+                asyncContext.Result = new DataReader(_errorReporter).Initialize(
                     reader,
                     dataShapeName,
                     () =>
@@ -179,17 +203,22 @@ namespace Prius.Orm.MySql
             return new SyncronousResult(asyncContext, callback);
         }
 
-        public override IDataReader EndExecuteReader(IAsyncResult asyncResult)
+        public IDataReader EndExecuteReader(IAsyncResult asyncResult)
         {
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             return (IDataReader)asyncContext.Result;
+        }
+
+        public virtual IDataReader ExecuteReader()
+        {
+            return EndExecuteReader(BeginExecuteReader(null));
         }
 
         #endregion
 
         #region ExecuteNonQuery
 
-        public override IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
+        public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
         {
             var asyncContext = new AsyncContext
             {
@@ -211,7 +240,7 @@ namespace Prius.Orm.MySql
             }
         }
 
-        public override long EndExecuteNonQuery(IAsyncResult asyncResult)
+        public long EndExecuteNonQuery(IAsyncResult asyncResult)
         {
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             try
@@ -239,11 +268,16 @@ namespace Prius.Orm.MySql
             }
         }
 
+        public long ExecuteNonQuery()
+        {
+            return EndExecuteNonQuery(BeginExecuteNonQuery(null));
+        }
+
         #endregion
 
         #region ExecuteScalar
 
-        public override IAsyncResult BeginExecuteScalar(AsyncCallback callback)
+        public IAsyncResult BeginExecuteScalar(AsyncCallback callback)
         {
             var asyncContext = new AsyncContext
             {
@@ -271,7 +305,7 @@ namespace Prius.Orm.MySql
             return new SyncronousResult(asyncContext, callback);
         }
 
-        public override T EndExecuteScalar<T>(IAsyncResult asyncResult)
+        public T EndExecuteScalar<T>(IAsyncResult asyncResult)
         {
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             try
@@ -286,6 +320,11 @@ namespace Prius.Orm.MySql
                 _errorReporter.ReportError(ex, "Failed to convert type of result from ExecuteScalar on MySQL Server " + _repository.Name, _repository, this);
                 throw;
             }
+        }
+
+        public T ExecuteScalar<T>()
+        {
+            return EndExecuteScalar<T>(BeginExecuteScalar(null));
         }
 
         #endregion
@@ -380,5 +419,30 @@ namespace Prius.Orm.MySql
 
         #endregion
 
+        #region private classes
+
+        private class AsyncContext
+        {
+            public object Result;
+            public bool InitiallyClosed;
+            public long StartTime;
+        }
+
+        private class SyncronousResult : IAsyncResult
+        {
+            public WaitHandle AsyncWaitHandle { get; private set; }
+            public object AsyncState { get; private set; }
+            public bool CompletedSynchronously { get { return true; } }
+            public bool IsCompleted { get { return true; } }
+
+            public SyncronousResult(AsyncContext asyncContext, AsyncCallback callback)
+            {
+                AsyncState = asyncContext;
+                AsyncWaitHandle = new ManualResetEvent(true);
+                if (callback != null) callback(this);
+            }
+        }
+
+        #endregion
     }
 }

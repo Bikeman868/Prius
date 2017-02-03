@@ -6,7 +6,6 @@ using Moq.Modules;
 using NUnit.Framework;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.External;
-using Prius.Contracts.Interfaces.Factory;
 using Prius.Orm.Enumeration;
 
 namespace Prius.Tests
@@ -15,12 +14,10 @@ namespace Prius.Tests
     public class MapperTests: TestBase
     {
         private IMapper _mapper;
-        private IDataReaderFactory _dataReaderFactory;
 
         [SetUp]
         public void Setup()
         {
-            _dataReaderFactory = SetupMock<IDataReaderFactory>();
             _mapper = new Mapper(SetupMock<IFactory>(), SetupMock<IErrorReporter>());
         }
 

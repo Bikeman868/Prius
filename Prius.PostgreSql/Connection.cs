@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 using Npgsql;
 using NpgsqlTypes;
 using Prius.Contracts.Interfaces;
@@ -7,14 +8,16 @@ using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
-using Prius.Orm.Utility;
+using Prius.Contracts.Utility;
 
-namespace Prius.Orm.PostgreSql
+namespace Prius.PostgreSql
 {
-    public class Connection : Connections.Connection
+    public class Connection : Disposable, IConnection, IConnectionProvider
     {
         private readonly IErrorReporter _errorReporter;
-        private readonly IDataReaderFactory _dataReaderFactory;
+        private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
+
+        public object RepositoryContext { get; set; }
 
         private IRepository _repository;
         private NpgsqlConnection _connection;
@@ -30,15 +33,13 @@ namespace Prius.Orm.PostgreSql
 
         public Connection(
             IErrorReporter errorReporter,
-            IDataEnumeratorFactory dataEnumeratorFactory, 
-            IDataReaderFactory dataReaderFactory)
-            : base(dataEnumeratorFactory)
+            IDataEnumeratorFactory dataEnumeratorFactory)
         {
             _errorReporter = errorReporter;
-            _dataReaderFactory = dataReaderFactory;
+            _dataEnumeratorFactory = dataEnumeratorFactory;
         }
 
-        public IConnection Initialize(IRepository repository, ICommand command, string connectionString, string schema)
+        public IConnection Open(IRepository repository, ICommand command, string connectionString, string schema)
         {
             _repository = repository;
             _connection = new NpgsqlConnection(connectionString);
@@ -65,7 +66,7 @@ namespace Prius.Orm.PostgreSql
 
         #region Transactions
 
-        public override void BeginTransaction()
+        public void BeginTransaction()
         {
             Commit();
             if (_connection.State == System.Data.ConnectionState.Closed)
@@ -84,7 +85,7 @@ namespace Prius.Orm.PostgreSql
             _transaction = _connection.BeginTransaction();
         }
 
-        public override void Commit()
+        public void Commit()
         {
             if (_transaction != null)
             {
@@ -93,7 +94,7 @@ namespace Prius.Orm.PostgreSql
             }
         }
 
-        public override void Rollback()
+        public void Rollback()
         {
             if (_transaction != null)
             {
@@ -106,7 +107,7 @@ namespace Prius.Orm.PostgreSql
 
         #region Command setup
 
-        public override void SetCommand(ICommand command)
+        public void SetCommand(ICommand command)
         {
             _command = new NpgsqlCommand(
                 string.Format("{0}.{1}", _schema,command.CommandText), 
@@ -142,7 +143,7 @@ namespace Prius.Orm.PostgreSql
 
         #region ExecuteReader
 
-        public override IAsyncResult BeginExecuteReader(AsyncCallback callback)
+        public IAsyncResult BeginExecuteReader(AsyncCallback callback)
         {
             var asyncContext = new AsyncContext 
             { 
@@ -155,7 +156,7 @@ namespace Prius.Orm.PostgreSql
                 if (asyncContext.InitiallyClosed) _connection.Open();
                 var reader = _command.ExecuteReader();
                 var dataShapeName = _connection.DataSource + ":" + _connection.Database + ":" + _command.CommandType + ":" + _command.CommandText;
-                asyncContext.Result = _dataReaderFactory.Create(
+                asyncContext.Result = new DataReader(_errorReporter).Initialize(
                     reader,
                     dataShapeName,
                     () =>
@@ -181,17 +182,43 @@ namespace Prius.Orm.PostgreSql
             return new SyncronousResult(asyncContext, callback);
         }
 
-        public override IDataReader EndExecuteReader(IAsyncResult asyncResult)
+        public IDataReader EndExecuteReader(IAsyncResult asyncResult)
         {
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             return (IDataReader)asyncContext.Result;
+        }
+
+        public virtual IDataReader ExecuteReader()
+        {
+            return EndExecuteReader(BeginExecuteReader(null));
+        }
+
+        #endregion
+
+        #region ExecuteEnumerable
+
+        public IAsyncResult BeginExecuteEnumerable(AsyncCallback callback)
+        {
+            return BeginExecuteReader(callback);
+        }
+
+        public IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult) where T : class
+        {
+            var reader = EndExecuteReader(asyncResult);
+            return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
+        }
+
+        public IDataEnumerator<T> ExecuteEnumerable<T>() where T : class
+        {
+            var reader = ExecuteReader();
+            return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
         }
 
         #endregion
 
         #region ExecuteNonQuery
 
-        public override IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
+        public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
         {
             var asyncContext = new AsyncContext
             {
@@ -226,17 +253,22 @@ namespace Prius.Orm.PostgreSql
             return new SyncronousResult(asyncContext, callback);
         }
 
-        public override long EndExecuteNonQuery(IAsyncResult asyncResult)
+        public long EndExecuteNonQuery(IAsyncResult asyncResult)
         {
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             return (long)asyncContext.Result;
+        }
+
+        public long ExecuteNonQuery()
+        {
+            return EndExecuteNonQuery(BeginExecuteNonQuery(null));
         }
 
         #endregion
 
         #region ExecuteScalar
 
-        public override IAsyncResult BeginExecuteScalar(AsyncCallback callback)
+        public IAsyncResult BeginExecuteScalar(AsyncCallback callback)
         {
             var asyncContext = new AsyncContext
             {
@@ -260,7 +292,7 @@ namespace Prius.Orm.PostgreSql
             return new SyncronousResult(asyncContext, callback);
         }
 
-        public override T EndExecuteScalar<T>(IAsyncResult asyncResult)
+        public T EndExecuteScalar<T>(IAsyncResult asyncResult)
         {
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             try
@@ -273,6 +305,11 @@ namespace Prius.Orm.PostgreSql
                 _errorReporter.ReportError(ex, "Failed to convert type of result from ExecuteScalar on PostgrSql " + _repository.Name, _repository, this);
                 throw;
             }
+        }
+
+        public T ExecuteScalar<T>()
+        {
+            return EndExecuteScalar<T>(BeginExecuteScalar(null));
         }
 
         #endregion
@@ -291,6 +328,8 @@ namespace Prius.Orm.PostgreSql
         }
 
         #endregion
+
+        #region Helper methods
 
         private void BulkCopy(System.Data.DataTable items, NpgsqlConnection connection, NpgsqlCommand command)
         {
@@ -431,5 +470,33 @@ namespace Prius.Orm.PostgreSql
             //if (dbType == System.Data.SqlDbType.Structured) return NpgsqlDbType.;
             return NpgsqlDbType.Varchar;
         }
+
+        #endregion
+
+        #region private classes
+
+        private class AsyncContext
+        {
+            public object Result;
+            public bool InitiallyClosed;
+            public long StartTime;
+        }
+
+        private class SyncronousResult : IAsyncResult
+        {
+            public WaitHandle AsyncWaitHandle { get; private set; }
+            public object AsyncState { get; private set; }
+            public bool CompletedSynchronously { get { return true; } }
+            public bool IsCompleted { get { return true; } }
+
+            public SyncronousResult(AsyncContext asyncContext, AsyncCallback callback)
+            {
+                AsyncState = asyncContext;
+                AsyncWaitHandle = new ManualResetEvent(true);
+                if (callback != null) callback(this);
+            }
+        }
+
+        #endregion
     }
 }

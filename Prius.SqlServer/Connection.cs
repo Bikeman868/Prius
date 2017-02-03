@@ -1,20 +1,24 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Text;
+using System.Threading;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
-using Prius.Orm.Utility;
+using Prius.Contracts.Utility;
 
-namespace Prius.Orm.SqlServer
+namespace Prius.SqlServer
 {
-    public class Connection : Connections.Connection
+    [Provider("SqlServer", "Microsoft SQL Server")]
+    public class Connection : Disposable, IConnection, IConnectionProvider
     {
         private readonly IErrorReporter _errorReporter;
-        private readonly IDataReaderFactory _dataReaderFactory;
+        private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
+
+        public object RepositoryContext { get; set; }
 
         private IRepository _repository;
         private ICommand _command;
@@ -27,15 +31,13 @@ namespace Prius.Orm.SqlServer
 
         public Connection(
             IErrorReporter errorReporter,
-            IDataEnumeratorFactory dataEnumeratorFactory, 
-            IDataReaderFactory dataReaderFactory)
-            : base(dataEnumeratorFactory)
+            IDataEnumeratorFactory dataEnumeratorFactory)
         {
             _errorReporter = errorReporter;
-            _dataReaderFactory = dataReaderFactory;
+            _dataEnumeratorFactory = dataEnumeratorFactory;
         }
 
-        public IConnection Initialize(IRepository repository, ICommand command, string connectionString)
+        public IConnection Open(IRepository repository, ICommand command, string connectionString, string schemaName)
         {
             _repository = repository;
             _connection = new SqlConnection(connectionString);
@@ -48,14 +50,13 @@ namespace Prius.Orm.SqlServer
         {
             Commit();
             _connection.Dispose();
-            base.Dispose(destructor);
         }
-        
+
         #endregion
 
         #region Transactions
 
-        public override void BeginTransaction()
+        public void BeginTransaction()
         {
             Commit();
             if (_connection.State == System.Data.ConnectionState.Closed)
@@ -74,7 +75,7 @@ namespace Prius.Orm.SqlServer
             _transaction = _connection.BeginTransaction();
         }
 
-        public override void Commit()
+        public void Commit()
         {
             if (_transaction != null)
             {
@@ -83,7 +84,7 @@ namespace Prius.Orm.SqlServer
             }
         }
 
-        public override void Rollback()
+        public void Rollback()
         {
             if (_transaction != null)
             {
@@ -96,7 +97,7 @@ namespace Prius.Orm.SqlServer
 
         #region Command setup
 
-        public override void SetCommand(ICommand command)
+        public void SetCommand(ICommand command)
         {
             if (command == null) return;
             _command = command;
@@ -120,7 +121,7 @@ namespace Prius.Orm.SqlServer
 
         #region ExecuteReader
 
-        public override IAsyncResult BeginExecuteReader(AsyncCallback callback)
+        public IAsyncResult BeginExecuteReader(AsyncCallback callback)
         {
             var asyncContext = new AsyncContext 
             { 
@@ -143,7 +144,7 @@ namespace Prius.Orm.SqlServer
             }
         }
 
-        public override IDataReader EndExecuteReader(IAsyncResult asyncResult)
+        public IDataReader EndExecuteReader(IAsyncResult asyncResult)
         {
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             try
@@ -157,7 +158,7 @@ namespace Prius.Orm.SqlServer
 
                 var dataShapeName = _connection.DataSource + ":" + _connection.Database + ":" + _sqlCommand.CommandType + ":" + _sqlCommand.CommandText;
 
-                return _dataReaderFactory.Create(
+                return new DataReader(_errorReporter).Initialize(
                     reader,
                     dataShapeName,
                     () =>
@@ -185,7 +186,7 @@ namespace Prius.Orm.SqlServer
             }
         }
 
-        public override IDataReader ExecuteReader()
+        public IDataReader ExecuteReader()
         {
             var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
             var startTime = PerformanceTimer.TimeNow;
@@ -200,7 +201,7 @@ namespace Prius.Orm.SqlServer
 
                 var dataShapeName = _connection.DataSource + ":" + _connection.Database + ":" + _sqlCommand.CommandType + ":" + _sqlCommand.CommandText;
 
-                return _dataReaderFactory.Create(
+                return new DataReader(_errorReporter).Initialize(
                     reader,
                     dataShapeName,
                     () =>
@@ -230,9 +231,30 @@ namespace Prius.Orm.SqlServer
 
         #endregion
 
+        #region ExecuteEnumerable
+
+        public IAsyncResult BeginExecuteEnumerable(AsyncCallback callback)
+        {
+            return BeginExecuteReader(callback);
+        }
+
+        public IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult) where T : class
+        {
+            var reader = EndExecuteReader(asyncResult);
+            return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
+        }
+
+        public IDataEnumerator<T> ExecuteEnumerable<T>() where T : class
+        {
+            var reader = ExecuteReader();
+            return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
+        }
+
+        #endregion
+
         #region ExecuteNonQuery
 
-        public override IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
+        public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
         {
             var asyncContext = new AsyncContext
             {
@@ -254,7 +276,7 @@ namespace Prius.Orm.SqlServer
             }
         }
 
-        public override long EndExecuteNonQuery(IAsyncResult asyncResult)
+        public long EndExecuteNonQuery(IAsyncResult asyncResult)
         {
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             try
@@ -282,7 +304,7 @@ namespace Prius.Orm.SqlServer
             }
         }
 
-        public override long ExecuteNonQuery()
+        public long ExecuteNonQuery()
         {
             var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
             var startTime = PerformanceTimer.TimeNow;
@@ -316,7 +338,7 @@ namespace Prius.Orm.SqlServer
 
         #region ExecuteScalar
 
-        public override IAsyncResult BeginExecuteScalar(AsyncCallback callback)
+        public IAsyncResult BeginExecuteScalar(AsyncCallback callback)
         {
             var asyncContext = new AsyncContext
             {
@@ -344,7 +366,7 @@ namespace Prius.Orm.SqlServer
             return new SyncronousResult(asyncContext, callback);
         }
 
-        public override T EndExecuteScalar<T>(IAsyncResult asyncResult)
+        public T EndExecuteScalar<T>(IAsyncResult asyncResult)
         {
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             try
@@ -361,7 +383,7 @@ namespace Prius.Orm.SqlServer
             }
         }
 
-        public override T ExecuteScalar<T>()
+        public T ExecuteScalar<T>()
         {
             var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
             var startTime = PerformanceTimer.TimeNow;
@@ -407,5 +429,30 @@ namespace Prius.Orm.SqlServer
 
         #endregion
 
+        #region private classes
+
+        private class AsyncContext
+        {
+            public object Result;
+            public bool InitiallyClosed;
+            public long StartTime;
+        }
+
+        private class SyncronousResult : IAsyncResult
+        {
+            public WaitHandle AsyncWaitHandle { get; private set; }
+            public object AsyncState { get; private set; }
+            public bool CompletedSynchronously { get { return true; } }
+            public bool IsCompleted { get { return true; } }
+
+            public SyncronousResult(AsyncContext asyncContext, AsyncCallback callback)
+            {
+                AsyncState = asyncContext;
+                AsyncWaitHandle = new ManualResetEvent(true);
+                if (callback != null) callback(this);
+            }
+        }
+
+        #endregion
     }
 }

@@ -8,11 +8,10 @@ using Prius.Orm.Utility;
 
 namespace Prius.Orm.Connections
 {
-    public abstract class Connection: Disposable, IConnection
+    public abstract class Connection
     {
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
 
-        public object RepositoryContext { get; set; }
 
         public abstract void BeginTransaction();
         public abstract void Commit();

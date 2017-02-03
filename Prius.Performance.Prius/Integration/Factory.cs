@@ -16,5 +16,10 @@ namespace Prius.Performance.Prius.Integration
         {
             return _container.Resolve<T>();
         }
+
+        public object Create(System.Type type)
+        {
+            return _container.Resolve(type);
+        }
     }
 }

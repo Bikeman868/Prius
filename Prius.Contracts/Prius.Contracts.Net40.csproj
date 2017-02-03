@@ -69,6 +69,9 @@
     <Compile Include="Attributes\ParameterDirection.cs" />
     <Compile Include="Interfaces\SampleCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\Disposable.cs" />
+    <Compile Include="Utility\Extensions.cs" />
+    <Compile Include="Utility\PerformanceTimer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

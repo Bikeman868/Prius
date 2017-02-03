@@ -91,6 +91,10 @@
       <Project>{12444d2d-5ccf-41b4-b515-ab42454a5a88}</Project>
       <Name>Prius.Contracts.Net40</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Prius.MySql\Prius.MySql.Net40.csproj">
+      <Project>{6c6c396e-73eb-4578-acde-3ac36e802d27}</Project>
+      <Name>Prius.MySql.Net40</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Prius.ORM\Prius.ORM.Net40.csproj">
       <Project>{2d8713eb-1151-4114-8052-9c714fc8885f}</Project>
       <Name>Prius.ORM.Net40</Name>
@@ -98,6 +102,14 @@
     <ProjectReference Include="..\Prius.Performance.Shared\Prius.Performance.Shared.csproj">
       <Project>{dd3846ea-a3bd-4e9b-8718-b35ee4ea5245}</Project>
       <Name>Prius.Performance.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Prius.PostgreSql\Prius.PostgreSql.Net40.csproj">
+      <Project>{e5436fea-96ae-48bd-bab0-eb28fae7d960}</Project>
+      <Name>Prius.PostgreSql.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Prius.SqlServer\Prius.SqlServer.Net40.csproj">
+      <Project>{ce802f57-6697-41b9-8b27-937c0aafa487}</Project>
+      <Name>Prius.SqlServer.Net40</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
