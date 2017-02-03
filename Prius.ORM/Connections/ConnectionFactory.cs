@@ -62,11 +62,6 @@ namespace Prius.Orm.Connections
             return provider;
         }
 
-        private void LoadProviders()
-        {
-
-        }
-
         private void Add(Assembly assembly)
         {
             if (!_probedAssemblies.ContainsKey(assembly.FullName))
@@ -82,7 +77,13 @@ namespace Prius.Orm.Connections
                         if (connectionProviderInterface.IsAssignableFrom(type))
                         {
                             if (!_providers.ContainsKey(connectionProviderAttribute.ServerType))
+                            {
                                 _providers.Add(connectionProviderAttribute.ServerType, type);
+                                var msg = "Found '" + connectionProviderAttribute.ServerType +
+                                          "' provider " + type.FullName + " in assembly " + 
+                                          assembly.GetName().Name + ". " ;
+                                Trace.WriteLine(TracePrefix + msg);
+                            }
                         }
                         else
                         {

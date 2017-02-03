@@ -13,6 +13,34 @@ like measuring database performance, and switching to alternate connections,
 and throttling database access to allow the database to recover from 
 performance bottlenecks.
 
+## Prius 2
+
+Note that in Prius 1 all of the database drivers were included in the main
+NuGet package. This had the advantage that it's one package to install which 
+is simple, but has the disadvantage that your application has dependencies
+on MySql and PostgreSQL even if you don't use these databases.
+
+In Prius 2 I am planning to expand to more database servers, starting with
+SqlLite. The model of including all database drivers in the one assembly works
+less well as I add more database drivers, to I split these out into separate
+NuGet packages.
+
+If you are updating from Prius 1 to Prius 2, you will need to add the NuGet
+packages for the databases that you use or you will get a runtime error when
+the first database connection is attempted.
+
+If the Prius configuration file there is `type` property for each `database`. 
+The table below lists the values of this `type` property and the corresponding
+NuGet package that you need to install.
+
+|-----------------|--------------------|
+| Database `type` | NuGet package name |
+|-----------------|--------------------|
+| SqlServer       | Prius.SqlServer    |
+| MySql           | Prius.MySql        |
+| PostgreSql      | Prius.PostgreSQL   |
+|-----------------|--------------------|
+
 ## Sample Code
 This is an example of calling a stored procedure with some parameters and 
 returning the results as a collection of objects:

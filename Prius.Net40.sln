@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Contracts.Net40", "Prius.Contracts\Prius.Contracts.Net40.csproj", "{12444D2D-5CCF-41B4-B515-AB42454A5A88}"
 EndProject
@@ -13,7 +13,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Package.cmd = Package.cmd
 		Prius.Mocks.nuspec = Prius.Mocks.nuspec
+		Prius.MySql.nuspec = Prius.MySql.nuspec
 		Prius.nuspec = Prius.nuspec
+		Prius.PostgreSql.nuspec = Prius.PostgreSql.nuspec
+		Prius.SqlServer.nuspec = Prius.SqlServer.nuspec
 		readme.md = readme.md
 		SharedVersion.cs = SharedVersion.cs
 	EndProjectSection
@@ -27,8 +30,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Performance.Prius", "Prius.Performance.Prius\Prius.Performance.Prius.csproj", "{69413137-79AB-4E45-B3A2-F1FB58B2CDA7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Performance.Ado", "Prius.Performance.Ado\Prius.Performance.Ado.csproj", "{F0FC82D5-37E8-4EF2-A24A-67F5D2D8B6BE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Performance.EntityFramework", "Prius.Performance.EntityFramework\Prius.Performance.EntityFramework.csproj", "{25812B48-4AED-48C4-B459-94B735E68E33}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.MySql.Net40", "Prius.MySql\Prius.MySql.Net40.csproj", "{6C6C396E-73EB-4578-ACDE-3AC36E802D27}"
 EndProject
@@ -74,10 +75,6 @@ Global
 		{F0FC82D5-37E8-4EF2-A24A-67F5D2D8B6BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0FC82D5-37E8-4EF2-A24A-67F5D2D8B6BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0FC82D5-37E8-4EF2-A24A-67F5D2D8B6BE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{25812B48-4AED-48C4-B459-94B735E68E33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{25812B48-4AED-48C4-B459-94B735E68E33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{25812B48-4AED-48C4-B459-94B735E68E33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{25812B48-4AED-48C4-B459-94B735E68E33}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6C6C396E-73EB-4578-ACDE-3AC36E802D27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6C6C396E-73EB-4578-ACDE-3AC36E802D27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C6C396E-73EB-4578-ACDE-3AC36E802D27}.Release|Any CPU.ActiveCfg = Release|Any CPU

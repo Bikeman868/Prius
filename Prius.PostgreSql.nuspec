@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Prius.PostgreSql</id>
+    <version>2.0.0-alpha</version>
+    <title>Prius driver for PostgreSQL</title>
+    <authors>Martin Halliday</authors>
+    <owners>Martin Halliday</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Configure databases in Prius ORM to connect to PostgreSQL databases. Defines the server type 'PostgreSql' that you can use in your Prius ORM configuration file.</description>
+    <copyright>Copyright 2017</copyright>
+    <releaseNotes>First release, not fully tested yet</releaseNotes>
+    <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
+    <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
+    <tags>ORM database prius postgresql</tags>
+    <dependencies>
+      <dependency id="Ioc.Modules" version="1.1.4" />
+      <dependency id="Prius" version="2.0.0-alpha" />
+      <dependency id="Npgsql" version="2.2.5" />
+    </dependencies>
+    <references>
+      <reference file="Prius.PostgreSql.dll"/>
+    </references>
+  </metadata>
+  <files>
+    <file src="Prius.PostgreSql\bin\Net40\Release\Prius.PostgreSql.dll" target="lib\net40"/>
+    <file src="Prius.PostgreSql\bin\Net40\Release\Prius.PostgreSql.pdb" target="lib\net40"/>
+
+    <file src="Prius.PostgreSql\bin\Net45\Release\Prius.PostgreSql.dll" target="lib\net45"/>
+    <file src="Prius.PostgreSql\bin\Net45\Release\Prius.PostgreSql.pdb" target="lib\net45"/>
+    
+    <file src="*.md" target=""/>
+    <file src="*.txt" target=""/>
+  </files>
+</package>

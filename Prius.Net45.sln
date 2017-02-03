@@ -1,13 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{92BF7A08-7496-4C9A-AE7E-78A5001C2B5B}"
 	ProjectSection(SolutionItems) = preProject
 		Package.cmd = Package.cmd
 		Prius.Mocks.nuspec = Prius.Mocks.nuspec
+		Prius.MySql.nuspec = Prius.MySql.nuspec
 		Prius.nuspec = Prius.nuspec
+		Prius.PostgreSql.nuspec = Prius.PostgreSql.nuspec
+		Prius.SqlServer.nuspec = Prius.SqlServer.nuspec
 		readme.md = readme.md
 		SharedVersion.cs = SharedVersion.cs
 	EndProjectSection
