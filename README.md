@@ -33,13 +33,11 @@ If the Prius configuration file there is `type` property for each `database`.
 The table below lists the values of this `type` property and the corresponding
 NuGet package that you need to install.
 
-|-----------------|--------------------|
 | Database `type` | NuGet package name |
 |-----------------|--------------------|
 | SqlServer       | Prius.SqlServer    |
 | MySql           | Prius.MySql        |
 | PostgreSql      | Prius.PostgreSQL   |
-|-----------------|--------------------|
 
 ## Sample Code
 This is an example of calling a stored procedure with some parameters and 
