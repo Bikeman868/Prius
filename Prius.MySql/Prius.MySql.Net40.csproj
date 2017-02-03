@@ -5,39 +5,36 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7373D140-EE4B-49E1-97FE-4BCEA9EFC5AE}</ProjectGuid>
+    <ProjectGuid>{6C6C396E-73EB-4578-ACDE-3AC36E802D27}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Prius.Orm</RootNamespace>
-    <AssemblyName>Prius.Orm</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>Prius.MySql</RootNamespace>
+    <AssemblyName>Prius.MySql</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <TargetFrameworkProfile />
-    <BaseIntermediateOutputPath>obj\Net45\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\Net40\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Net45\Debug\</OutputPath>
+    <OutputPath>bin\Net40\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Net45\Release\</OutputPath>
+    <OutputPath>bin\Net40\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ioc.Modules, Version=1.1.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ioc.Modules.1.1.4\lib\net45\Ioc.Modules.dll</HintPath>
+      <HintPath>..\packages\Ioc.Modules.1.1.4\lib\net40\Ioc.Modules.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
@@ -45,7 +42,7 @@
       <HintPath>..\packages\Npgsql.2.2.5\lib\net40\Mono.Security.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\packages\MySql.Data.6.9.9\lib\net45\MySql.Data.dll</HintPath>
+      <HintPath>..\packages\MySql.Data.6.9.9\lib\net40\MySql.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -64,57 +61,27 @@
     <Reference Include="System.Xml" />
     <Reference Include="Urchin.Client, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Urchin.Client.1.2.0\lib\net45\Urchin.Client.dll</HintPath>
+      <HintPath>..\packages\Urchin.Client.1.2.0\lib\net40\Urchin.Client.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedVersion.cs">
       <Link>Properties\SharedVersion.cs</Link>
     </Compile>
-    <Compile Include="Commands\Command.cs" />
-    <Compile Include="Commands\CommandFactory.cs" />
-    <Compile Include="Config\StoredProcedure.cs" />
-    <Compile Include="Enumeration\AsyncEnumerable.cs" />
-    <Compile Include="Enumeration\AsyncEnumerableFactory.cs" />
+    <Compile Include="Connection.cs" />
+    <Compile Include="DataReader.cs" />
     <Compile Include="Package.cs" />
-    <Compile Include="Results\DataReaderFactory.cs" />
-    <Compile Include="Commands\Parameter.cs" />
-    <Compile Include="Commands\ParameterFactory.cs" />
-    <Compile Include="Config\FallbackPolicy.cs" />
-    <Compile Include="Config\Repository.cs" />
-    <Compile Include="Config\PriusConfig.cs" />
-    <Compile Include="Config\Database.cs" />
-    <Compile Include="Config\Cluster.cs" />
-    <Compile Include="Config\ServerType.cs" />
-    <Compile Include="Connections\Connection.cs" />
-    <Compile Include="Connections\ConnectionFactory.cs" />
-    <Compile Include="Connections\Context.cs" />
-    <Compile Include="Connections\ContextFactory.cs" />
-    <Compile Include="Connections\Repository.cs" />
-    <Compile Include="Connections\RepositoryFactory.cs" />
-    <Compile Include="Enumeration\DataEnumerator.cs" />
-    <Compile Include="Enumeration\DataEnumeratorFactory.cs" />
-    <Compile Include="Enumeration\DummyDataEnumerator.cs" />
-    <Compile Include="Enumeration\EnumerableData.cs" />
-    <Compile Include="Enumeration\EnumerableDataFactory.cs" />
-    <Compile Include="Enumeration\Mapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility\Disposable.cs" />
-    <Compile Include="Utility\EnumerableLocked.cs" />
-    <Compile Include="Utility\HistoryBucketQueue.cs" />
-    <Compile Include="Utility\PerformanceTimer.cs" />
-    <Compile Include="Utility\ThreadSafeDictionary.cs" />
-    <Compile Include="Utility\Extensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.Net40.csproj">
+      <Project>{12444D2D-5CCF-41B4-B515-AB42454A5A88}</Project>
+      <Name>Prius.Contracts.Net40</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.Prius.ORM.Net45.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.Net45.csproj">
-      <Project>{abb21658-6682-4e95-b633-e19e60782070}</Project>
-      <Name>Prius.Contracts.Net45</Name>
-    </ProjectReference>
+    <None Include="packages.Prius.MySql.Net40.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -122,23 +122,13 @@ namespace Prius.Orm.Connections
                 SetTimeout(command, server);
 
             IConnection result = null;
-            switch (server.ServerType)
+            try
             {
-                case ServerType.SqlServer:
-                    result = _connectionFactory.CreateSqlServer(this, command, server.ConnectionString);
-                    break;
-                case ServerType.MySql:
-                    result = _connectionFactory.CreateMySql(this, command, server.ConnectionString);
-                    break;
-                case ServerType.Redis:
-                    result = _connectionFactory.CreateRedis(this, command, server.HostName, server.InstanceName);
-                    break;
-                case ServerType.PostgreSQL:
-                    result = _connectionFactory.CreatePostgreSql(this, command, server.ConnectionString, server.SchemaName);
-                    break;
-                default:
-                    server.Group.RecordFailure(server);
-                    break;
+                result = _connectionFactory.Create(server.ServerType, this, command, server.ConnectionString, server.SchemaName);
+            }
+            catch
+            {
+                server.Group.RecordFailure(server);
             }
 
             if (result != null) result.RepositoryContext = server;
@@ -358,14 +348,14 @@ namespace Prius.Orm.Connections
         private class Server
         {
             public Group Group { get; set; }
-            public ServerType ServerType { get; private set; }
+            public string ServerType { get; private set; }
             public string ConnectionString { get; private set; }
             public string HostName { get; private set; }
             public string InstanceName { get; private set; }
             public string SchemaName { get; private set; }
             public IDictionary<string, int> CommandTimeouts { get; private set; }
 
-            public Server(ServerType serverType, string connectionString, IDictionary<string, int> commandTimeouts)
+            public Server(string serverType, string connectionString, IDictionary<string, int> commandTimeouts)
             {
                 ServerType = serverType;
                 ConnectionString = connectionString;
@@ -376,12 +366,12 @@ namespace Prius.Orm.Connections
                     .Select(cs => new { Key = cs.Substring(0, cs.IndexOf('=')), Value = cs.Substring(cs.IndexOf('=') + 1) })
                     .ToDictionary(t => t.Key);
 
-                if (serverType == ServerType.Redis)
+                if (string.Equals(serverType, "Redis", StringComparison.OrdinalIgnoreCase))
                 {
                     HostName = connectionParameters["server"].Value;
                     InstanceName = connectionParameters["database"].Value;
                 }
-                else if (serverType == ServerType.PostgreSQL)
+                else if (string.Equals(serverType, "PostgreSQL", StringComparison.OrdinalIgnoreCase))
                 {
                     if (connectionParameters.ContainsKey("schema"))
                     {

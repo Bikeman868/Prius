@@ -9,7 +9,7 @@ namespace Prius.Orm.Config
     {
         public Database()
         {
-            ServerType = ServerType.SqlServer;
+            ServerType = "SqlServer";
             Enabled = true;
         }
 
@@ -20,7 +20,7 @@ namespace Prius.Orm.Config
         public int SequenceNumber { get; set; }
 
         [JsonProperty("type")]
-        public ServerType ServerType { get; set; }
+        public string ServerType { get; set; }
 
         [JsonProperty("connectionString")]
         public string ConnectionString { get; set; }

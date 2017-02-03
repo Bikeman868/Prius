@@ -6,7 +6,6 @@ using Prius.Contracts.Interfaces.Factory;
 using Prius.Orm.Commands;
 using Prius.Orm.Connections;
 using Prius.Orm.Enumeration;
-using Prius.Orm.Results;
 
 namespace Prius.Orm
 {
@@ -21,20 +20,19 @@ namespace Prius.Orm
             IocRegistrations = new List<IocRegistration>
             {
                 // Prius provides implementations for these interfaces
-                new IocRegistration().Init<ICommandFactory, CommandFactory>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IConnectionFactory, ConnectionFactory>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IContextFactory, ContextFactory>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IDataEnumeratorFactory, DataEnumeratorFactory>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IDataReaderFactory, DataReaderFactory>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IMapper, Mapper>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IParameterFactory, ParameterFactory>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IRepositoryFactory, RepositoryFactory>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IEnumerableDataFactory, EnumerableDataFactory>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IAsyncEnumerableFactory, AsyncEnumerableFactory>(IocLifetime.SingleInstance),
+                new IocRegistration().Init<ICommandFactory, CommandFactory>(),
+                new IocRegistration().Init<IConnectionFactory, ConnectionFactory>(),
+                new IocRegistration().Init<IContextFactory, ContextFactory>(),
+                new IocRegistration().Init<IDataEnumeratorFactory, DataEnumeratorFactory>(),
+                new IocRegistration().Init<IMapper, Mapper>(),
+                new IocRegistration().Init<IParameterFactory, ParameterFactory>(),
+                new IocRegistration().Init<IRepositoryFactory, RepositoryFactory>(),
+                new IocRegistration().Init<IEnumerableDataFactory, EnumerableDataFactory>(),
+                new IocRegistration().Init<IAsyncEnumerableFactory, AsyncEnumerableFactory>(),
 
                 // Prius needs the application to implement these interfaces
-                new IocRegistration().Init<IFactory>(IocLifetime.SingleInstance),
-                new IocRegistration().Init<IErrorReporter>(IocLifetime.SingleInstance),
+                new IocRegistration().Init<IFactory>(),
+                new IocRegistration().Init<IErrorReporter>()
             };
         }
     }
