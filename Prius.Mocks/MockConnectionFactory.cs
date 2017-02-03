@@ -15,7 +15,7 @@ namespace Prius.Mocks
         protected override void SetupMock(IMockProducer mockProducer, Mock<IConnectionFactory> mock)
         {
             mock.Setup(cf => cf.Create(It.IsAny<string>(), It.IsAny<IRepository>(), It.IsAny<ICommand>(), It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((IRepository r, ICommand cmd, string c) => new Connection(MockedRepository, cmd));
+                .Returns((string serverType, IRepository r, ICommand cmd, string cs, string schema) => new Connection(MockedRepository, cmd));
         }
 
     }
