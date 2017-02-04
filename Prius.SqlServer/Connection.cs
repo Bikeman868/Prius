@@ -12,7 +12,7 @@ using Prius.Contracts.Utility;
 
 namespace Prius.SqlServer
 {
-    [Provider("SqlServer", "Microsoft SQL Server")]
+    [Provider("SqlServer", "Microsoft SQL Server connection provider")]
     public class Connection : Disposable, IConnection, IConnectionProvider
     {
         private readonly IErrorReporter _errorReporter;

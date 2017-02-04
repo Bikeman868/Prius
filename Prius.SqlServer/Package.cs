@@ -8,7 +8,7 @@ namespace Prius.SqlServer
     [Package]
     public class Package : IPackage
     {
-        public string Name { get { return "Prius Sql Server"; } }
+        public string Name { get { return "Prius SQL Server driver"; } }
         public IList<IocRegistration> IocRegistrations { get; private set; }
 
         public Package()

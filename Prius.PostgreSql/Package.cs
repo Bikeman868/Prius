@@ -8,7 +8,7 @@ namespace Prius.PostgreSql
     [Package]
     public class Package : IPackage
     {
-        public string Name { get { return "Prius ORM"; } }
+        public string Name { get { return "Prius PostgreSQL driver"; } }
         public IList<IocRegistration> IocRegistrations { get; private set; }
 
         public Package()
