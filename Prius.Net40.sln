@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Contracts.Net40", "Prius.Contracts\Prius.Contracts.Net40.csproj", "{12444D2D-5CCF-41B4-B515-AB42454A5A88}"
 EndProject
@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Prius.MySql.nuspec = Prius.MySql.nuspec
 		Prius.nuspec = Prius.nuspec
 		Prius.PostgreSql.nuspec = Prius.PostgreSql.nuspec
+		Prius.SqLite.nuspec = Prius.SqLite.nuspec
 		Prius.SqlServer.nuspec = Prius.SqlServer.nuspec
 		readme.md = readme.md
 		SharedVersion.cs = SharedVersion.cs
@@ -38,6 +39,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.SqlServer.Net40", "Prius.SqlServer\Prius.SqlServer.Net40.csproj", "{CE802F57-6697-41B9-8B27-937C0AAFA487}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.SqLite.Net40", "Prius.SQLite\Prius.SqLite.Net40.csproj", "{121FFC66-F424-45F3-8CF9-B7E366B310C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersTestApp", "UsersTestApp\UsersTestApp.csproj", "{89FA9422-9A12-49CC-8202-46C0531163C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +96,10 @@ Global
 		{121FFC66-F424-45F3-8CF9-B7E366B310C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{121FFC66-F424-45F3-8CF9-B7E366B310C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{121FFC66-F424-45F3-8CF9-B7E366B310C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89FA9422-9A12-49CC-8202-46C0531163C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89FA9422-9A12-49CC-8202-46C0531163C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89FA9422-9A12-49CC-8202-46C0531163C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89FA9422-9A12-49CC-8202-46C0531163C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

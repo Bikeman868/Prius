@@ -4,9 +4,9 @@ using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Utility;
 
-namespace Prius.SqLite
+namespace Prius.SqLite.CommandProcessing
 {
-    public class DataReader : Disposable, IDataReader
+    internal class DataReader : Disposable, IDataReader
     {
         private readonly IErrorReporter _errorReporter;
 

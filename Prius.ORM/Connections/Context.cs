@@ -13,8 +13,8 @@ namespace Prius.Orm.Connections
     {
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
         private readonly IErrorReporter _errorReporter;
+        private readonly IRepository _repository;
 
-        private IRepository _repository;
         private IConnection _connection;
         private bool _isPrepared;
 

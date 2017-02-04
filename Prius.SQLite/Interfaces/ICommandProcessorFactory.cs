@@ -1,7 +1,7 @@
 ﻿using System.Data.SQLite;
 using Prius.Contracts.Interfaces.Commands;
 
-namespace Prius.SqLite
+namespace Prius.SqLite.Interfaces
 {
     public interface ICommandProcessorFactory
     {

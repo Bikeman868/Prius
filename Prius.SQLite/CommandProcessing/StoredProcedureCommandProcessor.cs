@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SQLite;
-using System.Linq;
-using System.Text;
-using Ioc.Modules;
+using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.External;
+using Prius.SqLite.Interfaces;
 
-namespace Prius.SqLite
+namespace Prius.SqLite.CommandProcessing
 {
     internal class StoredProcedureCommandProcessor: ICommandProcessor
     {
@@ -19,24 +17,14 @@ namespace Prius.SqLite
         {
         }
 
-        public int CommandTimeout
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public int CommandTimeout { get; set; }
 
         public SQLiteParameterCollection Parameters
         {
             get { throw new NotImplementedException(); }
         }
 
-        public Contracts.Interfaces.IDataReader ExecuteReader(string dataShapeName, Action<Contracts.Interfaces.IDataReader> closeAction, Action<Contracts.Interfaces.IDataReader> errorAction)
+        public IDataReader ExecuteReader(string dataShapeName, Action<IDataReader> closeAction, Action<IDataReader> errorAction)
         {
             throw new NotImplementedException();
         }

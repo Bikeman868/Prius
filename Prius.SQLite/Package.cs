@@ -2,6 +2,9 @@
 using Ioc.Modules;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
+using Prius.SqLite.CommandProcessing;
+using Prius.SqLite.Interfaces;
+using Prius.SqLite.SchemaUpdating;
 
 namespace Prius.SqLite
 {
@@ -16,6 +19,7 @@ namespace Prius.SqLite
             IocRegistrations = new List<IocRegistration>
             {
                 new IocRegistration().Init<ICommandProcessorFactory, CommandProcessorFactory>(),
+                new IocRegistration().Init<ISchemaUpdater, SchemaUpdater>(),
 
                 new IocRegistration().Init<IFactory>(),
                 new IocRegistration().Init<IErrorReporter>(),

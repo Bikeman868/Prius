@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Data.SQLite;
-using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Enumerations;
+using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.External;
+using Prius.SqLite.Interfaces;
 
-namespace Prius.SqLite
+namespace Prius.SqLite.CommandProcessing
 {
     internal class CommandProcessorFactory : ICommandProcessorFactory
     {

@@ -1,0 +1,42 @@
+{
+    "prius": 
+    {
+        "databases": 
+        [
+            {
+                "name": "SqlServer",
+                "type": "SqlServer",
+                "connectionString": "Data Source=.\\SQLEXPRESS;Initial Catalog=PriusPerformanceTests;Integrated Security=SSPI;"
+            },
+            {
+                "name": "MySQL",
+                "type": "MySQL",
+                "connectionString": "Server=localhost;Database=Users;Uid=user;Pwd=password;"
+            },
+            {
+                "name": "SqLite",
+                "type": "SqLite",
+                "connectionString": "Data Source=Users.sqlite;Version=3;New=True;"
+            }
+        ],
+        "fallbackPolicies": 
+        [
+            { "name": "noFallback", "allowedFailurePercent": 100 }
+        ],
+        "repositories": 
+        [
+            {
+                "name": "SqlServer",
+                "clusters": [{ "sequence": 1, "databases": [ "SqlServer" ], "fallbackPolicy": "noFallback" }]
+            },
+            {
+                "name": "MySQL",
+                "clusters": [{ "sequence": 1, "databases": [ "MySQL" ], "fallbackPolicy": "noFallback" }]
+            },
+            {
+                "name": "SqLite",
+                "clusters": [{ "sequence": 1, "databases": [ "SqLite" ], "fallbackPolicy": "noFallback" }]
+            }
+        ]
+    }
+}

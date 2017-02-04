@@ -63,6 +63,9 @@ namespace Prius.Orm.Connections
 
         public IRepository Create(string repositoryName)
         {
+            if (string.IsNullOrEmpty(repositoryName))
+                throw new Exception("No Prius repository name was specified, please check your configuration");
+
             var repositories = _repositories;
 
             lock (repositories)

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SQLite;
-using System.Linq;
-using System.Text;
-using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces;
+using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.External;
+using Prius.SqLite.Interfaces;
 
-namespace Prius.SqLite
+namespace Prius.SqLite.CommandProcessing
 {
     internal class SqlCommandProcessor: ICommandProcessor
     {

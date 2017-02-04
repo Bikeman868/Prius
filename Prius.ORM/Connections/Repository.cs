@@ -121,7 +121,7 @@ namespace Prius.Orm.Connections
             if (!command.TimeoutSeconds.HasValue)
                 SetTimeout(command, server);
 
-            IConnection result = null;
+            IConnection result;
             try
             {
                 result = _connectionFactory.Create(server.ServerType, this, command, server.ConnectionString, server.SchemaName);
@@ -129,6 +129,7 @@ namespace Prius.Orm.Connections
             catch
             {
                 server.Group.RecordFailure(server);
+                throw;
             }
 
             if (result != null) result.RepositoryContext = server;

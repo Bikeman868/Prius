@@ -1,11 +1,8 @@
-﻿using Prius.Contracts.Interfaces;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data.SQLite;
-using System.Linq;
-using System.Text;
+using Prius.Contracts.Interfaces;
 
-namespace Prius.SqLite
+namespace Prius.SqLite.Interfaces
 {
     public interface ICommandProcessor
     {
