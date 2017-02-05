@@ -9,18 +9,22 @@ namespace Prius.SqLite.CommandProcessing
     {
         public void ExecuteNonQuery(SQLiteConnection connection, StringBuilder sql)
         {
-            var command = connection.CreateCommand();
-            command.CommandType = CommandType.Text;
-            command.CommandText = sql.ToString();
-            command.ExecuteNonQuery();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandType = CommandType.Text;
+                command.CommandText = sql.ToString();
+                command.ExecuteNonQuery();
+            }
         }
 
         public SQLiteDataReader ExecuteReader(SQLiteConnection connection, StringBuilder sql)
         {
-            var command = connection.CreateCommand();
-            command.CommandType = CommandType.Text;
-            command.CommandText = sql.ToString();
-            return command.ExecuteReader();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandType = CommandType.Text;
+                command.CommandText = sql.ToString();
+                return command.ExecuteReader();
+            }
         }
     }
 }

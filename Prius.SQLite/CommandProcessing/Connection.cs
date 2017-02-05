@@ -60,6 +60,7 @@ namespace Prius.SqLite.CommandProcessing
         protected override void Dispose(bool destructor)
         {
             Commit();
+            _commandProcessor.Dispose();
             _connection.Dispose();
             base.Dispose(destructor);
         }

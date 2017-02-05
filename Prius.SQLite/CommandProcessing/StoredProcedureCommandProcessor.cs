@@ -3,11 +3,12 @@ using System.Data.SQLite;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.External;
+using Prius.Contracts.Utility;
 using Prius.SqLite.Interfaces;
 
 namespace Prius.SqLite.CommandProcessing
 {
-    internal class StoredProcedureCommandProcessor: ICommandProcessor
+    internal class StoredProcedureCommandProcessor: Disposable, ICommandProcessor
     {
         public StoredProcedureCommandProcessor(
             IErrorReporter errorReporter,

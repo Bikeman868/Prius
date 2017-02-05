@@ -35,9 +35,9 @@ namespace Prius.SqLite.CommandProcessing
 
         protected override void Dispose(bool destructor)
         {
+            _reader.Dispose();
             if (_hasErrors && _errorAction != null) _errorAction(this);
             if (_closeAction != null) _closeAction(this);
-            _reader.Dispose();
             base.Dispose(destructor);
         }
 

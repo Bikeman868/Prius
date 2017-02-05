@@ -4,7 +4,7 @@ using Prius.Contracts.Interfaces;
 
 namespace Prius.SqLite.Interfaces
 {
-    public interface ICommandProcessor
+    public interface ICommandProcessor: IDisposable
     {
         int CommandTimeout { get; set; }
         SQLiteParameterCollection Parameters { get; }

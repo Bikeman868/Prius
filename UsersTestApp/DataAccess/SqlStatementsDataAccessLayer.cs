@@ -20,7 +20,9 @@ namespace UsersTestApp.DataAccess
 
         public User AddUser(string repository, string firstName, string lastName)
         {
-            using (var command = _commandFactory.CreateSql("INSERT INTO tb_Users (FirstName,LastName)VALUES(@FirstName,@LastName);SELECT UserID,FirstName,LastName FROM tb_Users WHERE FirstName=@FirstName AND LastName=@LastName"))
+            var sql = "INSERT INTO tb_Users (FirstName,LastName)VALUES(@FirstName,@LastName);";
+            sql += "SELECT UserID,FirstName,LastName FROM tb_Users WHERE FirstName=@FirstName AND LastName=@LastName;";
+            using (var command = _commandFactory.CreateSql(sql))
             {
                 command.AddParameter("FirstName", firstName);
                 command.AddParameter("LastName", lastName);

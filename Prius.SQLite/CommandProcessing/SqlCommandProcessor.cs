@@ -3,11 +3,12 @@ using System.Data.SQLite;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.External;
+using Prius.Contracts.Utility;
 using Prius.SqLite.Interfaces;
 
 namespace Prius.SqLite.CommandProcessing
 {
-    internal class SqlCommandProcessor: ICommandProcessor
+    internal class SqlCommandProcessor: Disposable, ICommandProcessor
     {
         private readonly IErrorReporter _errorReporter;
         private readonly SQLiteCommand _command;
@@ -20,6 +21,12 @@ namespace Prius.SqLite.CommandProcessing
         {
             _errorReporter = errorReporter;
             _command = new SQLiteCommand(command.CommandText, connection, transaction);
+        }
+
+        protected override void Dispose(bool destructor)
+        {
+            _command.Dispose();
+            base.Dispose(destructor);
         }
 
         public int CommandTimeout
