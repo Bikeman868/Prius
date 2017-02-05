@@ -11,13 +11,16 @@ namespace Prius.SqLite.SchemaUpdating
 {
     internal class SchemaUpdater : ISchemaUpdater
     {
+        private readonly IQueryRunner _queryRunner;
         private readonly SortedList<string, string> _updatedRepositories;
         private readonly IDictionary<DbType, string> _dataTypeMap;
 
         private IList<TableSchema> _tables;
 
-        public SchemaUpdater()
+        public SchemaUpdater(
+            IQueryRunner queryRunner)
         {
+            _queryRunner = queryRunner;
             _updatedRepositories = new SortedList<string, string>(StringComparer.OrdinalIgnoreCase);
 
             _dataTypeMap = new Dictionary<DbType, string>();
@@ -91,8 +94,28 @@ namespace Prius.SqLite.SchemaUpdating
 
         private TableSchema GetCurrentSchema(SQLiteConnection connection, string tableName)
         {
-            return null;
-            //SELECT sql FROM sqlite_master WHERE name='foo';
+            var sql = new StringBuilder();
+            sql.AppendFormat("SELECT sql FROM sqlite_master WHERE name='{0}'", tableName);
+
+            var reader = _queryRunner.ExecuteReader(connection, sql);
+            if (reader == null)
+                return null;
+
+            string createTableSql;
+            using (reader)
+            {
+                if (!reader.Read())
+                    return null;
+                createTableSql = reader.GetString(0);
+            }
+            if (string.IsNullOrEmpty(createTableSql))
+                return null;
+
+            var tableSchema = new TableSchema {TableName = tableName};
+            
+            // TODO: Parse CREATE TABLE statement
+
+            return tableSchema;
         }
 
         private void CreateTable(SQLiteConnection connection, TableSchema tableSchema)
@@ -139,20 +162,12 @@ namespace Prius.SqLite.SchemaUpdating
                 sql.AppendLine(";");
             }
 
-            ExecuteNonQuery(connection, sql);
+            _queryRunner.ExecuteNonQuery(connection, sql);
         }
 
         private void UpdateTable(SQLiteConnection connection, TableSchema currentSchema, TableSchema newSchema)
         {
 
-        }
-
-        private void ExecuteNonQuery(SQLiteConnection connection, StringBuilder sql)
-        {
-            var command = connection.CreateCommand();
-            command.CommandType = CommandType.Text;
-            command.CommandText = sql.ToString();
-            command.ExecuteNonQuery();
         }
 
         #region Schema

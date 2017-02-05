@@ -78,7 +78,7 @@ namespace UsersTestApp
                 Console.WriteLine(string.Format("{0,10} {1,15} {2,20}", "Id", "Fist name", "Last name"));
                 foreach (var user in users)
                 {
-                    Console.WriteLine(string.Format("{0,-10} {1,15} {2,20}", user.UserId, user.FirstName, user.LastName));
+                    Console.WriteLine(string.Format("{0,10} {1,15} {2,20}", user.UserId, user.FirstName, user.LastName));
                 }
             }
         }
@@ -86,6 +86,9 @@ namespace UsersTestApp
         private static void Add(params string[] args)
         {
             var user = _dataAccessLayer.AddUser(_repository, args[0], args[1]);
+            if (user == null)
+                Console.WriteLine("Failed to add user");
+            else
             Console.WriteLine("Added user with id " + user.UserId);
         }
 

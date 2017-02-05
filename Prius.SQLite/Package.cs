@@ -20,6 +20,7 @@ namespace Prius.SqLite
             {
                 new IocRegistration().Init<ICommandProcessorFactory, CommandProcessorFactory>(),
                 new IocRegistration().Init<ISchemaUpdater, SchemaUpdater>(),
+                new IocRegistration().Init<IQueryRunner, QueryRunner>(),
 
                 new IocRegistration().Init<IFactory>(),
                 new IocRegistration().Init<IErrorReporter>(),

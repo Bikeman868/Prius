@@ -50,6 +50,8 @@
     <Compile Include="..\SharedVersion.cs">
       <Link>Properties\SharedVersion.cs</Link>
     </Compile>
+    <Compile Include="CommandProcessing\QueryRunner.cs" />
+    <Compile Include="Interfaces\IQueryRunner.cs" />
     <Compile Include="SchemaUpdating\ColumnAttributes.cs" />
     <Compile Include="SchemaUpdating\IndexAttributes.cs" />
     <Compile Include="SchemaUpdating\SchemaIndexAttribute.cs" />
