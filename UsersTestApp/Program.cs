@@ -75,10 +75,11 @@ namespace UsersTestApp
             }
             else
             {
-                Console.WriteLine(string.Format("{0,10} {1,15} {2,20}", "Id", "Fist name", "Last name"));
+                Console.WriteLine(string.Format("{0,10} {1,15} {2,20} {3,10}", "Id", "Fist name", "Last name", "Age"));
                 foreach (var user in users)
                 {
-                    Console.WriteLine(string.Format("{0,10} {1,15} {2,20}", user.UserId, user.FirstName, user.LastName));
+                    var age = user.DateOfBirth == DateTime.MinValue ? "" : ((DateTime.UtcNow - user.DateOfBirth).TotalDays / 365).ToString();
+                    Console.WriteLine(string.Format("{0,10} {1,15} {2,20} {3,10}", user.UserId, user.FirstName, user.LastName, age));
                 }
             }
         }
@@ -90,6 +91,9 @@ namespace UsersTestApp
                 Console.WriteLine("Failed to add user");
             else
             Console.WriteLine("Added user with id " + user.UserId);
+
+            if (args.Length > 2)
+                ; // TODO: Update DOB
         }
 
         private static void Delete(params string[] args)
@@ -110,7 +114,7 @@ namespace UsersTestApp
             Console.WriteLine("Type one of these commands and enter:");
             Console.WriteLine("");
             Console.WriteLine("  use <repository>");
-            Console.WriteLine("  add <firstName> <lastName>");
+            Console.WriteLine("  add <firstName> <lastName> [<dob>]");
             Console.WriteLine("  list");
             Console.WriteLine("  delete <userId>");
             Console.WriteLine("  close");

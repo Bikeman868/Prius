@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using Prius.Contracts.Attributes;
 using Prius.SqLite.SchemaUpdating;
 
@@ -20,5 +21,9 @@ namespace UsersTestApp.DataAccess
         [SchemaColumn("lastName", DbType.String, ColumnAttributes.NotNull)]
         [SchemaIndex("ix_FullName", IndexAttributes.Unique)]
         public string LastName { get; set; }
+
+        [Mapping("dateOfBirth", null)]
+        [SchemaColumn("dateOfBirth", DbType.DateTime)]
+        public DateTime DateOfBirth { get; set; }
     }
 }
