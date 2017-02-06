@@ -50,13 +50,19 @@
     <Compile Include="..\SharedVersion.cs">
       <Link>Properties\SharedVersion.cs</Link>
     </Compile>
+    <Compile Include="CommandProcessing\ColumnTypeMapper.cs" />
     <Compile Include="CommandProcessing\QueryRunner.cs" />
+    <Compile Include="Interfaces\IColumnTypeMapper.cs" />
     <Compile Include="Interfaces\IQueryRunner.cs" />
-    <Compile Include="SchemaUpdating\ColumnAttributes.cs" />
-    <Compile Include="SchemaUpdating\IndexAttributes.cs" />
-    <Compile Include="SchemaUpdating\SchemaIndexAttribute.cs" />
-    <Compile Include="SchemaUpdating\SchemaColumnAttribute.cs" />
-    <Compile Include="SchemaUpdating\SchemaTableAttribute.cs" />
+    <Compile Include="Interfaces\ISchemaEnumerator.cs" />
+    <Compile Include="Schema\ColumnAttributes.cs" />
+    <Compile Include="Schema\ColumnSchema.cs" />
+    <Compile Include="Schema\IndexAttributes.cs" />
+    <Compile Include="Schema\IndexSchema.cs" />
+    <Compile Include="Schema\SchemaEnumerator.cs" />
+    <Compile Include="Schema\SchemaIndexAttribute.cs" />
+    <Compile Include="Schema\SchemaColumnAttribute.cs" />
+    <Compile Include="Schema\SchemaTableAttribute.cs" />
     <Compile Include="CommandProcessing\CommandProcessorFactory.cs" />
     <Compile Include="CommandProcessing\Connection.cs" />
     <Compile Include="CommandProcessing\DataReader.cs" />
@@ -67,7 +73,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CommandProcessing\StoredProcedureCommandProcessor.cs" />
     <Compile Include="CommandProcessing\SqlCommandProcessor.cs" />
-    <Compile Include="SchemaUpdating\SchemaUpdater.cs" />
+    <Compile Include="Schema\SchemaUpdater.cs" />
+    <Compile Include="Schema\TableSchema.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.Net40.csproj">
@@ -78,6 +85,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.Prius.SqLite.Net40.config" />
+    <None Include="readme.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

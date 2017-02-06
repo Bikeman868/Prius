@@ -1,56 +1,30 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Linq;
 using System.Text;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.SqLite.Interfaces;
 
-namespace Prius.SqLite.SchemaUpdating
+namespace Prius.SqLite.Schema
 {
     internal class SchemaUpdater : ISchemaUpdater
     {
         private readonly IQueryRunner _queryRunner;
+        private readonly ISchemaEnumerator _schemaEnumerator;
+
         private readonly SortedList<string, string> _updatedRepositories;
-        private readonly IDictionary<DbType, string> _dataTypeMap;
 
         private IList<TableSchema> _tables;
 
         public SchemaUpdater(
-            IQueryRunner queryRunner)
+            IQueryRunner queryRunner, 
+            ISchemaEnumerator schemaEnumerator)
         {
             _queryRunner = queryRunner;
+            _schemaEnumerator = schemaEnumerator;
             _updatedRepositories = new SortedList<string, string>(StringComparer.OrdinalIgnoreCase);
-
-            _dataTypeMap = new Dictionary<DbType, string>();
-            _dataTypeMap[DbType.AnsiString] = "TEXT";
-            _dataTypeMap[DbType.AnsiStringFixedLength] = "TEXT";
-            _dataTypeMap[DbType.Binary] = "BLOB";
-            _dataTypeMap[DbType.Boolean] = "NUMERIC";
-            _dataTypeMap[DbType.Byte] = "INTEGER";
-            _dataTypeMap[DbType.Currency] = "NUMERIC";
-            _dataTypeMap[DbType.Date] = "TEXT";
-            _dataTypeMap[DbType.DateTime] = "TEXT";
-            _dataTypeMap[DbType.DateTime2] = "TEXT";
-            _dataTypeMap[DbType.DateTimeOffset] = "TEXT";
-            _dataTypeMap[DbType.Decimal] = "NUMERIC";
-            _dataTypeMap[DbType.Double] = "REAL";
-            _dataTypeMap[DbType.Guid] = "TEXT";
-            _dataTypeMap[DbType.Int16] = "INTEGER";
-            _dataTypeMap[DbType.Int32] = "INTEGER";
-            _dataTypeMap[DbType.Int64] = "INTEGER";
-            _dataTypeMap[DbType.Object] = "BLOB";
-            _dataTypeMap[DbType.SByte] = "INTEGER";
-            _dataTypeMap[DbType.Single] = "REAL";
-            _dataTypeMap[DbType.String] = "TEXT";
-            _dataTypeMap[DbType.StringFixedLength] = "TEXT";
-            _dataTypeMap[DbType.Time] = "INTEGER";
-            _dataTypeMap[DbType.UInt16] = "INTEGER";
-            _dataTypeMap[DbType.UInt32] = "INTEGER";
-            _dataTypeMap[DbType.UInt64] = "INTEGER";
-            _dataTypeMap[DbType.VarNumeric] = "REAL";
-            _dataTypeMap[DbType.Xml] = "TEXT";
         }
 
         public void CheckSchema(IRepository repository, SQLiteConnection connection)
@@ -62,7 +36,7 @@ namespace Prius.SqLite.SchemaUpdating
                 _updatedRepositories.Add(repository.Name, null);
 
                 if (_tables == null)
-                    _tables = ProbeForSchema();
+                    _tables = _schemaEnumerator.EnumerateTableSchemas();
             }
 
             var repositorySchema = _tables
@@ -162,11 +136,6 @@ namespace Prius.SqLite.SchemaUpdating
                         "your current schema or write a data migration routine.",
                         currentSchema.TableName, currentColumn.ColumnName);
                     throw new Exception(msg);
-                    /*
-                    sql.Clear();
-                    sql.AppendFormat("ALTER TABLE {0} DROP COLUMN {1}", currentSchema.TableName, currentColumn.ColumnName);
-                    _queryRunner.ExecuteNonQuery(connection, sql);
-                     */
                 }
                 else
                 {
@@ -183,6 +152,9 @@ namespace Prius.SqLite.SchemaUpdating
                 }
             }
 
+            // TODO: To delete or change columns we need to rename the existing table, create a new table,
+            // copy all the data accross then delete the old table.
+
             // Add new columns
             foreach (var newColumn in newSchema.Columns)
             {
@@ -197,7 +169,7 @@ namespace Prius.SqLite.SchemaUpdating
             }
         }
 
-        #region Schema
+        #region GetCurrentSchema
 
         private TableSchema GetCurrentSchema(SQLiteConnection connection, string tableName)
         {
@@ -293,57 +265,6 @@ namespace Prius.SqLite.SchemaUpdating
             }
 
             return tableSchema;
-        }
-
-        private IList<TableSchema> ProbeForSchema()
-        {
-            var tables = new List<TableSchema>();
-
-            tables.Add(
-                new TableSchema
-                {
-                    RepositoryName = "",
-                    TableName = "tb_Users",
-                    Columns = new List<ColumnSchema> 
-                    { 
-                        new ColumnSchema { ColumnName = "UserID", DataType = _dataTypeMap[DbType.UInt32], Attributes = ColumnAttributes.UniqueKey },
-                        new ColumnSchema { ColumnName = "FirstName", DataType = _dataTypeMap[DbType.String], Attributes = ColumnAttributes.None },
-                        new ColumnSchema { ColumnName = "LastName", DataType = _dataTypeMap[DbType.String], Attributes = ColumnAttributes.None },
-                    },
-                    Indexes = new List<IndexSchema> 
-                    { 
-                        new IndexSchema 
-                        { 
-                            IndexName = "ix_FullName", 
-                            Attributes = IndexAttributes.Unique, 
-                            ColumnNames = new[] { "FirstName", "LastName" }
-                        }
-                    }
-                });
-
-            return tables;
-        }
-
-        private class TableSchema
-        {
-            public string RepositoryName { get; set; }
-            public string TableName { get; set; }
-            public IList<ColumnSchema> Columns { get; set; }
-            public IList<IndexSchema> Indexes { get; set; }
-        }
-
-        private class ColumnSchema
-        {
-            public string ColumnName { get; set; }
-            public string DataType { get; set; }
-            public ColumnAttributes Attributes { get; set; }
-        }
-
-        private class IndexSchema
-        {
-            public string IndexName { get; set; }
-            public IndexAttributes Attributes { get; set; }
-            public string[] ColumnNames { get; set; }
         }
 
         #endregion

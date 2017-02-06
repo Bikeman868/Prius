@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Prius.SqLite.SchemaUpdating
+namespace Prius.SqLite.Schema
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
     public class SchemaIndexAttribute : Attribute

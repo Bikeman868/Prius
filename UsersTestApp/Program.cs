@@ -5,6 +5,7 @@ using System.Reflection;
 using Ioc.Modules;
 using Microsoft.Practices.Unity;
 using Prius.Contracts.Interfaces;
+using Prius.SqLite.Interfaces;
 using Urchin.Client.Sources;
 using Prius.Contracts.Interfaces.External;
 using UsersTestApp.DataAccess;
@@ -129,6 +130,7 @@ namespace UsersTestApp
         {
             var container = ConfigureIoc();
             ConfigureUrchin(container);
+            ConfigureSqlLite(container);
             ResolveIocDependencies(container);
         }
 
@@ -142,6 +144,12 @@ namespace UsersTestApp
         {
             var urchinConfigFile = container.Resolve<FileSource>();
             urchinConfigFile.Initialize(new FileInfo("urchin.json"), TimeSpan.FromSeconds(10));
+        }
+
+        private static void ConfigureSqlLite(UnityContainer container)
+        {
+            var schemaEnumerator = container.Resolve<ISchemaEnumerator>();
+            schemaEnumerator.Add(Assembly.GetExecutingAssembly());
         }
 
         private static UnityContainer ConfigureIoc()

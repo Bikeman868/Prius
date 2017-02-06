@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using Prius.Contracts.Attributes;
-using Prius.SqLite.SchemaUpdating;
+using Prius.SqLite.Schema;
 
 namespace UsersTestApp.DataAccess
 {

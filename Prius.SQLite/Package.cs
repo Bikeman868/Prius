@@ -4,7 +4,7 @@ using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.SqLite.CommandProcessing;
 using Prius.SqLite.Interfaces;
-using Prius.SqLite.SchemaUpdating;
+using Prius.SqLite.Schema;
 
 namespace Prius.SqLite
 {
@@ -21,6 +21,8 @@ namespace Prius.SqLite
                 new IocRegistration().Init<ICommandProcessorFactory, CommandProcessorFactory>(),
                 new IocRegistration().Init<ISchemaUpdater, SchemaUpdater>(),
                 new IocRegistration().Init<IQueryRunner, QueryRunner>(),
+                new IocRegistration().Init<IColumnTypeMapper, ColumnTypeMapper>(),
+                new IocRegistration().Init<ISchemaEnumerator, SchemaEnumerator>(),
 
                 new IocRegistration().Init<IFactory>(),
                 new IocRegistration().Init<IErrorReporter>(),

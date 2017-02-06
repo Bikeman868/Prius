@@ -4,92 +4,93 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Prius.Contracts.Attributes;
-using Prius.Contracts.Interfaces.Commands;
-using Prius.Contracts.Interfaces.Connections;
-using Prius.Contracts.Interfaces.External;
-using Prius.Contracts.Interfaces.Factory;
+using Prius.SqLite.Interfaces;
 
-
-namespace Prius.Orm.Connections
+namespace Prius.SqLite.Schema
 {
-    public class ConnectionFactory: IConnectionFactory
+    internal class SchemaEnumerator: ISchemaEnumerator
     {
-        private readonly IFactory _factory;
-
-        private IDictionary<string, Type> _providers;
+        private readonly IColumnTypeMapper _columnTypeMapper;
         private SortedList<string, Assembly> _probedAssemblies;
+        private IList<TableSchema> _tables;
 
-        private const string TracePrefix = "Prius connection factory: ";
-        
-        public ConnectionFactory(
-            IFactory factory)
+        private const string TracePrefix = "Prius SqLite schema enumerator: ";
+
+        public SchemaEnumerator(IColumnTypeMapper columnTypeMapper)
         {
-            _factory = factory;
+            _columnTypeMapper = columnTypeMapper;
+
             Clear();
             ProbeBinFolderAssemblies();
         }
 
         public void Clear()
         {
-            _providers = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+            _tables = new List<TableSchema>();
             _probedAssemblies = new SortedList<string, Assembly>();
         }
 
-        public IConnection Create(string serverType, IRepository repository, ICommand command, string connectionString, string schema)
+        public IList<TableSchema> EnumerateTableSchemas()
         {
-            var type = GetProvider(serverType);
-            var provider = ConstructProvider(type);
-            return provider.Open(repository, command, connectionString, schema);
+            return _tables;
         }
 
-        private Type GetProvider(string serverType)
-        {
-            Type type;
-            lock (_providers)
-                if (_providers.TryGetValue(serverType, out type))
-                    return type;
-
-            throw new ApplicationException("No registered provider for '" + 
-                serverType + "'. Please install the NuGet package that provides "+
-                "access to this type of server.");
-        }
-
-        private IConnectionProvider ConstructProvider(Type type)
-        {
-            var provider = _factory.Create(type) as IConnectionProvider;
-            return provider;
-        }
-
-        private void Add(Assembly assembly)
+        public void Add(Assembly assembly)
         {
             if (!_probedAssemblies.ContainsKey(assembly.FullName))
                 _probedAssemblies.Add(assembly.FullName, assembly);
 
-            var connectionProviderInterface = typeof(IConnectionProvider);
             foreach (var type in assembly.GetTypes())
             {
                 try
                 {
-                    foreach(ProviderAttribute connectionProviderAttribute in type.GetCustomAttributes(typeof(ProviderAttribute), true))
+                    foreach (SchemaTableAttribute connectionProviderAttribute in type.GetCustomAttributes(typeof(SchemaTableAttribute), true))
                     {
-                        if (connectionProviderInterface.IsAssignableFrom(type))
+                        var tableSchema = new TableSchema
                         {
-                            if (!_providers.ContainsKey(connectionProviderAttribute.ServerType))
+                            RepositoryName = connectionProviderAttribute.RepositoryName,
+                            TableName = connectionProviderAttribute.TableName,
+                            Columns = new List<ColumnSchema>(),
+                            Indexes = new List<IndexSchema>()
+                        };
+                        _tables.Add(tableSchema);
+
+                        foreach (var propertyInfo in type.GetProperties())
+                        {
+                            string columnName = null;
+                            foreach (SchemaColumnAttribute column in propertyInfo.GetCustomAttributes(typeof(SchemaColumnAttribute), true))
                             {
-                                _providers.Add(connectionProviderAttribute.ServerType, type);
-                                var msg = "Found '" + connectionProviderAttribute.ServerType +
-                                          "' provider " + type.FullName + " in assembly " + 
-                                          assembly.GetName().Name + ". " ;
-                                Trace.WriteLine(TracePrefix + msg);
+                                columnName = column.ColumnName;
+                                tableSchema.Columns.Add(new ColumnSchema
+                                {
+                                    ColumnName = column.ColumnName,
+                                    DataType = _columnTypeMapper.MapToSqLite(column.DataType),
+                                    Attributes = column.ColumnAttributes
+                                });
                             }
-                        }
-                        else
-                        {
-                            var msg = "Type " + type.FullName +
-                                      " in assembly " + assembly.FullName +
-                                      " has the [ProviderAttribute] attribute but does not implement the IConnectionProvider interface.";
-                            Trace.WriteLine(TracePrefix + msg);
+                            foreach (SchemaIndexAttribute index in propertyInfo.GetCustomAttributes(typeof(SchemaIndexAttribute), true))
+                            {
+                                if (columnName == null)
+                                    throw new Exception(
+                                        "You can not add an index to a property that is not mapped to a column in the database. "+
+                                        "Please check the '" + propertyInfo.Name + "' property of the '" + type.FullName + "' class.");
+
+                                var schemaIndex = tableSchema.Indexes.FirstOrDefault(i => string.Equals(i.IndexName, index.IndexName, StringComparison.OrdinalIgnoreCase));
+                                if (schemaIndex == null)
+                                {
+                                    schemaIndex = new IndexSchema
+                                    {
+                                        IndexName = index.IndexName,
+                                        Attributes = index.IndexAttributes,
+                                        ColumnNames = new [] {columnName}
+                                    };
+                                    tableSchema.Indexes.Add(schemaIndex);
+                                }
+                                else
+                                {
+                                    schemaIndex.ColumnNames = schemaIndex.ColumnNames.Concat(new[] {columnName}).ToArray();
+                                }
+                            }
                         }
                     }
                 }
@@ -103,7 +104,7 @@ namespace Prius.Orm.Connections
             }
         }
 
-        private void Add(IEnumerable<Assembly> assemblies)
+        public void Add(IEnumerable<Assembly> assemblies)
         {
             foreach (var assembly in assemblies)
             {
@@ -135,7 +136,7 @@ namespace Prius.Orm.Connections
             }
         }
 
-        private void ProbeBinFolderAssemblies()
+        public void ProbeBinFolderAssemblies()
         {
             var codeBase = Assembly.GetExecutingAssembly().CodeBase;
             var assemblyUri = new UriBuilder(codeBase);

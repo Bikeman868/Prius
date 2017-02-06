@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Prius.SqLite.SchemaUpdating
+namespace Prius.SqLite.Schema
 {
     [Flags]
     public enum IndexAttributes
