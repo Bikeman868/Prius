@@ -9,20 +9,20 @@ namespace Prius.SqLite.CommandProcessing
 {
     internal class StoredProcedureCommandProcessor: Disposable, ICommandProcessor
     {
-        private readonly IStoredProcedureLibrary _storedProcedureLibrary;
-        private readonly IStoredProcedureRunner _storedProcedureRunner;
+        private readonly IProcedureLibrary _procedureLibrary;
+        private readonly IProcedureRunner _procedureRunner;
 
         private ICommand _command;
         private SQLiteConnection _connection;
         private SQLiteTransaction _transaction;
-        private IStoredProcedure _storedProcedure;
+        private IProcedure _storedProcedure;
 
         public StoredProcedureCommandProcessor(
-            IStoredProcedureLibrary storedProcedureLibrary, 
-            IStoredProcedureRunner storedProcedureRunner)
+            IProcedureLibrary procedureLibrary, 
+            IProcedureRunner procedureRunner)
         {
-            _storedProcedureLibrary = storedProcedureLibrary;
-            _storedProcedureRunner = storedProcedureRunner;
+            _procedureLibrary = procedureLibrary;
+            _procedureRunner = procedureRunner;
         }
 
         public ICommandProcessor Initialize (
@@ -34,7 +34,8 @@ namespace Prius.SqLite.CommandProcessing
             _connection = connection;
             _transaction = transaction;
 
-            _storedProcedure = _storedProcedureLibrary.GetProcedure(connection, command.CommandText);
+            _storedProcedure = _procedureLibrary.Get(connection, command.CommandText);
+
             if (_storedProcedure == null)
                 throw new Exception("There is no stored procedure with the name " + command.CommandText);
 
@@ -50,17 +51,17 @@ namespace Prius.SqLite.CommandProcessing
 
         public IDataReader ExecuteReader(string dataShapeName, Action<IDataReader> closeAction, Action<IDataReader> errorAction)
         {
-            return _storedProcedureRunner.ExecuteReader(_storedProcedure, _command, CommandTimeout, _connection, _transaction);
+            return _procedureRunner.ExecuteReader(_storedProcedure, _command, CommandTimeout, _connection, _transaction, dataShapeName, closeAction, errorAction);
         }
 
         public long ExecuteNonQuery()
         {
-            return _storedProcedureRunner.ExecuteNonQuery(_storedProcedure, _command, CommandTimeout, _connection, _transaction);
+            return _procedureRunner.ExecuteNonQuery(_storedProcedure, _command, CommandTimeout, _connection, _transaction);
         }
 
-        public object ExecuteScalar()
+        public T ExecuteScalar<T>()
         {
-            return _storedProcedureRunner.ExecuteScalar(_storedProcedure, _command, CommandTimeout, _connection, _transaction);
+            return _procedureRunner.ExecuteScalar<T>(_storedProcedure, _command, CommandTimeout, _connection, _transaction);
         }
     }
 }

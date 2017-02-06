@@ -51,14 +51,22 @@
       <Link>Properties\SharedVersion.cs</Link>
     </Compile>
     <Compile Include="CommandProcessing\ColumnTypeMapper.cs" />
-    <Compile Include="CommandProcessing\QueryRunner.cs" />
+    <Compile Include="CommandProcessing\AdoQueryRunner.cs" />
+    <Compile Include="Interfaces\INativeQueryRunner.cs" />
+    <Compile Include="Interfaces\INativeProcedure.cs" />
     <Compile Include="Interfaces\IColumnTypeMapper.cs" />
     <Compile Include="Interfaces\IDataReaderFactory.cs" />
-    <Compile Include="Interfaces\IQueryRunner.cs" />
+    <Compile Include="Interfaces\IParameterAccessor.cs" />
+    <Compile Include="Interfaces\IProcedure.cs" />
+    <Compile Include="Interfaces\IAdoQueryRunner.cs" />
     <Compile Include="Interfaces\ISchemaEnumerator.cs" />
-    <Compile Include="Interfaces\IStoredProcedure.cs" />
-    <Compile Include="Interfaces\IStoredProcedureLibrary.cs" />
-    <Compile Include="Interfaces\IStoredProcedureRunner.cs" />
+    <Compile Include="Interfaces\IAdoProcedure.cs" />
+    <Compile Include="Interfaces\IProcedureLibrary.cs" />
+    <Compile Include="Interfaces\IProcedureRunner.cs" />
+    <Compile Include="CommandProcessing\DataReaderFactory.cs" />
+    <Compile Include="Procedures\NativeExecutionContext.cs" />
+    <Compile Include="Procedures\AdoExecutionContext.cs" />
+    <Compile Include="Procedures\ParameterAccessor.cs" />
     <Compile Include="Schema\ColumnAttributes.cs" />
     <Compile Include="Schema\ColumnSchema.cs" />
     <Compile Include="Schema\IndexAttributes.cs" />
@@ -79,10 +87,10 @@
     <Compile Include="CommandProcessing\SqlCommandProcessor.cs" />
     <Compile Include="Schema\SchemaUpdater.cs" />
     <Compile Include="Schema\TableSchema.cs" />
-    <Compile Include="StoredProcedures\StoredProcedureParameterAttribute.cs" />
-    <Compile Include="StoredProcedures\StoredProcedureAttributes.cs" />
-    <Compile Include="StoredProcedures\StoredProcedureLibrary.cs" />
-    <Compile Include="StoredProcedures\StoredProcedureRunner.cs" />
+    <Compile Include="Procedures\ParameterAttribute.cs" />
+    <Compile Include="Procedures\StoredProcedureAttributes.cs" />
+    <Compile Include="Procedures\ProcedureLibrary.cs" />
+    <Compile Include="Procedures\Runner.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.Net40.csproj">

@@ -10,17 +10,20 @@ namespace Prius.SqLite.CommandProcessing
     internal class CommandProcessorFactory : ICommandProcessorFactory
     {
         private readonly IErrorReporter _errorReporter;
-        private readonly IStoredProcedureLibrary _storedProcedureLibrary;
-        private readonly IStoredProcedureRunner _storedProcedureRunner;
+        private readonly IProcedureLibrary _storedProcedureLibrary;
+        private readonly IProcedureRunner _storedProcedureRunner;
+        private readonly IDataReaderFactory _dataReaderFactory;
 
         public CommandProcessorFactory(
             IErrorReporter errorReporter, 
-            IStoredProcedureLibrary storedProcedureLibrary, 
-            IStoredProcedureRunner storedProcedureRunner)
+            IProcedureLibrary storedProcedureLibrary, 
+            IProcedureRunner storedProcedureRunner, 
+            IDataReaderFactory dataReaderFactory)
         {
             _errorReporter = errorReporter;
             _storedProcedureLibrary = storedProcedureLibrary;
             _storedProcedureRunner = storedProcedureRunner;
+            _dataReaderFactory = dataReaderFactory;
         }
 
         public ICommandProcessor Create(
@@ -33,7 +36,8 @@ namespace Prius.SqLite.CommandProcessing
             switch (command.CommandType)
             {
                 case CommandType.SQL:
-                    commandProcessor = new SqlCommandProcessor(_errorReporter);
+                    commandProcessor = new SqlCommandProcessor(
+                        _dataReaderFactory);
                     break;
                 case CommandType.StoredProcedure:
                     commandProcessor = new StoredProcedureCommandProcessor(

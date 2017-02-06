@@ -42,6 +42,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.SqLite.Net40", "Prius
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersTestApp", "UsersTestApp\UsersTestApp.csproj", "{89FA9422-9A12-49CC-8202-46C0531163C5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersTestApp.Procedures", "UsersTestApp.Procedures\UsersTestApp.Procedures.csproj", "{8BDD56A8-EE9D-4E2F-8FCA-A007DB28BCD5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +102,10 @@ Global
 		{89FA9422-9A12-49CC-8202-46C0531163C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89FA9422-9A12-49CC-8202-46C0531163C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89FA9422-9A12-49CC-8202-46C0531163C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BDD56A8-EE9D-4E2F-8FCA-A007DB28BCD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BDD56A8-EE9D-4E2F-8FCA-A007DB28BCD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BDD56A8-EE9D-4E2F-8FCA-A007DB28BCD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BDD56A8-EE9D-4E2F-8FCA-A007DB28BCD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

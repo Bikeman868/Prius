@@ -18,6 +18,6 @@ namespace Prius.SqLite.Interfaces
 
         IDataReader ExecuteReader(string dataShapeName, Action<IDataReader> closeAction, Action<IDataReader> errorAction);
         long ExecuteNonQuery();
-        object ExecuteScalar();
+        T ExecuteScalar<T>();
     }
 }

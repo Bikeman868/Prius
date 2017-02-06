@@ -4,8 +4,6 @@ using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.SqLite.CommandProcessing;
 using Prius.SqLite.Interfaces;
-using Prius.SqLite.Schema;
-using Prius.SqLite.StoredProcedures;
 
 namespace Prius.SqLite
 {
@@ -19,13 +17,17 @@ namespace Prius.SqLite
         {
             IocRegistrations = new List<IocRegistration>
             {
-                new IocRegistration().Init<ICommandProcessorFactory, CommandProcessorFactory>(),
-                new IocRegistration().Init<ISchemaUpdater, SchemaUpdater>(),
-                new IocRegistration().Init<IQueryRunner, QueryRunner>(),
-                new IocRegistration().Init<IColumnTypeMapper, ColumnTypeMapper>(),
-                new IocRegistration().Init<ISchemaEnumerator, SchemaEnumerator>(),
-                new IocRegistration().Init<IStoredProcedureLibrary, StoredProcedureLibrary>(),
-                new IocRegistration().Init<IStoredProcedureRunner, StoredProcedureRunner>(),
+                new IocRegistration().Init<ICommandProcessorFactory, CommandProcessing.CommandProcessorFactory>(),
+                new IocRegistration().Init<IAdoQueryRunner, CommandProcessing.AdoQueryRunner>(),
+                new IocRegistration().Init<IColumnTypeMapper, CommandProcessing.ColumnTypeMapper>(),
+
+                new IocRegistration().Init<ISchemaUpdater, Schema.SchemaUpdater>(),
+                new IocRegistration().Init<ISchemaEnumerator, Schema.SchemaEnumerator>(),
+
+                new IocRegistration().Init<IProcedureLibrary, Procedures.ProcedureLibrary>(),
+                new IocRegistration().Init<IProcedureRunner, Procedures.Runner>(),
+                new IocRegistration().Init<IParameterAccessor, Procedures.ParameterAccessor>(),
+                new IocRegistration().Init<IDataReaderFactory, DataReaderFactory>(),
 
                 new IocRegistration().Init<IFactory>(),
                 new IocRegistration().Init<IErrorReporter>(),

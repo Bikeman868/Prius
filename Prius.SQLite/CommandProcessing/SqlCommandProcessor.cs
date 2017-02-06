@@ -2,7 +2,6 @@
 using System.Data.SQLite;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
-using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Utility;
 using Prius.SqLite.Interfaces;
 
@@ -10,13 +9,14 @@ namespace Prius.SqLite.CommandProcessing
 {
     internal class SqlCommandProcessor: Disposable, ICommandProcessor
     {
-        private readonly IErrorReporter _errorReporter;
+        private readonly IDataReaderFactory _dataReaderFactory;
+
         private SQLiteCommand _command;
 
         public SqlCommandProcessor(
-            IErrorReporter errorReporter)
+            IDataReaderFactory dataReaderFactory)
         {
-            _errorReporter = errorReporter;
+            _dataReaderFactory = dataReaderFactory;
         }
 
         public ICommandProcessor Initialize(
@@ -48,7 +48,7 @@ namespace Prius.SqLite.CommandProcessing
         public IDataReader ExecuteReader(string dataShapeName, Action<IDataReader> closeAction, Action<IDataReader> errorAction)
         {
             var sqLiteDataReader = _command.ExecuteReader();
-            return new DataReader(_errorReporter).Initialize(sqLiteDataReader, dataShapeName, closeAction, errorAction);
+            return _dataReaderFactory.Create(sqLiteDataReader, dataShapeName, closeAction, errorAction);
         }
 
         public long ExecuteNonQuery()
@@ -56,9 +56,15 @@ namespace Prius.SqLite.CommandProcessing
             return _command.ExecuteNonQuery();
         }
 
-        public object ExecuteScalar()
+        public T ExecuteScalar<T>()
         {
-            return _command.ExecuteScalar();
+            var result = _command.ExecuteScalar();
+
+            if (result == null) return default(T);
+
+            var resultType = typeof(T);
+            if (resultType.IsNullable()) resultType = resultType.GetGenericArguments()[0];
+            return (T)Convert.ChangeType(result, resultType);
         }
     }
 }

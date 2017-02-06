@@ -4,7 +4,7 @@ using Prius.Contracts.Attributes;
 namespace Prius.SqLite.StoredProcedures
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class StoredProcedureParameterAttribute : Attribute
+    public class ParameterAttribute : Attribute
     {
         public string ParameterName { get; private set; }
         public Type DataType { get; private set; }
@@ -18,7 +18,7 @@ namespace Prius.SqLite.StoredProcedures
         /// <param name="dataType">The type of data the stored procedure is expecting</param>
         /// <param name="direction">Whether data is passed in, out, or both</param>
         /// <param name="isRequired">Can this parameter be omitted (null)</param>
-        public StoredProcedureParameterAttribute(
+        public ParameterAttribute(
             string parameterName,
             Type dataType,
             ParameterDirection direction,
@@ -28,6 +28,9 @@ namespace Prius.SqLite.StoredProcedures
             DataType = dataType;
             Direction = direction;
             IsRequired = isRequired;
+
+            if (!ParameterName.StartsWith("@"))
+                ParameterName = "@" + ParameterName;
         }
 
         /// <summary>
@@ -35,7 +38,7 @@ namespace Prius.SqLite.StoredProcedures
         /// </summary>
         /// <param name="parameterName">The name of the parameter</param>
         /// <param name="dataType">The type of data the stored procedure is expecting</param>
-        public StoredProcedureParameterAttribute(
+        public ParameterAttribute(
             string parameterName,
             Type dataType)
         {
@@ -43,6 +46,9 @@ namespace Prius.SqLite.StoredProcedures
             DataType = dataType;
             Direction = ParameterDirection.Input;
             IsRequired = true;
+
+            if (!ParameterName.StartsWith("@"))
+                ParameterName = "@" + ParameterName;
         }
     }
 }

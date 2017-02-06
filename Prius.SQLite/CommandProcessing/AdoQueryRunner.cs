@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using System.Text;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.SqLite.Interfaces;
 
 namespace Prius.SqLite.CommandProcessing
 {
-    public class QueryRunner: IQueryRunner
+    public class AdoQueryRunner: IAdoQueryRunner
     {
         public void ExecuteNonQuery(SQLiteConnection connection, string sql, IList<IParameter> parameters)
         {
@@ -24,9 +23,19 @@ namespace Prius.SqLite.CommandProcessing
             using (var command = connection.CreateCommand())
             {
                 command.CommandType = CommandType.Text;
-                command.CommandText = sql.ToString();
+                command.CommandText = sql;
                 return command.ExecuteReader();
             }
+        }
+
+        public void ExecuteNonQuery(Procedures.AdoExecutionContext context, string sql)
+        {
+            ExecuteNonQuery(context.Connection, sql, context.Parameters);
+        }
+
+        public SQLiteDataReader ExecuteReader(Procedures.AdoExecutionContext context, string sql)
+        {
+            return ExecuteReader(context.Connection, sql, context.Parameters);
         }
     }
 }

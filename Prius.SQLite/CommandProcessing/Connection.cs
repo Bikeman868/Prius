@@ -275,54 +275,41 @@ namespace Prius.SqLite.CommandProcessing
 
         public IAsyncResult BeginExecuteScalar(AsyncCallback callback)
         {
-            var asyncContext = new AsyncContext
-            {
-                InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
-                StartTime = PerformanceTimer.TimeNow
-            };
-
-            try
-            {
-                if (asyncContext.InitiallyClosed) _connection.Open();
-                asyncContext.Result = _commandProcessor.ExecuteScalar();
-
-                var elapsedTicks = PerformanceTimer.TimeNow - asyncContext.StartTime;
-                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(elapsedTicks));
-            }
-            catch (Exception ex)
-            {
-                _repository.RecordFailure(this);
-                    _errorReporter.ReportError(ex, "Failed to ExecuteScalar on SqLite " + _repository.Name, _repository, this);
-                throw;
-            }
-            finally
-            {
-                if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
-            }
-            return new SyncronousResult(asyncContext, callback);
+            return new SyncronousResult(new AsyncContext(), callback);
         }
 
         public T EndExecuteScalar<T>(IAsyncResult asyncResult)
         {
-            var asyncContext = (AsyncContext)asyncResult.AsyncState;
-            try
-            {
-                if (asyncContext.Result == null) return default(T);
-                var resultType = typeof(T);
-                if (resultType.IsNullable()) resultType = resultType.GetGenericArguments()[0];
-                return (T)Convert.ChangeType(asyncContext.Result, resultType);
-            }
-            catch (Exception ex)
-            {
-                _errorReporter.ReportError(ex, "Failed to convert type of result from ExecuteScalar on SqLite  " + _repository.Name, _repository, this);
-                throw;
-            }
+            return ExecuteScalar<T>();
         }
 
         public T ExecuteScalar<T>()
         {
-            return EndExecuteScalar<T>(BeginExecuteScalar(null));
+            var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
+
+            try
+            {
+                var startTime = PerformanceTimer.TimeNow;
+
+                if (initiallyClosed) _connection.Open();
+                var result = _commandProcessor.ExecuteScalar<T>();
+
+                var elapsedTicks = PerformanceTimer.TimeNow - startTime;
+                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(elapsedTicks));
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, "Failed to ExecuteScalar on SqLite repository '" + _repository.Name + "'", _repository, this);
+                throw;
+            }
+            finally
+            {
+                if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
+                    _connection.Close();
+            }
         }
 
         #endregion

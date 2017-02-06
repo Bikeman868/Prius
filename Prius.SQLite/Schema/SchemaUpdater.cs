@@ -11,7 +11,7 @@ namespace Prius.SqLite.Schema
 {
     internal class SchemaUpdater : ISchemaUpdater
     {
-        private readonly IQueryRunner _queryRunner;
+        private readonly IAdoQueryRunner _queryRunner;
         private readonly ISchemaEnumerator _schemaEnumerator;
 
         private readonly SortedList<string, string> _updatedRepositories;
@@ -19,7 +19,7 @@ namespace Prius.SqLite.Schema
         private IList<TableSchema> _tables;
 
         public SchemaUpdater(
-            IQueryRunner queryRunner, 
+            IAdoQueryRunner queryRunner, 
             ISchemaEnumerator schemaEnumerator)
         {
             _queryRunner = queryRunner;
