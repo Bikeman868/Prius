@@ -14,5 +14,10 @@ namespace Prius.SqLite.Schema
         /// Indicates that the combined value of all columns in this index must be unique
         /// </summary>
         Unique = 1,
+
+        /// <summary>
+        /// If this index includes string columns, then they should be case sensitive
+        /// </summary>
+        CaseSensitive = 16
     }
 }

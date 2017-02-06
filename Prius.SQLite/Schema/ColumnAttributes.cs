@@ -36,7 +36,12 @@ namespace Prius.SqLite.Schema
         /// Indicates that this is the primary key column that auto-increments
         /// on each insert.
         /// </summary>
-        UniqueKey = 15
+        UniqueKey = 15,
 
+        /// <summary>
+        /// Indicates that this column should be sorted, compared and indexed with
+        /// sensitivity to case. Only applies to strings.
+        /// </summary>
+        CaseSensitive = 16
     }
 }

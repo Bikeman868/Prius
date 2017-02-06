@@ -85,11 +85,12 @@ namespace Prius.SqLite.Schema
 
             foreach (var index in tableSchema.Indexes)
             {
+                var collate = ((index.Attributes & IndexAttributes.CaseSensitive) == IndexAttributes.CaseSensitive) ? "" : " COLLATE NOCASE";
                 sql.AppendFormat("CREATE {1}INDEX {0} ON {2} ({3})",
                     index.IndexName,
                     (index.Attributes & IndexAttributes.Unique) == IndexAttributes.Unique ? "UNIQUE " : "",
                     tableSchema.TableName,
-                    string.Join(",", index.ColumnNames));
+                    string.Join(",", index.ColumnNames.Select(c => c + collate)));
                 sql.AppendLine(";");
             }
 
@@ -109,13 +110,18 @@ namespace Prius.SqLite.Schema
                 {
                     sql.Append(" PRIMARY KEY");
                 }
-                else if ((column.Attributes & ColumnAttributes.NotNull) == ColumnAttributes.NotNull)
+                if ((column.Attributes & ColumnAttributes.NotNull) == ColumnAttributes.NotNull)
                 {
                     sql.Append(" NOT NULL ON CONFLICT FAIL");
                 }
-                else if ((column.Attributes & ColumnAttributes.Unique) == ColumnAttributes.Unique)
+                if ((column.Attributes & ColumnAttributes.Unique) == ColumnAttributes.Unique)
                 {
                     sql.Append(" UNIQUE ON CONFLICT FAIL");
+                }
+                if (string.Equals(column.DataType, "TEXT", StringComparison.OrdinalIgnoreCase) &&
+                    (column.Attributes & ColumnAttributes.CaseSensitive) != ColumnAttributes.CaseSensitive)
+                {
+                    sql.Append(" COLLATE NOCASE");
                 }
             }
         }
@@ -142,17 +148,17 @@ namespace Prius.SqLite.Schema
                     if (!string.Equals(currentColumn.DataType, newColumn.DataType, StringComparison.OrdinalIgnoreCase) ||
                         currentColumn.Attributes != newColumn.Attributes)
                     {
-                    var msg = string.Format(
-                        "The {1} column in the {0} table has a different schema in the database than the code is expecting. " +
-                        "SqLite does not have the ability to alter column definitions, you should add a new column and " +
-                        "write a data migration routine to copy the existing data over.",
-                        currentSchema.TableName, currentColumn.ColumnName);
-                    throw new Exception(msg);
+                        var msg = string.Format(
+                            "The {1} column in the {0} table has a different schema in the database than the code is expecting. " +
+                            "SqLite does not have the ability to alter column definitions, you should add a new column and " +
+                            "write a data migration routine to copy the existing data over.",
+                            currentSchema.TableName, currentColumn.ColumnName);
+                        throw new Exception(msg);
                     }
                 }
             }
 
-            // TODO: To delete or change columns we need to rename the existing table, create a new table,
+            // TODO: To delete or change columns we need to rename the existing table, create a new table with the original name,
             // copy all the data accross then delete the old table.
 
             // Add new columns
@@ -262,6 +268,8 @@ namespace Prius.SqLite.Schema
                     column.Attributes = column.Attributes | ColumnAttributes.Unique;
                 if (attributes.Contains("AUTOINCREMENT"))
                     column.Attributes = column.Attributes | ColumnAttributes.AutoIncrement;
+                if (!attributes.Contains("COLLATE NOCASE"))
+                    column.Attributes = column.Attributes | ColumnAttributes.CaseSensitive;
             }
 
             return tableSchema;
