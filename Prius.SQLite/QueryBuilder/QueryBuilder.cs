@@ -206,6 +206,36 @@ namespace Prius.SqLite.QueryBuilder
             return this;
         }
 
+        IUpdateQueryBuilder IQueryBuilder.UpdateOrRollback(string tableName)
+        {
+            _sql.AppendFormat("UPDATE OR ROLLBACK {0}", tableName);
+            return this;
+        }
+
+        IUpdateQueryBuilder IQueryBuilder.UpdateOrAbort(string tableName)
+        {
+            _sql.AppendFormat("UPDATE OR ABORT {0}", tableName);
+            return this;
+        }
+
+        IUpdateQueryBuilder IQueryBuilder.UpdateOrReplace(string tableName)
+        {
+            _sql.AppendFormat("UPDATE OR REPLACE {0}", tableName);
+            return this;
+        }
+
+        IUpdateQueryBuilder IQueryBuilder.UpdateOrFail(string tableName)
+        {
+            _sql.AppendFormat("UPDATE OR FAIL {0}", tableName);
+            return this;
+        }
+
+        IUpdateQueryBuilder IQueryBuilder.UpdateOrIgnore(string tableName)
+        {
+            _sql.AppendFormat("UPDATE OR IGNORE {0}", tableName);
+            return this;
+        }
+
         IUpdateSetQueryBuilder IUpdateQueryBuilder.Set(string field, string value)
         {
             _sql.AppendFormat(" SET {0} = {1}", field, value);
@@ -240,13 +270,68 @@ namespace Prius.SqLite.QueryBuilder
             return this;
         }
 
+        IInsertQueryBuilder IQueryBuilder.InsertOrReplaceInto(string tableName, params string[] fields)
+        {
+            _sql.AppendFormat("INSERT OR REPLACE INTO {0} ({1})", tableName, string.Join(", ", fields));
+            return this;
+        }
+
+        IInsertQueryBuilder IQueryBuilder.InsertOrRollbackInto(string tableName, params string[] fields)
+        {
+            _sql.AppendFormat("INSERT OR ROLLBACK INTO {0} ({1})", tableName, string.Join(", ", fields));
+            return this;
+        }
+
+        IInsertQueryBuilder IQueryBuilder.InsertOrAbortInto(string tableName, params string[] fields)
+        {
+            _sql.AppendFormat("INSERT OR ABORT INTO {0} ({1})", tableName, string.Join(", ", fields));
+            return this;
+        }
+
+        IInsertQueryBuilder IQueryBuilder.InsertOrFailInto(string tableName, params string[] fields)
+        {
+            _sql.AppendFormat("INSERT OR FAIL INTO {0} ({1})", tableName, string.Join(", ", fields));
+            return this;
+        }
+
+        IInsertQueryBuilder IQueryBuilder.InsertOrIgnoreInto(string tableName, params string[] fields)
+        {
+            _sql.AppendFormat("INSERT OR IGNORE INTO {0} ({1})", tableName, string.Join(", ", fields));
+            return this;
+        }
+
+        IInsertQueryBuilder IQueryBuilder.ReplaceInto(string tableName, params string[] fields)
+        {
+            _sql.AppendFormat("REPLACE INTO {0} ({1})", tableName, string.Join(", ", fields));
+            return this;
+        }
+
         IQuery IInsertQueryBuilder.Values(params string[] values)
         {
-            _sql.AppendFormat("VALUES ({0})", string.Join(", ", values));
+            _sql.AppendFormat(" VALUES ({0})", string.Join(", ", values));
+            return this;
+        }
+
+        IQuery IInsertQueryBuilder.DefaultValues()
+        {
+            _sql.Append(" DEFAULT VALUES");
+            return this;
+        }
+
+        ISelectQueryBuilder IInsertQueryBuilder.Select(params string[] fields)
+        {
+            _sql.Append(" SELECT ");
+            _sql.Append(string.Join(", ", fields));
+            return this;
+        }
+
+        ISelectQueryBuilder IInsertQueryBuilder.SelectDistinct(params string[] fields)
+        {
+            _sql.Append(" SELECT DISTINCT ");
+            _sql.Append(string.Join(", ", fields));
             return this;
         }
 
         #endregion
-
     }
 }

@@ -20,15 +20,17 @@ namespace Prius.SqLite.Procedures
         {
             var adoProcedure = procedure as IAdoProcedure;
             if (adoProcedure != null)
+            {
                 return ExecuteReader(
-                    adoProcedure, 
-                    command, 
-                    timeout, 
-                    connection, 
-                    transaction, 
-                    dataShapeName, 
-                    closeAction, 
+                    adoProcedure,
+                    command,
+                    timeout,
+                    connection,
+                    transaction,
+                    dataShapeName,
+                    closeAction,
                     errorAction);
+            }
 
             return null;
         }
@@ -42,12 +44,14 @@ namespace Prius.SqLite.Procedures
         {
             var adoProcedure = procedure as IAdoProcedure;
             if (adoProcedure != null)
+            {
                 return ExecuteScalar<T>(
                     adoProcedure,
                     command,
                     timeout,
                     connection,
                     transaction);
+            }
 
             return default(T);
         }
@@ -61,12 +65,14 @@ namespace Prius.SqLite.Procedures
         {
             var adoProcedure = procedure as IAdoProcedure;
             if (adoProcedure != null)
+            {
                 return ExecuteNonQuery(
                     adoProcedure,
                     command,
                     timeout,
                     connection,
                     transaction);
+            }
 
             return 0;
         }
@@ -119,7 +125,15 @@ namespace Prius.SqLite.Procedures
             SQLiteConnection connection,
             SQLiteTransaction transaction)
         {
-            throw new NotImplementedException();
+            var context = new AdoExecutionContext
+            {
+                Connection = connection,
+                Transaction = transaction
+            };
+            using (var dataReader = procedure.Execute(context))
+            {
+                return context.RowsAffected;
+            }
         }
     }
 }

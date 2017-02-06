@@ -95,7 +95,7 @@
     <Compile Include="Schema\SchemaUpdater.cs" />
     <Compile Include="Schema\TableSchema.cs" />
     <Compile Include="Procedures\ParameterAttribute.cs" />
-    <Compile Include="Procedures\StoredProcedureAttributes.cs" />
+    <Compile Include="Procedures\ProcedureAttributes.cs" />
     <Compile Include="Procedures\ProcedureLibrary.cs" />
     <Compile Include="Procedures\Runner.cs" />
   </ItemGroup>

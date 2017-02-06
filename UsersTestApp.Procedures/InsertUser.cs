@@ -8,7 +8,7 @@ using Prius.SqLite.StoredProcedures;
 
 namespace UsersTestApp.Procedures
 {
-    [StoredProcedure("sp_InsertUser", true)]
+    [Procedure("sp_InsertUser")]
     [Parameter("FirstName", typeof(string))]
     [Parameter("LastName", typeof(string))]
     [Parameter("DateOfBirth", typeof(DateTime),ParameterDirection.Input, false)]

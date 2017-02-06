@@ -6,7 +6,7 @@ using Prius.SqLite.StoredProcedures;
 
 namespace UsersTestApp.Procedures
 {
-    [StoredProcedure("sp_DeleteUser", true)]
+    [Procedure("sp_DeleteUser")]
     [Parameter("UserID", typeof(long))]
     public class DeleteUser : IAdoProcedure
     {

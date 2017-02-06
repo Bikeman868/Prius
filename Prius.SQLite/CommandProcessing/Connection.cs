@@ -115,7 +115,7 @@ namespace Prius.SqLite.CommandProcessing
             if (command == null) return;
             _command = command;
 
-            _commandProcessor = _commandProcessorFactory.Create(command, _connection, _transaction);
+            _commandProcessor = _commandProcessorFactory.Create(_repository, command, _connection, _transaction);
 
             if (command.TimeoutSeconds.HasValue)
                 _commandProcessor.CommandTimeout = command.TimeoutSeconds.Value;

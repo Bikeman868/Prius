@@ -2,6 +2,7 @@
 using System.Data.SQLite;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Utility;
 using Prius.SqLite.Interfaces;
 
@@ -20,6 +21,7 @@ namespace Prius.SqLite.CommandProcessing
         }
 
         public ICommandProcessor Initialize(
+            IRepository repository,
             ICommand command,
             SQLiteConnection connection,
             SQLiteTransaction transaction)

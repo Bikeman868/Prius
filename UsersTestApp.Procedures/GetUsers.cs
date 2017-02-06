@@ -5,7 +5,7 @@ using Prius.SqLite.QueryBuilder;
 
 namespace UsersTestApp.Procedures
 {
-    [StoredProcedure("sp_GetUsers", true)]
+    [Procedure("sp_GetUsers")]
     public class GetUsers : IAdoProcedure
     {
         private readonly IAdoQueryRunner _queryRunner;
