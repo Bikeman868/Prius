@@ -16,5 +16,6 @@ namespace Prius.SqLite.Procedures
         public string DataShapeName;
         public Action<IDataReader> CloseAction;
         public Action<IDataReader> ErrorAction;
+        public int RowsAffected;
     }
 }

@@ -38,6 +38,26 @@ namespace Prius.SqLite.StoredProcedures
         /// </summary>
         /// <param name="parameterName">The name of the parameter</param>
         /// <param name="dataType">The type of data the stored procedure is expecting</param>
+        /// <param name="direction">Whether data is passed in, out, or both</param>
+        public ParameterAttribute(
+            string parameterName,
+            Type dataType,
+            ParameterDirection direction)
+        {
+            ParameterName = parameterName;
+            DataType = dataType;
+            Direction = direction;
+            IsRequired = true;
+
+            if (!ParameterName.StartsWith("@"))
+                ParameterName = "@" + ParameterName;
+        }
+
+        /// <summary>
+        /// Constructs an attribute that specifies a parameter to a stored procedure
+        /// </summary>
+        /// <param name="parameterName">The name of the parameter</param>
+        /// <param name="dataType">The type of data the stored procedure is expecting</param>
         public ParameterAttribute(
             string parameterName,
             Type dataType)

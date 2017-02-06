@@ -59,6 +59,10 @@
     <Compile Include="Interfaces\IParameterAccessor.cs" />
     <Compile Include="Interfaces\IProcedure.cs" />
     <Compile Include="Interfaces\IAdoQueryRunner.cs" />
+    <Compile Include="QueryBuilder\IQuery.cs" />
+    <Compile Include="QueryBuilder\IUpdateQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\IInsertQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\IQueryBuilder.cs" />
     <Compile Include="Interfaces\ISchemaEnumerator.cs" />
     <Compile Include="Interfaces\IAdoProcedure.cs" />
     <Compile Include="Interfaces\IProcedureLibrary.cs" />
@@ -67,6 +71,8 @@
     <Compile Include="Procedures\NativeExecutionContext.cs" />
     <Compile Include="Procedures\AdoExecutionContext.cs" />
     <Compile Include="Procedures\ParameterAccessor.cs" />
+    <Compile Include="QueryBuilder\IDeleteQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\ISelectQueryBuilder.cs" />
     <Compile Include="Schema\ColumnAttributes.cs" />
     <Compile Include="Schema\ColumnSchema.cs" />
     <Compile Include="Schema\IndexAttributes.cs" />
@@ -103,6 +109,7 @@
     <None Include="packages.Prius.SqLite.Net40.config" />
     <None Include="readme.md" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
