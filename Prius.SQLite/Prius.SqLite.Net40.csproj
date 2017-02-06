@@ -73,6 +73,7 @@
     <Compile Include="Procedures\ParameterAccessor.cs" />
     <Compile Include="QueryBuilder\IDeleteQueryBuilder.cs" />
     <Compile Include="QueryBuilder\ISelectQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\QueryBuilder.cs" />
     <Compile Include="Schema\ColumnAttributes.cs" />
     <Compile Include="Schema\ColumnSchema.cs" />
     <Compile Include="Schema\IndexAttributes.cs" />
