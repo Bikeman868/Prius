@@ -11,16 +11,21 @@ namespace Prius.SqLite.CommandProcessing
     internal class SqlCommandProcessor: Disposable, ICommandProcessor
     {
         private readonly IErrorReporter _errorReporter;
-        private readonly SQLiteCommand _command;
+        private SQLiteCommand _command;
 
         public SqlCommandProcessor(
-            IErrorReporter errorReporter,
-            ICommand command, 
-            SQLiteConnection connection, 
-            SQLiteTransaction transaction)
+            IErrorReporter errorReporter)
         {
             _errorReporter = errorReporter;
+        }
+
+        public ICommandProcessor Initialize(
+            ICommand command,
+            SQLiteConnection connection,
+            SQLiteTransaction transaction)
+        {
             _command = new SQLiteCommand(command.CommandText, connection, transaction);
+            return this;
         }
 
         protected override void Dispose(bool destructor)

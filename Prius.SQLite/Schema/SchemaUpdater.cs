@@ -94,7 +94,7 @@ namespace Prius.SqLite.Schema
                 sql.AppendLine(";");
             }
 
-            _queryRunner.ExecuteNonQuery(connection, sql);
+            _queryRunner.ExecuteNonQuery(connection, sql.ToString());
         }
 
         private void AppendColumnDefinition(ColumnSchema column, StringBuilder sql)
@@ -170,7 +170,7 @@ namespace Prius.SqLite.Schema
                     sql.Clear();
                     sql.AppendFormat("ALTER TABLE {0} ADD COLUMN ", currentSchema.TableName);
                     AppendColumnDefinition(newColumn, sql);
-                    _queryRunner.ExecuteNonQuery(connection, sql);
+                    _queryRunner.ExecuteNonQuery(connection, sql.ToString());
                 }
             }
         }
@@ -182,7 +182,7 @@ namespace Prius.SqLite.Schema
             var sql = new StringBuilder();
             sql.AppendFormat("SELECT sql FROM sqlite_master WHERE name='{0}'", tableName);
 
-            var reader = _queryRunner.ExecuteReader(connection, sql);
+            var reader = _queryRunner.ExecuteReader(connection, sql.ToString());
             if (reader == null)
                 return null;
 

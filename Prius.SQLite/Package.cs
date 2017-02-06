@@ -5,6 +5,7 @@ using Prius.Contracts.Interfaces.Factory;
 using Prius.SqLite.CommandProcessing;
 using Prius.SqLite.Interfaces;
 using Prius.SqLite.Schema;
+using Prius.SqLite.StoredProcedures;
 
 namespace Prius.SqLite
 {
@@ -23,6 +24,8 @@ namespace Prius.SqLite
                 new IocRegistration().Init<IQueryRunner, QueryRunner>(),
                 new IocRegistration().Init<IColumnTypeMapper, ColumnTypeMapper>(),
                 new IocRegistration().Init<ISchemaEnumerator, SchemaEnumerator>(),
+                new IocRegistration().Init<IStoredProcedureLibrary, StoredProcedureLibrary>(),
+                new IocRegistration().Init<IStoredProcedureRunner, StoredProcedureRunner>(),
 
                 new IocRegistration().Init<IFactory>(),
                 new IocRegistration().Init<IErrorReporter>(),

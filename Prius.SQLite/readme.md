@@ -224,3 +224,22 @@ run against SqLite without any modifications.
 This package uses IoC.Modules to wire everything up. This means that you can swap
 out any interface for your own application specific version and everything inside
 this package will use your version.
+
+The interfaces you can override are:
+
+`IColumnTypeMapper` is responsible for mapping DbType to the SqLite data type.
+
+`IQueryRunner` is responsible for submitting queries to the SqLite engine.
+
+`ICommandProcessorFactory` is responsible for constructing an object that will 
+handle a specific request. The default implementation uses System.Data.SQLite to 
+execute SQL statements and a custom implementation for stored procedures.
+
+`ISchemaEnumerator` is responsible for discovering the database schema that is
+expected by the application. The default implementation will load and examine
+all DLLs in the bin folder. When data contract classes are decorated with
+special schema attributes these are used to define the database schema.
+
+`ISchemaUpdater` is responsible for comparing the actual database schema against
+the schema that the application was compiled for, and modifying the database
+schema to match the application.
