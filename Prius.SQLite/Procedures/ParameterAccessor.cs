@@ -44,7 +44,7 @@ namespace Prius.SqLite.Procedures
             if (parameters == null || parameters.Count == 0 || string.IsNullOrEmpty(name)) 
                 return null;
 
-            if (name[0] != '@') name = "@" + name;
+            if (name[0] == '@') name = name.Substring(1);
             return parameters.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
         }
 

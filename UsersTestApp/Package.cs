@@ -19,8 +19,8 @@ namespace UsersTestApp
                 {
                     new IocRegistration().Init<IErrorReporter, ErrorReporter>(),
                     new IocRegistration().Init<IFactory, Factory>(),
-                    //new IocRegistration().Init<IDataAccessLayer, StoredProcedureDataAccessLayer>(),
-                    new IocRegistration().Init<IDataAccessLayer, SqlStatementsDataAccessLayer>(),
+                    new IocRegistration().Init<IDataAccessLayer, StoredProcedureDataAccessLayer>(),
+                    //new IocRegistration().Init<IDataAccessLayer, SqlStatementsDataAccessLayer>(),
                 };
             }
         }

@@ -268,7 +268,7 @@ namespace Prius.SqLite.Schema
                     column.Attributes = column.Attributes | ColumnAttributes.Unique;
                 if (attributes.Contains("AUTOINCREMENT"))
                     column.Attributes = column.Attributes | ColumnAttributes.AutoIncrement;
-                if (!attributes.Contains("COLLATE NOCASE"))
+                if (string.Equals(column.DataType, "TEXT", StringComparison.OrdinalIgnoreCase) && !attributes.Contains("COLLATE NOCASE"))
                     column.Attributes = column.Attributes | ColumnAttributes.CaseSensitive;
             }
 

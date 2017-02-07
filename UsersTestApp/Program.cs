@@ -79,7 +79,7 @@ namespace UsersTestApp
                 Console.WriteLine(string.Format("{0,10} {1,15} {2,20} {3,10}", "Id", "Fist name", "Last name", "Age"));
                 foreach (var user in users)
                 {
-                    var age = user.DateOfBirth == DateTime.MinValue ? "" : ((DateTime.UtcNow - user.DateOfBirth).TotalDays / 365).ToString();
+                    var age = user.DateOfBirth == DateTime.MinValue ? "" : ((int)(DateTime.UtcNow - user.DateOfBirth).TotalDays / 365).ToString();
                     Console.WriteLine(string.Format("{0,10} {1,15} {2,20} {3,10}", user.UserId, user.FirstName, user.LastName, age));
                 }
             }
@@ -87,14 +87,11 @@ namespace UsersTestApp
 
         private static void Add(params string[] args)
         {
-            var user = _dataAccessLayer.AddUser(_repository, args[0], args[1]);
+            var user = _dataAccessLayer.AddUser(_repository, args[0], args[1], args.Length > 2 ? DateTime.Parse(args[2]) : DateTime.MinValue);
             if (user == null)
                 Console.WriteLine("Failed to add user");
             else
-            Console.WriteLine("Added user with id " + user.UserId);
-
-            if (args.Length > 2)
-                ; // TODO: Update DOB
+                Console.WriteLine("Added user with id " + user.UserId);
         }
 
         private static void Delete(params string[] args)

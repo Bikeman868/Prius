@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
@@ -36,6 +37,9 @@ namespace Prius.SqLite.CommandProcessing
             _connection = connection;
             _transaction = transaction;
 
+            if (command.TimeoutSeconds.HasValue)
+                CommandTimeout = command.TimeoutSeconds.Value;
+
             _storedProcedure = _procedureLibrary.Get(connection, repository.Name, command.CommandText);
 
             if (_storedProcedure == null)
@@ -46,9 +50,14 @@ namespace Prius.SqLite.CommandProcessing
 
         public int CommandTimeout { get; set; }
 
-        public SQLiteParameterCollection Parameters
+        public void AddParameter(IParameter parameter)
         {
-            get { throw new NotImplementedException(); }
+        }
+
+        public void AddParameters(IEnumerable<IParameter> parameters)
+        {
+            foreach (var parameter in parameters)
+                AddParameter(parameter);
         }
 
         public IDataReader ExecuteReader(string dataShapeName, Action<IDataReader> closeAction, Action<IDataReader> errorAction)

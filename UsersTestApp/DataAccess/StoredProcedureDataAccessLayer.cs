@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Prius.Contracts.Interfaces;
 
@@ -18,12 +19,13 @@ namespace UsersTestApp.DataAccess
             _commandFactory = commandFactory;
         }
 
-        public User AddUser(string repository, string firstName, string lastName)
+        public User AddUser(string repository, string firstName, string lastName, DateTime dateOfBirth)
         {
             using (var command = _commandFactory.CreateStoredProcedure("sp_InsertUser"))
             {
                 command.AddParameter("FirstName", firstName);
                 command.AddParameter("LastName", lastName);
+                command.AddParameter("DateOfBirth", dateOfBirth);
                 using (var context = _contextFactory.Create(repository))
                 {
                     using (var users = context.ExecuteEnumerable<User>(command))

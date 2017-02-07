@@ -10,12 +10,22 @@ namespace Prius.SqLite.CommandProcessing
 {
     public class AdoQueryRunner: IAdoQueryRunner
     {
+        private readonly IParameterConverter _parameterConverter;
+
+        public AdoQueryRunner(IParameterConverter parameterConverter)
+        {
+            _parameterConverter = parameterConverter;
+        }
+
         public int ExecuteNonQuery(SQLiteConnection connection, string sql, IList<IParameter> parameters)
         {
             using (var command = connection.CreateCommand())
             {
                 command.CommandType = CommandType.Text;
                 command.CommandText = sql;
+                if (parameters != null)
+                    foreach (var parameter in parameters)
+                        _parameterConverter.AddParameter(command, parameter);
                 return command.ExecuteNonQuery();
             }
         }
@@ -26,6 +36,9 @@ namespace Prius.SqLite.CommandProcessing
             {
                 command.CommandType = CommandType.Text;
                 command.CommandText = sql;
+                if (parameters != null)
+                    foreach (var parameter in parameters)
+                        _parameterConverter.AddParameter(command, parameter);
                 return command.ExecuteReader();
             }
         }

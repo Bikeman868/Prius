@@ -13,15 +13,18 @@ namespace Prius.SqLite.CommandProcessing
         private readonly IProcedureLibrary _storedProcedureLibrary;
         private readonly IProcedureRunner _storedProcedureRunner;
         private readonly IDataReaderFactory _dataReaderFactory;
+        private readonly IParameterConverter _parameterConverter;
 
         public CommandProcessorFactory(
             IProcedureLibrary storedProcedureLibrary, 
             IProcedureRunner storedProcedureRunner, 
-            IDataReaderFactory dataReaderFactory)
+            IDataReaderFactory dataReaderFactory, 
+            IParameterConverter parameterConverter)
         {
             _storedProcedureLibrary = storedProcedureLibrary;
             _storedProcedureRunner = storedProcedureRunner;
             _dataReaderFactory = dataReaderFactory;
+            _parameterConverter = parameterConverter;
         }
 
         public ICommandProcessor Create(
@@ -36,7 +39,8 @@ namespace Prius.SqLite.CommandProcessing
             {
                 case CommandType.SQL:
                     commandProcessor = new SqlCommandProcessor(
-                        _dataReaderFactory);
+                        _dataReaderFactory,
+                        _parameterConverter);
                     break;
                 case CommandType.StoredProcedure:
                     commandProcessor = new StoredProcedureCommandProcessor(

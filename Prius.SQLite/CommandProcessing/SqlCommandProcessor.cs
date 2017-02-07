@@ -11,13 +11,16 @@ namespace Prius.SqLite.CommandProcessing
     internal class SqlCommandProcessor: Disposable, ICommandProcessor
     {
         private readonly IDataReaderFactory _dataReaderFactory;
+        private readonly IParameterConverter _parameterConverter;
 
         private SQLiteCommand _command;
 
         public SqlCommandProcessor(
-            IDataReaderFactory dataReaderFactory)
+            IDataReaderFactory dataReaderFactory, 
+            IParameterConverter parameterConverter)
         {
             _dataReaderFactory = dataReaderFactory;
+            _parameterConverter = parameterConverter;
         }
 
         public ICommandProcessor Initialize(
@@ -27,6 +30,13 @@ namespace Prius.SqLite.CommandProcessing
             SQLiteTransaction transaction)
         {
             _command = new SQLiteCommand(command.CommandText, connection, transaction);
+
+            if (command.TimeoutSeconds.HasValue)
+                CommandTimeout = command.TimeoutSeconds.Value;
+
+            foreach (var parameter in command.GetParameters())
+                _parameterConverter.AddParameter(_command, parameter);
+
             return this;
         }
 
@@ -40,11 +50,6 @@ namespace Prius.SqLite.CommandProcessing
         {
             get { return _command.CommandTimeout; }
             set { _command.CommandTimeout = value; }
-        }
-
-        public SQLiteParameterCollection Parameters
-        {
-            get { return _command.Parameters; }
         }
 
         public IDataReader ExecuteReader(string dataShapeName, Action<IDataReader> closeAction, Action<IDataReader> errorAction)
@@ -68,5 +73,6 @@ namespace Prius.SqLite.CommandProcessing
             if (resultType.IsNullable()) resultType = resultType.GetGenericArguments()[0];
             return (T)Convert.ChangeType(result, resultType);
         }
+
     }
 }

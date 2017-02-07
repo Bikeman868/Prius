@@ -29,8 +29,8 @@ namespace Prius.SqLite.StoredProcedures
             Direction = direction;
             IsRequired = isRequired;
 
-            if (!ParameterName.StartsWith("@"))
-                ParameterName = "@" + ParameterName;
+            if (parameterName.StartsWith("@"))
+                ParameterName = parameterName.Substring(1);
         }
 
         /// <summary>
@@ -49,8 +49,8 @@ namespace Prius.SqLite.StoredProcedures
             Direction = direction;
             IsRequired = true;
 
-            if (!ParameterName.StartsWith("@"))
-                ParameterName = "@" + ParameterName;
+            if (parameterName.StartsWith("@"))
+                ParameterName = parameterName.Substring(1);
         }
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace Prius.SqLite.StoredProcedures
             Direction = ParameterDirection.Input;
             IsRequired = true;
 
-            if (!ParameterName.StartsWith("@"))
-                ParameterName = "@" + ParameterName;
+            if (parameterName.StartsWith("@"))
+                ParameterName = parameterName.Substring(1);
         }
     }
 }

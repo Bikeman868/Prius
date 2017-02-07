@@ -52,11 +52,13 @@
     </Compile>
     <Compile Include="CommandProcessing\ColumnTypeMapper.cs" />
     <Compile Include="CommandProcessing\AdoQueryRunner.cs" />
+    <Compile Include="CommandProcessing\ParameterConverter.cs" />
     <Compile Include="Interfaces\INativeQueryRunner.cs" />
     <Compile Include="Interfaces\INativeProcedure.cs" />
     <Compile Include="Interfaces\IColumnTypeMapper.cs" />
     <Compile Include="Interfaces\IDataReaderFactory.cs" />
     <Compile Include="Interfaces\IParameterAccessor.cs" />
+    <Compile Include="Interfaces\IParameterConverter.cs" />
     <Compile Include="Interfaces\IProcedure.cs" />
     <Compile Include="Interfaces\IAdoQueryRunner.cs" />
     <Compile Include="QueryBuilder\IQuery.cs" />

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Data.SQLite;
+using System.IO;
+using System.Linq;
+using System.Text;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.SqLite.Interfaces;
@@ -87,14 +90,7 @@ namespace Prius.SqLite.Procedures
             Action<IDataReader> closeAction,
             Action<IDataReader> errorAction)
         {
-            var context = new AdoExecutionContext
-            {
-                Connection = connection,
-                Transaction = transaction,
-                DataShapeName = dataShapeName,
-                CloseAction = closeAction,
-                ErrorAction = errorAction
-            };
+            var context = CreateContext(command, connection, transaction, dataShapeName, closeAction, errorAction);
             return procedure.Execute(context);
         }
 
@@ -105,11 +101,7 @@ namespace Prius.SqLite.Procedures
             SQLiteConnection connection,
             SQLiteTransaction transaction)
         {
-            var context = new AdoExecutionContext
-            {
-                Connection = connection,
-                Transaction = transaction
-            };
+            var context = CreateContext(command, connection, transaction, null, null, null);
             using (var dataReader = procedure.Execute(context))
             {
                 if (dataReader == null) return default(T);
@@ -125,15 +117,31 @@ namespace Prius.SqLite.Procedures
             SQLiteConnection connection,
             SQLiteTransaction transaction)
         {
-            var context = new AdoExecutionContext
-            {
-                Connection = connection,
-                Transaction = transaction
-            };
+            var context = CreateContext(command, connection, transaction, null, null, null);
             using (var dataReader = procedure.Execute(context))
             {
                 return context.RowsAffected;
             }
+        }
+
+        private AdoExecutionContext CreateContext(
+            ICommand command,
+            SQLiteConnection connection,
+            SQLiteTransaction transaction,
+            string dataShapeName,
+            Action<IDataReader> closeAction,
+            Action<IDataReader> errorAction)
+        {
+            return new AdoExecutionContext
+            {
+                Connection = connection,
+                Transaction = transaction,
+                DataShapeName = dataShapeName,
+                CloseAction = closeAction,
+                ErrorAction = errorAction,
+                Parameters = command == null ? null : command.GetParameters().ToList(),
+                MessageOutput = new StringWriter(new StringBuilder())
+            };
         }
     }
 }
