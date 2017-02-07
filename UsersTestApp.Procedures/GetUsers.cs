@@ -22,7 +22,7 @@ namespace UsersTestApp.Procedures
             _dataReaderFactory = dataReaderFactory;
 
             _selectSql = queryBuilder
-                .Select("UserID", "FirstName", "LastName")
+                .Select("UserID", "FirstName", "LastName", "DateOfBirth")
                 .From("tb_Users");
         }
 

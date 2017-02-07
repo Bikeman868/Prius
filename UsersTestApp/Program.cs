@@ -148,6 +148,8 @@ namespace UsersTestApp
 
         private static void ConfigureSqlLite(UnityContainer container)
         {
+            // This assembly is not picked up by the schema enumerator because it only
+            // scans DLLs in the bin folder and this console app is an EXE
             var schemaEnumerator = container.Resolve<ISchemaEnumerator>();
             schemaEnumerator.Add(Assembly.GetExecutingAssembly());
         }

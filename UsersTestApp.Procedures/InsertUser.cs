@@ -33,11 +33,11 @@ namespace UsersTestApp.Procedures
             _parameterAccessor = parameterAccessor;
 
             _insertSql = queryBuilder
-                .InsertInto("tb_users", "FirstName", "LastName")
-                .Values("@FirstName", "@LastName");
+                .InsertInto("tb_users", "FirstName", "LastName", "DateOfBirth")
+                .Values("@FirstName", "@LastName", "@DateOfBirth");
 
             _selectSql = queryBuilder
-                .Select("UserID", "FirstName", "LastName")
+                .Select("UserID", "FirstName", "LastName", "DateOfBirth")
                 .From("tb_Users")
                 .Where("FirstName = @FirstName")
                 .And("LastName = @LastName");
@@ -46,7 +46,7 @@ namespace UsersTestApp.Procedures
         public IDataReader Execute(AdoExecutionContext context)
         {
             _queryRunner.ExecuteNonQuery(context, _insertSql);
-            _parameterAccessor.Set(context.Parameters, "UserID", context.Connection.LastInsertRowId);
+            _parameterAccessor.Return(context.Parameters, context.Connection.LastInsertRowId);
 
             var sqLiteReader = _queryRunner.ExecuteReader(context, _selectSql);
             return _dataReaderFactory.Create(sqLiteReader, context);
