@@ -92,17 +92,29 @@ namespace Prius.SqLite.Schema
 
         private void UpdateTable(SQLiteConnection connection, TableSchema currentTableSchema, TableSchema newTableSchema)
         {
-            var hasBreakingChanges = HasBreakingChanges(currentTableSchema, newTableSchema);
+            using (var transaction = connection.BeginTransaction())
+            {
+                try
+                {
+                    var hasBreakingChanges = HasBreakingChanges(currentTableSchema, newTableSchema);
 
-            if (hasBreakingChanges)
-            {
-                RecreateTable(connection, currentTableSchema, newTableSchema);
-            }
-            else
-            {
-                AddMissingColumns(connection, currentTableSchema, newTableSchema);
-                AdjustExistingIndexes(connection, currentTableSchema, newTableSchema);
-                AddMissingIndexes(connection, currentTableSchema, newTableSchema);
+                    if (hasBreakingChanges)
+                    {
+                        RecreateTable(connection, currentTableSchema, newTableSchema);
+                    }
+                    else
+                    {
+                        AddMissingColumns(connection, currentTableSchema, newTableSchema);
+                        AdjustExistingIndexes(connection, currentTableSchema, newTableSchema);
+                        AddMissingIndexes(connection, currentTableSchema, newTableSchema);
+                    }
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
             }
         }
 
@@ -299,7 +311,7 @@ namespace Prius.SqLite.Schema
 
         private void DropIndexDdl(IndexSchema index, StringBuilder sql)
         {
-            sql.AppendFormat("DROP INDEX ", index.IndexName);
+            sql.AppendFormat("DROP INDEX {0}", index.IndexName);
         }
 
         private void RenameTableDdl(string oldName, string newName, StringBuilder sql)
@@ -309,14 +321,14 @@ namespace Prius.SqLite.Schema
 
         private void DropTableDdl(string tableName, StringBuilder sql)
         {
-            sql.AppendFormat("DROP TABLE ", tableName);
+            sql.AppendFormat("DROP TABLE {0}", tableName);
         }
 
         private void ColumnDdl(ColumnSchema column, StringBuilder sql)
         {
             if ((column.Attributes & ColumnAttributes.AutoIncrement) == ColumnAttributes.AutoIncrement)
             {
-                sql.AppendFormat("{0} INTEGER PRIMARY KEY AUTOINCREMENT", column.ColumnName, column.DataType);
+                sql.AppendFormat("{0} INTEGER PRIMARY KEY AUTOINCREMENT", column.ColumnName);
             }
             else
             {
@@ -403,7 +415,7 @@ namespace Prius.SqLite.Schema
                 indexSchema.IndexName = parser.TakeWord();
             }
             parser.SkipOverString("ON");
-            var tableName = parser.TakeWord();
+            parser.TakeWord(); // table name
             parser.SkipOverString("(");
 
             var columnNames = new List<string>();
@@ -458,7 +470,7 @@ namespace Prius.SqLite.Schema
         private class SimpleParser
         {
             private readonly string _sql;
-            private int _position = 0;
+            private int _position;
 
             public SimpleParser(string sql)
             {

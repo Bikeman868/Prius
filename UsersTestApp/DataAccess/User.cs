@@ -14,16 +14,19 @@ namespace UsersTestApp.DataAccess
 
         [Mapping("firstName", null)]
         [SchemaColumn("firstName", DbType.String, ColumnAttributes.NotNull)]
-        [SchemaIndex("ix_FullName", IndexAttributes.Unique)]
+        [SchemaIndex("ix_user_fullName", IndexAttributes.Unique)]
         public string FirstName { get; set; }
 
         [Mapping("lastName", null)]
         [SchemaColumn("lastName", DbType.String, ColumnAttributes.NotNull)]
-        [SchemaIndex("ix_FullName", IndexAttributes.Unique)]
+        [SchemaIndex("ix_user_fullName", IndexAttributes.Unique)]
         public string LastName { get; set; }
 
         [Mapping("dateOfBirth", null)]
         [SchemaColumn("dateOfBirth", DbType.DateTime)]
         public DateTime DateOfBirth { get; set; }
+
+        //[SchemaColumn("address", DbType.String)]
+        //public string Address { get; set; }
     }
 }
