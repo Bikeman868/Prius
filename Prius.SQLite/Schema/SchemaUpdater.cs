@@ -387,11 +387,12 @@ namespace Prius.SqLite.Schema
         {
             var parser = new SimpleParser(sql);
             var indexSchema = new IndexSchema();
+            indexSchema.Attributes = IndexAttributes.CaseSensitive;
 
             parser.SkipOverString("CREATE");
             if (parser.TakeWord().ToUpper() == "UNIQUE")
             {
-                indexSchema.Attributes = IndexAttributes.Unique;
+                indexSchema.Attributes = indexSchema.Attributes | IndexAttributes.Unique;
                 parser.SkipOverString("INDEX");
             }
 
@@ -409,10 +410,11 @@ namespace Prius.SqLite.Schema
             while (!parser.AtEnd() && !parser.Is(')'))
             {
                 columnNames.Add(parser.TakeWord());
-                while (!parser.Is(',') && !parser.Is(')')) 
-                    parser.Skip(1);
-                if (parser.Is(','))
-                    parser.Skip(1);
+                parser.SkipAny(' ');
+                var columnOptions = parser.TakeToAny(',', ')').ToUpper();
+                if (columnOptions.Contains("COLLATE NOCASE"))
+                    indexSchema.Attributes = indexSchema.Attributes & ~IndexAttributes.CaseSensitive;
+                parser.Skip(1);
             }
             indexSchema.ColumnNames = columnNames.ToArray();
 
@@ -483,6 +485,11 @@ namespace Prius.SqLite.Schema
                 return _sql[_position] == c;
             }
 
+            public bool IsAny(params char[] chars)
+            {
+                return chars.Contains(_sql[_position]);
+            }
+
             public void Skip(int count)
             {
                 _position += count;
@@ -493,9 +500,15 @@ namespace Prius.SqLite.Schema
                 _position = _sql.IndexOf(s, _position, StringComparison.OrdinalIgnoreCase);
             }
 
+            public void SkipAny(params char[] chars)
+            {
+                while (IsAny(chars)) Skip(1);
+            }
+
             public string TakeToAny(params char[] chars)
             {
                 var end = _sql.IndexOfAny(chars, _position);
+                if (end == _position) return string.Empty;
                 var result = end == -1 ? _sql.Substring(_position) : _sql.Substring(_position, end - _position);
                 Skip(result.Length);
                 return result;
