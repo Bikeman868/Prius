@@ -62,5 +62,27 @@ namespace UsersTestApp.DataAccess
                 }
             }
         }
+
+        public void TimeoutTest(string repository)
+        {
+            using (var command = _commandFactory.CreateStoredProcedure("sp_TimeoutTest"))
+            {
+                using (var context = _contextFactory.Create(repository))
+                {
+                    context.ExecuteNonQuery(command);
+                }
+            }
+        }
+
+        public void ExceptionTest(string repository)
+        {
+            using (var command = _commandFactory.CreateStoredProcedure("sp_ExceptionTest"))
+            {
+                using (var context = _contextFactory.Create(repository))
+                {
+                    context.ExecuteNonQuery(command);
+                }
+            }
+        }
     }
 }

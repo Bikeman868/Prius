@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExceptionTest.cs" />
+    <Compile Include="TimeoutTest.cs" />
     <Compile Include="DeleteUser.cs" />
     <Compile Include="InsertUser.cs" />
     <Compile Include="GetUsers.cs" />

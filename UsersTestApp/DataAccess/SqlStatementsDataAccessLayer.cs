@@ -64,5 +64,15 @@ namespace UsersTestApp.DataAccess
                 }
             }
         }
+
+        public void TimeoutTest(string repository)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ExceptionTest(string repository)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

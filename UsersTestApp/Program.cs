@@ -39,7 +39,8 @@ namespace UsersTestApp
                         else if (cmd == "add") Add(args);
                         else if (cmd == "list") List(args);
                         else if (cmd == "delete") Delete(args);
-                        else if (cmd == "exit" || cmd =="quit") quit = true;
+                        else if (cmd == "test") Test(args);
+                        else if (cmd == "exit" || cmd == "quit") quit = true;
                     }
                 }
                 catch (Exception ex)
@@ -100,6 +101,27 @@ namespace UsersTestApp
             Console.WriteLine(success ? "Succesfully deleted user" : "User not found");
         }
 
+        private static void Test(params string[] args)
+        {
+            try
+            {
+                _dataAccessLayer.TimeoutTest(_repository);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("TimeoutTest: " + e.Message);
+            }
+            try
+            {
+                _dataAccessLayer.ExceptionTest(_repository);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("ExceptionTest: " + e.Message);
+            }
+            Console.WriteLine("Test completed");
+        }
+
         private static void Help(params string[] args)
         {
             Console.WriteLine("Prius Test Application.");
@@ -115,7 +137,7 @@ namespace UsersTestApp
             Console.WriteLine("  add <firstName> <lastName> [<dob>]");
             Console.WriteLine("  list");
             Console.WriteLine("  delete <userId>");
-            Console.WriteLine("  close");
+            Console.WriteLine("  test");
             Console.WriteLine("  exit");
             Console.WriteLine("  help");
             Console.WriteLine("");

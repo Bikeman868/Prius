@@ -3,6 +3,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
@@ -137,8 +138,9 @@ namespace Prius.SqLite.Procedures
             Action<IDataReader> closeAction,
             Action<IDataReader> errorAction)
         {
-            var task = Task<IDataReader>.Factory.StartNew(() => ExecuteReader(procedure, command, connection, transaction, dataShapeName, closeAction, errorAction));
-            return WaitForProcedureCompletion(command, timeoutSeconds, connection, task, "ExecuteReader");
+            var tokenSource = new CancellationTokenSource();
+            var task = Task<IDataReader>.Factory.StartNew(() => ExecuteReader(procedure, command, connection, transaction, dataShapeName, closeAction, errorAction), tokenSource.Token);
+            return WaitForProcedureCompletion(command, timeoutSeconds, connection, task, tokenSource, "ExecuteReader");
         }
 
         private T ExecuteScalar<T>(
@@ -171,8 +173,9 @@ namespace Prius.SqLite.Procedures
             SQLiteConnection connection,
             SQLiteTransaction transaction)
         {
-            var task = Task<T>.Factory.StartNew(() => ExecuteScalar<T>(procedure, command, connection, transaction));
-            return WaitForProcedureCompletion(command, timeoutSeconds, connection, task, "ExecuteScalar<" + typeof(T).Name + ">");
+            var tokenSource = new CancellationTokenSource();
+            var task = Task<T>.Factory.StartNew(() => ExecuteScalar<T>(procedure, command, connection, transaction), tokenSource.Token);
+            return WaitForProcedureCompletion(command, timeoutSeconds, connection, task, tokenSource, "ExecuteScalar<" + typeof(T).Name + ">");
         }
 
         private long ExecuteNonQuery(
@@ -203,8 +206,9 @@ namespace Prius.SqLite.Procedures
             SQLiteConnection connection,
             SQLiteTransaction transaction)
         {
-            var task = Task<long>.Factory.StartNew(() => ExecuteNonQuery(procedure, command, connection, transaction));
-            return WaitForProcedureCompletion(command, timeoutSeconds, connection, task, "ExecuteNonQuery");
+            var tokenSource = new CancellationTokenSource();
+            var task = Task<long>.Factory.StartNew(() => ExecuteNonQuery(procedure, command, connection, transaction), tokenSource.Token);
+            return WaitForProcedureCompletion(command, timeoutSeconds, connection, task, tokenSource, "ExecuteNonQuery");
         }
 
         private AdoExecutionContext CreateContext(
@@ -232,6 +236,7 @@ namespace Prius.SqLite.Procedures
             int timeoutSeconds,
             SQLiteConnection connection,
             Task<T> task,
+            CancellationTokenSource cancellationTokenSource,
             string operation)
         {
             try
@@ -240,14 +245,19 @@ namespace Prius.SqLite.Procedures
                 {
                     return task.Result;
                 }
+                cancellationTokenSource.Cancel();
             }
-            catch (AggregateException ae)
+            catch (AggregateException aggregateException)
             {
-                ae.Handle(e => !(e is AdoProcedureException));
+                foreach (var exception in aggregateException.InnerExceptions)
+                {
+                    if (exception is AdoProcedureException)
+                        throw exception;
+                }
             }
             finally
             {
-                task.Dispose();
+                cancellationTokenSource.Dispose();
             }
 
             throw new AdoProcedureTimeoutException(command, connection, timeoutSeconds, operation);
