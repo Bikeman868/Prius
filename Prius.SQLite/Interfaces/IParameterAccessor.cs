@@ -3,6 +3,10 @@ using Prius.Contracts.Interfaces.Commands;
 
 namespace Prius.SqLite.Interfaces
 {
+    /// <summary>
+    /// Provides some convenient helper methods for dealing with the parameters that are pssed into
+    /// stored procedures.
+    /// </summary>
     public interface IParameterAccessor
     {
         /// <summary>

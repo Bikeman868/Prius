@@ -8,6 +8,12 @@ using Prius.SqLite.Interfaces;
 
 namespace Prius.SqLite.Schema
 {
+    /// <summary>
+    /// Reflects over DLLs in the bin folder and finds classes that
+    /// are decorated with schema related attributes. Builds a complete
+    /// definition of what the SqLite database schema should be like to
+    /// work with the application code.
+    /// </summary>
     internal class SchemaEnumerator: ISchemaEnumerator
     {
         private readonly IColumnTypeMapper _columnTypeMapper;

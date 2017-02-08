@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Security.Cryptography;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
@@ -9,7 +10,11 @@ using Prius.SqLite.Interfaces;
 
 namespace Prius.SqLite.CommandProcessing
 {
-    internal class StoredProcedureCommandProcessor: Disposable, ICommandProcessor
+    /// <summary>
+    /// This class executes pseudo stored procedures written as C# classes
+    /// using the ADO.Net driver for SqLite in System.Data.SQLite.
+    /// </summary>
+    internal class AdoProcedureCommandProcessor: Disposable, IAdoCommandProcessor
     {
         private readonly IProcedureLibrary _procedureLibrary;
         private readonly IProcedureRunner _procedureRunner;
@@ -19,7 +24,7 @@ namespace Prius.SqLite.CommandProcessing
         private SQLiteTransaction _transaction;
         private IProcedure _storedProcedure;
 
-        public StoredProcedureCommandProcessor(
+        public AdoProcedureCommandProcessor(
             IProcedureLibrary procedureLibrary, 
             IProcedureRunner procedureRunner)
         {
@@ -46,6 +51,15 @@ namespace Prius.SqLite.CommandProcessing
                 throw new Exception("There is no stored procedure with the name " + command.CommandText);
 
             return this;
+        }
+
+        protected override void Dispose(bool destructor)
+        {
+            if (!destructor)
+            {
+                _procedureLibrary.Reuse(_storedProcedure);
+            }
+            base.Dispose(destructor);
         }
 
         public int CommandTimeout { get; set; }

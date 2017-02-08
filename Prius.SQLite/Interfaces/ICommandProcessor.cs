@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
 using Prius.Contracts.Interfaces;
-using Prius.Contracts.Interfaces.Commands;
-using Prius.Contracts.Interfaces.Connections;
 
 namespace Prius.SqLite.Interfaces
 {
+    /// <summary>
+    /// This is the base interface for all classes that know how 
+    /// to process database commands. There are various implementations
+    /// that execute specific kinds of command or using a specific method
+    /// (for example natively accessing the sqlite engine or going via
+    /// the ADO.Net driver for SqLite).
+    /// </summary>
     public interface ICommandProcessor: IDisposable
     {
-        ICommandProcessor Initialize(
-            IRepository repository,
-            ICommand command,
-            SQLiteConnection connection,
-            SQLiteTransaction transaction);
-
         int CommandTimeout { get; set; }
 
         IDataReader ExecuteReader(string dataShapeName, Action<IDataReader> closeAction, Action<IDataReader> errorAction);

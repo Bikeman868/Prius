@@ -1,5 +1,10 @@
 ﻿namespace Prius.SqLite.QueryBuilder
 {
+    /// <summary>
+    /// Understands basic SqLite SQL syntax and assists developers in
+    /// writing syntactically correct SQL. If your syntax is incorrect
+    /// you are likely to get a very unhelpful message from SqLite
+    /// </summary>
     public interface IQueryBuilder
     {
         ISelectQueryBuilder Select(params string[] fields);

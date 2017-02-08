@@ -8,6 +8,16 @@ using Prius.SqLite.QueryBuilder;
 
 namespace Prius.SqLite.CommandProcessing
 {
+    /// <summary>
+    /// This is designed to be injected into stored procedures to make
+    /// it easier for them to execute queries against the sqlite database.
+    /// The stored procedure always has an open connection to the database
+    /// which is passed in.
+    /// The ADO Query runner uses the SqLite ADO.Net driver in 
+    /// System.Data.SQLite.
+    /// There is also a native query runner that talks directly to the SqLite
+    /// engine.
+    /// </summary>
     public class AdoQueryRunner: IAdoQueryRunner
     {
         private readonly IParameterConverter _parameterConverter;

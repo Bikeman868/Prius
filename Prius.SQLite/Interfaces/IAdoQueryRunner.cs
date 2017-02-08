@@ -6,6 +6,10 @@ using Prius.SqLite.QueryBuilder;
 
 namespace Prius.SqLite.Interfaces
 {
+    /// <summary>
+    /// Provides a query execution mechanism using the ADO.Net driver
+    /// for SqLite in System.Data.SqLite
+    /// </summary>
     public interface IAdoQueryRunner
     {
         int ExecuteNonQuery(SQLiteConnection connection, string sql, IList<IParameter> parameters = null);

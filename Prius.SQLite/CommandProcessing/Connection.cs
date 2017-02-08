@@ -13,6 +13,11 @@ using Prius.SqLite.Interfaces;
 
 namespace Prius.SqLite.CommandProcessing
 {
+    /// <summary>
+    /// This is the main entry point into the SqLite driver from Prius.
+    /// It defines that any Prius database using a server type 'SqLite'
+    /// will be handled by this connection provider.
+    /// </summary>
     [Provider("SqLite", "SQLite database connection provider")]
     public class Connection : Disposable, IConnection, IConnectionProvider
     {
@@ -115,7 +120,7 @@ namespace Prius.SqLite.CommandProcessing
             if (command == null) return;
             _command = command;
 
-            _commandProcessor = _commandProcessorFactory.Create(_repository, command, _connection, _transaction);
+            _commandProcessor = _commandProcessorFactory.CreateAdo(_repository, command, _connection, _transaction);
 
             _dataShapeName = _connection.DataSource + ":" + _connection.Database + ":" + command.CommandType + ":" + command.CommandText;
         }

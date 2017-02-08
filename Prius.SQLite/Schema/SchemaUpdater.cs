@@ -9,6 +9,10 @@ using Prius.SqLite.Interfaces;
 
 namespace Prius.SqLite.Schema
 {
+    /// <summary>
+    /// Compares the actual database schema with the schema defined within the application
+    /// and modifies the database schema to match the application.
+    /// </summary>
     internal class SchemaUpdater : ISchemaUpdater
     {
         private readonly IAdoQueryRunner _queryRunner;

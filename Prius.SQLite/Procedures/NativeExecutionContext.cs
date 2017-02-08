@@ -6,6 +6,12 @@ using Prius.Contracts.Interfaces.Commands;
 
 namespace Prius.SqLite.Procedures
 {
+    /// <summary>
+    /// Objects of this type are passed to stored procedures that
+    /// talk directly to the SqLite database engine. It contains 
+    /// everything the stored procedure needs to execute and return 
+    /// an open data reader.
+    /// </summary>
     public class NativeExecutionContext
     {
         public IList<IParameter> Parameters;

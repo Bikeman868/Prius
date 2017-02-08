@@ -1,7 +1,7 @@
 ﻿using System;
 using Prius.Contracts.Attributes;
 
-namespace Prius.SqLite.StoredProcedures
+namespace Prius.SqLite.Procedures
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ParameterAttribute : Attribute

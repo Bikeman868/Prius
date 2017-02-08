@@ -2,7 +2,6 @@
 using Prius.SqLite.Interfaces;
 using Prius.SqLite.Procedures;
 using Prius.SqLite.QueryBuilder;
-using Prius.SqLite.StoredProcedures;
 
 namespace UsersTestApp.Procedures
 {

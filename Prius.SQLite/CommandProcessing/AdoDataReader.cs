@@ -6,7 +6,20 @@ using Prius.Contracts.Utility;
 
 namespace Prius.SqLite.CommandProcessing
 {
-    internal class DataReader : Disposable, IDataReader
+    /// <summary>
+    /// This class is used to return result sets to Prius.
+    /// It provides forward only access to multiple sets of
+    /// data. It maintains a connection to the database until
+    /// it is disposed and reads from the database as it is
+    /// advanced through the result sets.
+    /// It also has lambda expressions that it will call when
+    /// the data reader is disposed by the application. These
+    /// are used to release resources within Prius when the
+    /// application is finished with the data.
+    /// This version of the data reader depends on the SqLite
+    /// ADO.Net driver in System.Data.SQLite
+    /// </summary>
+    internal class AdoDataReader : Disposable, IDataReader
     {
         private readonly IErrorReporter _errorReporter;
 
@@ -15,7 +28,7 @@ namespace Prius.SqLite.CommandProcessing
         private Action<IDataReader> _errorAction;
         private Action<IDataReader> _closeAction;
 
-        public DataReader(IErrorReporter errorReporter)
+        public AdoDataReader(IErrorReporter errorReporter)
         {
             _errorReporter = errorReporter;
         }

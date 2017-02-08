@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Diagnostics;
@@ -7,15 +8,22 @@ using System.Linq;
 using System.Reflection;
 using Prius.SqLite.Interfaces;
 using Prius.Contracts.Interfaces.External;
-using Prius.SqLite.Schema;
 
 namespace Prius.SqLite.Procedures
 {
+    /// <summary>
+    /// This class implements IProcedureLibrary by reflecting over the DLLs
+    /// in the bin folder of the application and finding classes that are
+    /// decorated with the [Procedure] attribute and implement the IProcedure
+    /// interface.
+    /// Implements pooling and reusing of stored procedure implementations that
+    /// are not thread safe.
+    /// </summary>
     internal class ProcedureLibrary : IProcedureLibrary
     {
         private readonly IFactory _factory;
         private SortedList<string, Assembly> _probedAssemblies;
-        private IList<Procedure> _procedures;
+        private IList<ProcedureTypeWrapper> _procedureTypeWrappers;
 
         private const string TracePrefix = "Prius SqLite procedure library: ";
 
@@ -30,39 +38,32 @@ namespace Prius.SqLite.Procedures
 
         public void Clear()
         {
-            _procedures = new List<Procedure>();
+            _procedureTypeWrappers = new List<ProcedureTypeWrapper>();
             _probedAssemblies = new SortedList<string, Assembly>();
         }
 
         public IProcedure Get(SQLiteConnection connection, string repositoryName, string procedureName)
         {
-            var procedure = _procedures.FirstOrDefault(p =>
+            var procedureTypeWrapper = _procedureTypeWrappers.FirstOrDefault(p =>
                 (string.IsNullOrEmpty(p.Attribute.RepositoryName) ||
                  string.Equals(p.Attribute.RepositoryName, repositoryName, StringComparison.OrdinalIgnoreCase)
                 ) && 
                 string.Equals(p.Attribute.ProcedureName, procedureName, StringComparison.OrdinalIgnoreCase));
 
-            if (procedure == null) return null;
+            if (procedureTypeWrapper == null)
+                throw new Exception("There is no procedure '" + procedureName + "' in repository '" + repositoryName + "'");
 
-            if (procedure.Instance == null)
-            {
-                lock(procedure)
-                {
-                    if (procedure.Instance == null)
-                    {
-                        procedure.Instance = _factory.Create(procedure.ProcedureType) as IProcedure;
-                    }
-                }
-            }
-
-            // TODO: Check is procedure is thread safe and create a pool if not
-
-            return procedure.Instance;
+            return procedureTypeWrapper.Pool.Get();
         }
 
         public void Reuse(IProcedure procedure)
         {
-            // TODO: pool and reuse non-thread safe procedures
+            if (procedure != null)
+            {
+                var procedureType = _procedureTypeWrappers.FirstOrDefault(p => p.ProcedureType == procedure.GetType());
+                if (procedureType != null)
+                    procedureType.Pool.Reuse(procedure);
+            }
         }
 
         public void Add(Assembly assembly)
@@ -79,12 +80,15 @@ namespace Prius.SqLite.Procedures
                     {
                         foreach (ProcedureAttribute attribute in type.GetCustomAttributes(typeof(ProcedureAttribute), true))
                         {
-                            var procedure = new Procedure
+                            var procedureTypeWrapper = new ProcedureTypeWrapper
                             {
                                 Attribute = attribute,
-                                ProcedureType = type
+                                ProcedureType = type,
+                                Pool = attribute.IsThreadSafe 
+                                    ? new SingleInstanceProcedurePool(_factory, type) as ProcedurePool
+                                    : new MultiInstanceProcedurePool(_factory, type)
                             };
-                            _procedures.Add(procedure);
+                            _procedureTypeWrappers.Add(procedureTypeWrapper);
                         }
                     }
                 }
@@ -180,11 +184,67 @@ namespace Prius.SqLite.Procedures
             Add(assemblies);
         }
 
-        private class Procedure
+        private class ProcedureTypeWrapper
         {
             public Type ProcedureType;
             public ProcedureAttribute Attribute;
-            public IProcedure Instance; 
+            public ProcedurePool Pool; 
+        }
+
+        private abstract class ProcedurePool
+        {
+            public abstract IProcedure Get();
+            public abstract void Reuse(IProcedure procedure);
+        }
+
+        private class SingleInstanceProcedurePool: ProcedurePool
+        {
+            private readonly IProcedure _instance;
+
+            public SingleInstanceProcedurePool(IFactory factory, Type type)
+            {
+                _instance = factory.Create(type) as IProcedure;
+            }
+
+            public override IProcedure Get()
+            {
+                return _instance;
+            }
+
+            public override void Reuse(IProcedure procedure)
+            {
+            }
+        }
+
+        private class MultiInstanceProcedurePool : ProcedurePool
+        {
+            private readonly IFactory _factory;
+            private readonly Type _type;
+            private readonly Queue<IProcedure> _pool;
+
+            public MultiInstanceProcedurePool(IFactory factory, Type type)
+            {
+                _factory = factory;
+                _type = type;
+                _pool = new Queue<IProcedure>();
+            }
+
+            public override IProcedure Get()
+            {
+                lock(_pool)
+                {
+                    if (_pool.Count > 0)
+                        return _pool.Dequeue();
+                }
+                
+                return _factory.Create(_type) as IProcedure;
+            }
+
+            public override void Reuse(IProcedure procedure)
+            {
+                if (procedure != null)
+                    lock (_pool) _pool.Enqueue(procedure);
+            }
         }
     }
 

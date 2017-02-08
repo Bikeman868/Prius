@@ -4,6 +4,12 @@ using System.Reflection;
 
 namespace Prius.SqLite.Interfaces
 {
+    /// <summary>
+    /// Encapsulates the library of all of the stored procedures. The stored
+    /// procedure command processor will go to the library to get a stored
+    /// procedure, then put it back into the library for reuse when the
+    /// stored procedure execution is complete.
+    /// </summary>
     public interface IProcedureLibrary
     {
         void ProbeBinFolderAssemblies();

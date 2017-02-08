@@ -6,6 +6,11 @@ using Prius.SqLite.Interfaces;
 
 namespace Prius.SqLite.CommandProcessing
 {
+    /// <summary>
+    /// This class takes Prius command parameters and sets them into SqLite
+    /// commands. This version only has support for the ADO.Net driver in
+    /// System.Data.SQLite
+    /// </summary>
     internal class ParameterConverter : IParameterConverter
     {
         public void AddParameter(SQLiteCommand command, IParameter parameter)

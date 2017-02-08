@@ -8,7 +8,12 @@ using Prius.SqLite.Interfaces;
 
 namespace Prius.SqLite.CommandProcessing
 {
-    internal class SqlCommandProcessor: Disposable, ICommandProcessor
+    /// <summary>
+    /// This is a command processor for SQL statements. It does not
+    /// know how to execute stored procedures, it only supports SQL
+    /// statements. There are other command processors for stored procedures.
+    /// </summary>
+    internal class SqlCommandProcessor: Disposable, IAdoCommandProcessor
     {
         private readonly IDataReaderFactory _dataReaderFactory;
         private readonly IParameterConverter _parameterConverter;
