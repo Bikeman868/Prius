@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{96929FB6-0D7D-4818-8757-C3F234F9C43E}</ProjectGuid>
+    <ProjectGuid>{34C6AB38-47A3-4803-8E83-0D4D2AC7BED5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Prius.MySql</RootNamespace>
-    <AssemblyName>Prius.MySql</AssemblyName>
+    <RootNamespace>Prius.SqLite</RootNamespace>
+    <AssemblyName>Prius.SqLite</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -46,26 +46,84 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.104.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedVersion.cs">
       <Link>Properties\SharedVersion.cs</Link>
     </Compile>
-    <Compile Include="Connection.cs" />
-    <Compile Include="DataReader.cs" />
+    <Compile Include="CommandProcessing\AdoDataReader.cs" />
+    <Compile Include="CommandProcessing\AdoProcedureCommandProcessor.cs" />
+    <Compile Include="CommandProcessing\AdoQueryRunner.cs" />
+    <Compile Include="CommandProcessing\ColumnTypeMapper.cs" />
+    <Compile Include="CommandProcessing\CommandProcessorFactory.cs" />
+    <Compile Include="CommandProcessing\Connection.cs" />
+    <Compile Include="CommandProcessing\DataReaderFactory.cs" />
+    <Compile Include="CommandProcessing\ParameterConverter.cs" />
+    <Compile Include="CommandProcessing\SqlCommandProcessor.cs" />
+    <Compile Include="Interfaces\IAdoCommandProcessor.cs" />
+    <Compile Include="Interfaces\IAdoProcedure.cs" />
+    <Compile Include="Interfaces\IAdoQueryRunner.cs" />
+    <Compile Include="Interfaces\IColumnTypeMapper.cs" />
+    <Compile Include="Interfaces\ICommandProcessor.cs" />
+    <Compile Include="Interfaces\ICommandProcessorFactory.cs" />
+    <Compile Include="Interfaces\IDataReaderFactory.cs" />
+    <Compile Include="Interfaces\INativeProcedure.cs" />
+    <Compile Include="Interfaces\INativeQueryRunner.cs" />
+    <Compile Include="Interfaces\IParameterAccessor.cs" />
+    <Compile Include="Interfaces\IParameterConverter.cs" />
+    <Compile Include="Interfaces\IProcedure.cs" />
+    <Compile Include="Interfaces\IProcedureLibrary.cs" />
+    <Compile Include="Interfaces\IProcedureRunner.cs" />
+    <Compile Include="Interfaces\ISchemaEnumerator.cs" />
+    <Compile Include="Interfaces\ISchemaUpdater.cs" />
     <Compile Include="Package.cs" />
+    <Compile Include="Procedures\AdoExecutionContext.cs" />
+    <Compile Include="Procedures\Exceptions.cs" />
+    <Compile Include="Procedures\NativeExecutionContext.cs" />
+    <Compile Include="Procedures\ParameterAccessor.cs" />
+    <Compile Include="Procedures\ParameterAttribute.cs" />
+    <Compile Include="Procedures\ProcedureAttributes.cs" />
+    <Compile Include="Procedures\ProcedureLibrary.cs" />
+    <Compile Include="Procedures\Runner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryBuilder\IDeleteQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\IInsertQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\IQuery.cs" />
+    <Compile Include="QueryBuilder\IQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\ISelectQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\IUpdateQueryBuilder.cs" />
+    <Compile Include="QueryBuilder\QueryBuilder.cs" />
+    <Compile Include="Schema\ColumnAttributes.cs" />
+    <Compile Include="Schema\ColumnSchema.cs" />
+    <Compile Include="Schema\IndexAttributes.cs" />
+    <Compile Include="Schema\IndexSchema.cs" />
+    <Compile Include="Schema\SchemaColumnAttribute.cs" />
+    <Compile Include="Schema\SchemaEnumerator.cs" />
+    <Compile Include="Schema\SchemaIndexAttribute.cs" />
+    <Compile Include="Schema\SchemaTableAttribute.cs" />
+    <Compile Include="Schema\SchemaUpdater.cs" />
+    <Compile Include="Schema\TableSchema.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.Prius.MySql.Net45.config" />
+    <None Include="packages.Prius.SqLite.Net45.config" />
+    <None Include="readme.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Prius.Contracts\Prius.Contracts.Net45.csproj">
       <Project>{abb21658-6682-4e95-b633-e19e60782070}</Project>
       <Name>Prius.Contracts.Net45</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\x64\SQLite.Interop.dll" />
+    <Content Include="lib\x64\SQLite.Interop.pdb" />
+    <Content Include="lib\x86\SQLite.Interop.dll" />
+    <Content Include="lib\x86\SQLite.Interop.pdb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
