@@ -114,7 +114,12 @@
     <None Include="packages.Prius.SqLite.Net40.config" />
     <None Include="readme.md" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="lib\x64\SQLite.Interop.dll" />
+    <Content Include="lib\x64\SQLite.Interop.pdb" />
+    <Content Include="lib\x86\SQLite.Interop.dll" />
+    <Content Include="lib\x86\SQLite.Interop.pdb" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

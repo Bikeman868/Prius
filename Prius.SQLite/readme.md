@@ -179,6 +179,20 @@ To configure a SqLite reopsitory in Prius use the server type of
         ]
     }
 
+Because the SqLite engine is unmanaged code, you need different binaries
+for 32-bit and 64-bit versions of Windows. Unfortunately NuGet does not
+provide a way to do this (see https://github.com/aspnet/dnx/issues/402)
+so for now you will have to manually copy `SQLite.Interop.dll` into your
+`bin` folder. You can also make `x86` and `x64` sub-folders inside your 
+`bin` folder, and the SQLite managed wrapper will detect the 32/64 bitedness 
+of the OS and load the appropriate version.
+
+These files are in the `lib` folder of the source code, and are included
+in the NuGet package, so there are a couple of places you get grab them
+from.
+
+You can also download them from https://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki
+
 # Creating and maintaining the database schema automatically
 
 This package contains a class that will examine the database on
