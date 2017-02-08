@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.SqLite.Interfaces;
 using Prius.SqLite.Procedures;
@@ -29,6 +30,12 @@ namespace Prius.SqLite.CommandProcessing
 
         public int ExecuteNonQuery(SQLiteConnection connection, string sql, IList<IParameter> parameters)
         {
+            if (connection == null || string.IsNullOrEmpty(sql)) return 0;
+
+#if DEBUG
+            Trace.WriteLine(sql);
+#endif
+
             using (var command = connection.CreateCommand())
             {
                 command.CommandType = CommandType.Text;
@@ -42,6 +49,12 @@ namespace Prius.SqLite.CommandProcessing
 
         public SQLiteDataReader ExecuteReader(SQLiteConnection connection, string sql, IList<IParameter> parameters)
         {
+            if (connection == null || string.IsNullOrEmpty(sql)) return null;
+
+#if DEBUG
+            Trace.WriteLine(sql);
+#endif
+
             using (var command = connection.CreateCommand())
             {
                 command.CommandType = CommandType.Text;

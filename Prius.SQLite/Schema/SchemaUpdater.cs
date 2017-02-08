@@ -12,6 +12,10 @@ namespace Prius.SqLite.Schema
     /// <summary>
     /// Compares the actual database schema with the schema defined within the application
     /// and modifies the database schema to match the application.
+    /// 
+    /// Note that you can not rename tables. Changing the name of the table in your
+    /// schema attributes will provide no information about what that table used to
+    /// be called.
     /// </summary>
     internal class SchemaUpdater : ISchemaUpdater
     {
@@ -70,38 +74,245 @@ namespace Prius.SqLite.Schema
             }
         }
 
-
         private void CreateTable(SQLiteConnection connection, TableSchema tableSchema)
         {
             var sql = new StringBuilder();
 
-            sql.AppendFormat("CREATE TABLE {0} (", tableSchema.TableName);
-            var separator = "";
-            foreach (var column in tableSchema.Columns)
-            {
-                sql.AppendLine(separator);
-                sql.Append("  ");
-                AppendColumnDefinition(column, sql);
-                separator = ",";
-            }
-            sql.AppendLine();
-            sql.AppendLine(");");
+            CreateTableDdl(tableSchema, sql);
+            sql.AppendLine(";");
 
             foreach (var index in tableSchema.Indexes)
             {
-                var collate = ((index.Attributes & IndexAttributes.CaseSensitive) == IndexAttributes.CaseSensitive) ? "" : " COLLATE NOCASE";
-                sql.AppendFormat("CREATE {1}INDEX {0} ON {2} ({3})",
-                    index.IndexName,
-                    (index.Attributes & IndexAttributes.Unique) == IndexAttributes.Unique ? "UNIQUE " : "",
-                    tableSchema.TableName,
-                    string.Join(",", index.ColumnNames.Select(c => c + collate)));
+                CreateIndexDdl(tableSchema, index, sql);
                 sql.AppendLine(";");
             }
 
             _queryRunner.ExecuteNonQuery(connection, sql.ToString());
         }
 
-        private void AppendColumnDefinition(ColumnSchema column, StringBuilder sql)
+        private void UpdateTable(SQLiteConnection connection, TableSchema currentTableSchema, TableSchema newTableSchema)
+        {
+            var hasBreakingChanges = HasBreakingChanges(currentTableSchema, newTableSchema);
+
+            if (hasBreakingChanges)
+            {
+                RecreateTable(connection, currentTableSchema, newTableSchema);
+            }
+            else
+            {
+                AddMissingColumns(connection, currentTableSchema, newTableSchema);
+                AdjustExistingIndexes(connection, currentTableSchema, newTableSchema);
+                AddMissingIndexes(connection, currentTableSchema, newTableSchema);
+            }
+        }
+
+        private void AddMissingIndexes(
+            SQLiteConnection connection,
+            TableSchema currentTableSchema,
+            TableSchema newTableSchema)
+        {
+            var sql = new StringBuilder();
+
+            foreach (var newIndex in newTableSchema.Indexes)
+            {
+                var currentIndex =
+                    currentTableSchema.Indexes.FirstOrDefault(
+                        c => string.Equals(newIndex.IndexName, c.IndexName, StringComparison.OrdinalIgnoreCase));
+                if (currentIndex == null)
+                {
+                    CreateIndexDdl(currentTableSchema, newIndex, sql);
+                    sql.AppendLine(";");
+                }
+            }
+
+            _queryRunner.ExecuteNonQuery(connection, sql.ToString());
+        }
+
+        private void AdjustExistingIndexes(
+            SQLiteConnection connection,
+            TableSchema currentTableSchema, 
+            TableSchema newTableSchema)
+        {
+            var sql = new StringBuilder();
+
+            foreach (var currentIndex in currentTableSchema.Indexes)
+            {
+                var newIndex = newTableSchema.Indexes.FirstOrDefault(i => string.Equals(
+                    currentIndex.IndexName, i.IndexName, StringComparison.OrdinalIgnoreCase));
+                if (newIndex == null)
+                {
+                    DropIndexDdl(currentIndex, sql);
+                    sql.AppendLine(";");
+                }
+                else if (currentIndex.Attributes != newIndex.Attributes ||
+                    currentIndex.ColumnNames.Length != newIndex.ColumnNames.Length)
+                {
+                    DropIndexDdl(currentIndex, sql);
+                    sql.AppendLine(";");
+                    CreateIndexDdl(currentTableSchema, newIndex, sql);
+                    sql.AppendLine(";");
+                }
+                else
+                {
+                    var columnsVary = currentIndex.ColumnNames
+                        .Where((t, i) => !string.Equals(t, newIndex.ColumnNames[i], StringComparison.OrdinalIgnoreCase))
+                        .Any();
+                    if (columnsVary)
+                    {
+                        DropIndexDdl(currentIndex, sql);
+                        sql.AppendLine(";");
+                        CreateIndexDdl(currentTableSchema, newIndex, sql);
+                        sql.AppendLine(";");
+                    }
+                }
+            }
+
+            _queryRunner.ExecuteNonQuery(connection, sql.ToString());
+        }
+
+        private void AddMissingColumns(
+            SQLiteConnection connection,
+            TableSchema currentTableSchema, 
+            TableSchema newTableSchema)
+        {
+            var sql = new StringBuilder();
+
+            foreach (var newColumn in newTableSchema.Columns)
+            {
+                var currentColumn =
+                    currentTableSchema.Columns.FirstOrDefault(
+                        c => string.Equals(newColumn.ColumnName, c.ColumnName, StringComparison.OrdinalIgnoreCase));
+                if (currentColumn == null)
+                {
+                    AddColumnDdl(currentTableSchema, newColumn, sql);
+                    sql.AppendLine(";");
+                }
+            }
+
+            _queryRunner.ExecuteNonQuery(connection, sql.ToString());
+        }
+
+        private void RecreateTable(
+            SQLiteConnection connection, 
+            TableSchema currentTableSchema, 
+            TableSchema newTableSchema)
+        {
+            var sql = new StringBuilder();
+
+            // Drop all indexes
+            foreach (var index in currentTableSchema.Indexes)
+            {
+                DropIndexDdl(index, sql);
+                sql.AppendLine(";");
+            }
+
+            var tempTableName = "TMP_" + Guid.NewGuid().ToString("N");
+            sql.Clear();
+
+            // Rename the existing table
+            RenameTableDdl(currentTableSchema.TableName, tempTableName, sql);
+            sql.AppendLine(";");
+
+            // Create a new table
+            CreateTableDdl(newTableSchema, sql);
+            sql.AppendLine(";");
+
+            // Copy the data from the old table to the new one
+            var currentColumnNames = currentTableSchema.Columns
+                .Select(c => c.ColumnName)
+                .ToList();
+            var newColumnNames = newTableSchema.Columns
+                .Select(c => c.ColumnName)
+                .ToList();
+            var columnsToCopy = currentColumnNames
+                .Where(c => newColumnNames.Contains(c, StringComparer.OrdinalIgnoreCase))
+                .ToList();
+            sql.AppendFormat("INSERT OR REPLACE INTO {0} ({1}) SELECT {1} FROM {2}",
+                newTableSchema.TableName, string.Join(", ", columnsToCopy), tempTableName);
+            sql.AppendLine(";");
+
+            // Drop the renamed old table
+            DropTableDdl(tempTableName, sql);
+            sql.AppendLine(";");
+
+            // Add indexes to the new table
+            foreach (var index in newTableSchema.Indexes)
+            {
+                CreateIndexDdl(newTableSchema, index, sql);
+                sql.AppendLine(";");
+            }
+
+            _queryRunner.ExecuteNonQuery(connection, sql.ToString());
+        }
+
+        private static bool HasBreakingChanges(TableSchema currentTableSchema, TableSchema newTableSchema)
+        {
+            foreach (var currentColumn in currentTableSchema.Columns)
+            {
+                var newColumn = newTableSchema.Columns.FirstOrDefault(
+                        c => string.Equals(currentColumn.ColumnName, c.ColumnName, StringComparison.OrdinalIgnoreCase));
+                if (newColumn == null)
+                {
+                    return true;
+                }
+                if (!string.Equals(currentColumn.DataType, newColumn.DataType, StringComparison.OrdinalIgnoreCase) ||
+                    currentColumn.Attributes != newColumn.Attributes)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        #region DDL queries
+
+        private void AddColumnDdl(TableSchema table, ColumnSchema column, StringBuilder sql)
+        {
+            sql.AppendFormat("ALTER TABLE {0} ADD COLUMN ", table.TableName);
+            ColumnDdl(column, sql);
+        }
+
+        private void CreateTableDdl(TableSchema table, StringBuilder sql)
+        {
+            sql.AppendFormat("CREATE TABLE {0} (", table.TableName);
+            var separator = "";
+            foreach (var column in table.Columns)
+            {
+                sql.AppendLine(separator);
+                sql.Append("  ");
+                ColumnDdl(column, sql);
+                separator = ",";
+            }
+            sql.AppendLine();
+            sql.Append(")");
+        }
+
+        private void CreateIndexDdl(TableSchema table, IndexSchema index, StringBuilder sql)
+        {
+            var collate = ((index.Attributes & IndexAttributes.CaseSensitive) == IndexAttributes.CaseSensitive) ? "" : " COLLATE NOCASE";
+            sql.AppendFormat("CREATE {1}INDEX {0} ON {2} ({3})",
+                index.IndexName,
+                (index.Attributes & IndexAttributes.Unique) == IndexAttributes.Unique ? "UNIQUE " : "",
+                table.TableName,
+                string.Join(",", index.ColumnNames.Select(c => c + collate)));
+        }
+
+        private void DropIndexDdl(IndexSchema index, StringBuilder sql)
+        {
+            sql.AppendFormat("DROP INDEX ", index.IndexName);
+        }
+
+        private void RenameTableDdl(string oldName, string newName, StringBuilder sql)
+        {
+            sql.AppendFormat("ALTER TABLE {0} RENAME TO {1}", oldName, newName);
+        }
+
+        private void DropTableDdl(string tableName, StringBuilder sql)
+        {
+            sql.AppendFormat("DROP TABLE ", tableName);
+        }
+
+        private void ColumnDdl(ColumnSchema column, StringBuilder sql)
         {
             if ((column.Attributes & ColumnAttributes.AutoIncrement) == ColumnAttributes.AutoIncrement)
             {
@@ -130,140 +341,103 @@ namespace Prius.SqLite.Schema
             }
         }
 
-        private void UpdateTable(SQLiteConnection connection, TableSchema currentSchema, TableSchema newSchema)
-        {
-            var sql = new StringBuilder();
-
-            // Delete current columns and recreate changed columns
-            foreach (var currentColumn in currentSchema.Columns)
-            {
-                var newColumn = newSchema.Columns.FirstOrDefault(c => string.Equals(currentColumn.ColumnName, c.ColumnName, StringComparison.OrdinalIgnoreCase));
-                if (newColumn == null)
-                {
-                    var msg = string.Format(
-                        "Existing database table '{0}' includes column '{1}' which is not in your current schema. " +
-                        "SqLite does not have the ability to drop columns, you should add this column back into " +
-                        "your current schema or write a data migration routine.",
-                        currentSchema.TableName, currentColumn.ColumnName);
-                    throw new Exception(msg);
-                }
-                else
-                {
-                    if (!string.Equals(currentColumn.DataType, newColumn.DataType, StringComparison.OrdinalIgnoreCase) ||
-                        currentColumn.Attributes != newColumn.Attributes)
-                    {
-                        var msg = string.Format(
-                            "The {1} column in the {0} table has a different schema in the database than the code is expecting. " +
-                            "SqLite does not have the ability to alter column definitions, you should add a new column and " +
-                            "write a data migration routine to copy the existing data over.",
-                            currentSchema.TableName, currentColumn.ColumnName);
-                        throw new Exception(msg);
-                    }
-                }
-            }
-
-            // TODO: To delete or change columns we need to rename the existing table, create a new table with the original name,
-            // copy all the data accross then delete the old table.
-
-            // Add new columns
-            foreach (var newColumn in newSchema.Columns)
-            {
-                var currentColumn = currentSchema.Columns.FirstOrDefault(c => string.Equals(newColumn.ColumnName, c.ColumnName, StringComparison.OrdinalIgnoreCase));
-                if (currentColumn == null)
-                {
-                    sql.Clear();
-                    sql.AppendFormat("ALTER TABLE {0} ADD COLUMN ", currentSchema.TableName);
-                    AppendColumnDefinition(newColumn, sql);
-                    _queryRunner.ExecuteNonQuery(connection, sql.ToString());
-                }
-            }
-        }
+        #endregion
 
         #region GetCurrentSchema
 
         private TableSchema GetCurrentSchema(SQLiteConnection connection, string tableName)
         {
-            var sql = new StringBuilder();
-            sql.AppendFormat("SELECT sql FROM sqlite_master WHERE name='{0}'", tableName);
+            var tableSql = string.Format("SELECT sql FROM sqlite_master WHERE type='table' AND name='{0}'", tableName);
+            var reader = _queryRunner.ExecuteReader(connection, tableSql);
+            if (reader == null) return null;
 
-            var reader = _queryRunner.ExecuteReader(connection, sql.ToString());
-            if (reader == null)
-                return null;
-
-            string createTableSql;
+            TableSchema tableSchema = null;
             using (reader)
             {
-                if (!reader.Read())
-                    return null;
-                createTableSql = reader.GetString(0);
+                if (reader.Read())
+                {
+                    var createTableSql = reader.GetString(0);
+                    if (string.IsNullOrEmpty(createTableSql)) return null;
+                    tableSchema = ParseCreateTable(createTableSql);
+                }
             }
-            if (string.IsNullOrEmpty(createTableSql))
-                return null;
+            if (tableSchema == null) return null;
 
-            var tableSchema = ParseCreateTable(createTableSql);
+            tableSchema.Indexes = new List<IndexSchema>();
 
-            // TODO: Retrieve and parse index definitions
+            var indexSql = string.Format("SELECT sql FROM sqlite_master WHERE type='index' AND tbl_name='{0}'", tableName);
+            reader = _queryRunner.ExecuteReader(connection, indexSql);
+            if (reader != null)
+            {
+                using (reader)
+                {
+                    while (reader.Read())
+                    {
+                        var createIndexSql = reader.GetString(0);
+                        var indexSchema = ParseCreateIndex(createIndexSql);
+                        tableSchema.Indexes.Add(indexSchema);
+                    }
+                }
+            }
 
             return tableSchema;
         }
 
+        private IndexSchema ParseCreateIndex(string sql)
+        {
+            var parser = new SimpleParser(sql);
+            var indexSchema = new IndexSchema();
+
+            parser.SkipOverString("CREATE");
+            if (parser.TakeWord().ToUpper() == "UNIQUE")
+            {
+                indexSchema.Attributes = IndexAttributes.Unique;
+                parser.SkipOverString("INDEX");
+            }
+
+            indexSchema.IndexName = parser.TakeWord();
+            if (indexSchema.IndexName.ToUpper() == "IF")
+            {
+                parser.SkipOverString("EXISTS");
+                indexSchema.IndexName = parser.TakeWord();
+            }
+            parser.SkipOverString("ON");
+            var tableName = parser.TakeWord();
+            parser.SkipOverString("(");
+
+            var columnNames = new List<string>();
+            while (!parser.AtEnd() && !parser.Is(')'))
+            {
+                columnNames.Add(parser.TakeWord());
+                while (!parser.Is(',') && !parser.Is(')')) 
+                    parser.Skip(1);
+                if (parser.Is(','))
+                    parser.Skip(1);
+            }
+            indexSchema.ColumnNames = columnNames.ToArray();
+
+            return indexSchema;
+        }
+
         private TableSchema ParseCreateTable(string sql)
         {
-            sql = sql.Replace("\n", "")
-                .Replace("\r", "")
-                .Replace("     ", " ")
-                .Replace("    ", " ")
-                .Replace("   ", " ")
-                .Replace("  ", " ")
-                .Replace(", ", ",")
-                .Replace(") ", ")")
-                .Replace(" )", ")")
-                .Replace("( ", "(")
-                .Replace(" (", "(");
-
-            var index = 0;
-
-            Func<bool> atEnd = () => index >= sql.Length;
-            Action<int> skip = n => index += n;
-            Action<string> skipToString = s => index = sql.IndexOf(s, index, StringComparison.OrdinalIgnoreCase);
-            Func<char[], string> takeToAny = c =>
-            {
-                var end = sql.IndexOfAny(c, index);
-                var result = end == -1 ? sql.Substring(index) : sql.Substring(index, end - index);
-                skip(result.Length);
-                return result;
-            };
-            Action<string> skipOverString = s => 
-            { 
-                skipToString(s); skip(s.Length); 
-            };
-            Func<string> takeWord = () =>
-            {
-                var separator = new List<char> {' ', ',', '(', ')'};
-                while (!atEnd() && separator.Contains(sql[index])) index++;
-                var end = index + 1;
-                while (end < sql.Length && !separator.Contains(sql[end])) end++;
-                var result = sql.Substring(index, end - index);
-                skip(result.Length);
-                return result;
-            };
+            var parser = new SimpleParser(sql);
 
             var tableSchema = new TableSchema();
             tableSchema.Columns = new List<ColumnSchema>();
-            tableSchema.Indexes = new List<IndexSchema>();
 
-            skipOverString("create table");
-            tableSchema.TableName = takeWord();
-            skipOverString("(");
-            while (!atEnd() && sql[index] != ')')
+            parser.SkipOverString("create table");
+            tableSchema.TableName = parser.TakeWord();
+            parser.SkipOverString("(");
+            while (!parser.AtEnd() && !parser.Is(')'))
             {
                 var column = new ColumnSchema();
                 tableSchema.Columns.Add(column);
 
-                column.ColumnName = takeWord();
-                column.DataType = takeWord();
+                column.ColumnName = parser.TakeWord();
+                column.DataType = parser.TakeWord();
 
-                var attributes = takeToAny(new[]{',', ')'}).ToUpper();
+                var attributes = parser.TakeToAny(new[]{',', ')'}).ToUpper();
                 if (attributes.Contains("PRIMARY KEY"))
                     column.Attributes = column.Attributes | ColumnAttributes.Primary;
                 if (attributes.Contains("NOT NULL"))
@@ -277,6 +451,72 @@ namespace Prius.SqLite.Schema
             }
 
             return tableSchema;
+        }
+
+        private class SimpleParser
+        {
+            private readonly string _sql;
+            private int _position = 0;
+
+            public SimpleParser(string sql)
+            {
+                _sql = sql.Replace("\n", "")
+                    .Replace("\r", "")
+                    .Replace("     ", " ")
+                    .Replace("    ", " ")
+                    .Replace("   ", " ")
+                    .Replace("  ", " ")
+                    .Replace(", ", ",")
+                    .Replace(") ", ")")
+                    .Replace(" )", ")")
+                    .Replace("( ", "(")
+                    .Replace(" (", "(");
+            }
+
+            public bool AtEnd()
+            {
+                return _position >= _sql.Length;
+            }
+
+            public bool Is(char c)
+            {
+                return _sql[_position] == c;
+            }
+
+            public void Skip(int count)
+            {
+                _position += count;
+            }
+
+            public void SkipToString(string s)
+            {
+                _position = _sql.IndexOf(s, _position, StringComparison.OrdinalIgnoreCase);
+            }
+
+            public string TakeToAny(params char[] chars)
+            {
+                var end = _sql.IndexOfAny(chars, _position);
+                var result = end == -1 ? _sql.Substring(_position) : _sql.Substring(_position, end - _position);
+                Skip(result.Length);
+                return result;
+            }
+
+            public void SkipOverString(string s)
+            {
+                SkipToString(s);
+                Skip(s.Length);
+            }
+
+            public string TakeWord()
+            {
+                var separator = new List<char> { ' ', ',', '(', ')' };
+                while (!AtEnd() && separator.Contains(_sql[_position])) _position++;
+                var end = _position + 1;
+                while (end < _sql.Length && !separator.Contains(_sql[end])) end++;
+                var result = _sql.Substring(_position, end - _position);
+                Skip(result.Length);
+                return result;
+            }
         }
 
         #endregion
