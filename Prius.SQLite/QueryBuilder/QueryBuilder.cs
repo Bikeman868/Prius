@@ -381,17 +381,31 @@ namespace Prius.SqLite.QueryBuilder
                 return this;
             }
 
-            ISelectQueryBuilder IInsertQueryBuilder.Select(params string[] fields)
+            ISelectQueryBuilder IInsertQueryBuilder.Select()
             {
-                _sql.Append(" SELECT ");
-                _sql.Append(string.Join(", ", fields));
+                _sql.Append(" SELECT");
                 return this;
             }
 
-            ISelectQueryBuilder IInsertQueryBuilder.SelectDistinct(params string[] fields)
+            ISelectQueryBuilder IInsertQueryBuilder.SelectDistinct()
             {
-                _sql.Append(" SELECT DISTINCT ");
-                _sql.Append(string.Join(", ", fields));
+                _sql.Append(" SELECT DISTINCT");
+                return this;
+            }
+
+            ISelectColumnsBuilder IInsertQueryBuilder.Select(string columnName, params string[] columnNames)
+            {
+                _sql.Append(" SELECT " + columnName);
+                if (columnNames.Length > 0)
+                    _sql.Append(", " + string.Join(", ", columnNames));
+                return this;
+            }
+
+            ISelectColumnsBuilder IInsertQueryBuilder.SelectDistinct(string columnName, params string[] columnNames)
+            {
+                _sql.Append(" SELECT DISTINCT " + columnName);
+                if (columnNames.Length > 0)
+                    _sql.Append(", " + string.Join(", ", columnNames));
                 return this;
             }
 

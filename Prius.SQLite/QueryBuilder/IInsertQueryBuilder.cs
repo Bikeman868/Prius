@@ -4,7 +4,9 @@
     {
         IQuery DefaultValues();
         IQuery Values(params string[] values);
-        ISelectQueryBuilder Select(params string[] fields);
-        ISelectQueryBuilder SelectDistinct(params string[] fields);
+        ISelectQueryBuilder Select();
+        ISelectQueryBuilder SelectDistinct();
+        ISelectColumnsBuilder Select(string columnName, params string[] columnNames);
+        ISelectColumnsBuilder SelectDistinct(string columnName, params string[] columnNames);
     }
 }
