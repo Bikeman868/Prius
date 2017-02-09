@@ -5,14 +5,28 @@ namespace Prius.SqLite.QueryBuilder
 {
     internal class QueryBuilder : IQueryBuilder
     {
-        ISelectQueryBuilder IQueryBuilder.Select(params string[] fields)
+        ISelectQueryBuilder IQueryBuilder.Select()
         {
-            return new Query("SELECT " + string.Join(", ", fields));
+            return new Query("SELECT");
         }
 
-        ISelectQueryBuilder IQueryBuilder.SelectDistinct(params string[] fields)
+        ISelectQueryBuilder IQueryBuilder.SelectDistinct()
         {
-            return new Query("SELECT DISTINCT " + string.Join(", ", fields));
+            return new Query("SELECT DISTINCT");
+        }
+
+        ISelectColumnsBuilder IQueryBuilder.Select(string column, params string[] columns)
+        {
+            if (columns.Length == 0)
+                return new Query("SELECT " + column);
+            return new Query("SELECT " + column + ", " + string.Join(", ", columns));
+        }
+
+        ISelectColumnsBuilder IQueryBuilder.SelectDistinct(string column, params string[] columns)
+        {
+            if (columns.Length == 0)
+                return new Query("SELECT DISTINCT " + column);
+            return new Query("SELECT DISTINCT " + column + ", " + string.Join(", ", columns));
         }
 
         IDeleteQueryBuilder IQueryBuilder.DeleteFrom(string tableName)
@@ -50,43 +64,58 @@ namespace Prius.SqLite.QueryBuilder
             return new Query("UPDATE OR IGNORE " + tableName);
         }
 
-        IInsertQueryBuilder IQueryBuilder.InsertInto(string tableName, params string[] fields)
+        IInsertQueryBuilder IQueryBuilder.InsertInto(string tableName, string columnName, params string[] columnNames)
         {
-            return new Query("INSERT INTO " + tableName + " (" + string.Join(", ", fields) + ")");
+            if (columnNames.Length == 0)
+                return new Query("INSERT INTO " + tableName + " (" + columnName + ")");
+            return new Query("INSERT INTO " + tableName + " (" + columnName + ", " + string.Join(", ", columnNames) + ")");
         }
 
-        IInsertQueryBuilder IQueryBuilder.InsertOrReplaceInto(string tableName, params string[] fields)
+        IInsertQueryBuilder IQueryBuilder.InsertOrReplaceInto(string tableName, string columnName, params string[] columnNames)
         {
-            return new Query("INSERT OR REPLACE INTO " + tableName + " (" + string.Join(", ", fields) + ")");
+            if (columnNames.Length == 0)
+                return new Query("INSERT OR REPLACE INTO " + tableName + " (" + columnName + ")");
+            return new Query("INSERT OR REPLACE INTO " + tableName + " (" + columnName + ", " + string.Join(", ", columnNames) + ")");
         }
 
-        IInsertQueryBuilder IQueryBuilder.InsertOrRollbackInto(string tableName, params string[] fields)
+        IInsertQueryBuilder IQueryBuilder.InsertOrRollbackInto(string tableName, string columnName, params string[] columnNames)
         {
-            return new Query("INSERT OR ROLLBACK INTO " + tableName + " (" + string.Join(", ", fields) + ")");
+            if (columnNames.Length == 0)
+                return new Query("INSERT OR ROLLBACK INTO " + tableName + " (" + columnName + ")");
+            return new Query("INSERT OR ROLLBACK INTO " + tableName + " (" + columnName + ", " + string.Join(", ", columnNames) + ")");
         }
 
-        IInsertQueryBuilder IQueryBuilder.InsertOrAbortInto(string tableName, params string[] fields)
+        IInsertQueryBuilder IQueryBuilder.InsertOrAbortInto(string tableName, string columnName, params string[] columnNames)
         {
-            return new Query("INSERT OR ABORT INTO " + tableName + " (" + string.Join(", ", fields) + ")");
+            if (columnNames.Length == 0)
+                return new Query("INSERT OR ABORT INTO " + tableName + " (" + columnName + ")");
+            return new Query("INSERT OR ABORT INTO " + tableName + " (" + columnName + ", " + string.Join(", ", columnNames) + ")");
         }
 
-        IInsertQueryBuilder IQueryBuilder.InsertOrFailInto(string tableName, params string[] fields)
+        IInsertQueryBuilder IQueryBuilder.InsertOrFailInto(string tableName, string columnName, params string[] columnNames)
         {
-            return new Query("INSERT OR FAIL INTO " + tableName + " (" + string.Join(", ", fields) + ")");
+            if (columnNames.Length == 0)
+                return new Query("INSERT OR FAIL INTO " + tableName + " (" + columnName + ")");
+            return new Query("INSERT OR FAIL INTO " + tableName + " (" + columnName + ", " + string.Join(", ", columnNames) + ")");
         }
 
-        IInsertQueryBuilder IQueryBuilder.InsertOrIgnoreInto(string tableName, params string[] fields)
+        IInsertQueryBuilder IQueryBuilder.InsertOrIgnoreInto(string tableName, string columnName, params string[] columnNames)
         {
-            return new Query("INSERT OR IGNORE INTO " + tableName + " (" + string.Join(", ", fields) + ")");
+            if (columnNames.Length == 0)
+                return new Query("INSERT OR IGNORE INTO " + tableName + " (" + columnName + ")");
+            return new Query("INSERT OR IGNORE INTO " + tableName + " (" + columnName + ", " + string.Join(", ", columnNames) + ")");
         }
 
-        IInsertQueryBuilder IQueryBuilder.ReplaceInto(string tableName, params string[] fields)
+        IInsertQueryBuilder IQueryBuilder.ReplaceInto(string tableName, string columnName, params string[] columnNames)
         {
-            return new Query("REPLACE INTO " + tableName + " (" + string.Join(", ", fields) + ")");
+            if (columnNames.Length == 0)
+                return new Query("REPLACE INTO " + tableName + " (" + columnName + ")");
+            return new Query("REPLACE INTO " + tableName + " (" + columnName + ", " + string.Join(", ", columnNames) + ")");
         }
 
         internal class Query :
             ISelectQueryBuilder,
+            ISelectColumnsBuilder,
             ISelectFromQueryBuilder,
             ISelectWhereQueryBuilder,
             ISelectGroupQueryBuilder,
@@ -122,9 +151,45 @@ namespace Prius.SqLite.QueryBuilder
 
             #region SELECT statements
 
-            ISelectFromQueryBuilder ISelectQueryBuilder.From(string tableName)
+            ISelectColumnsBuilder ISelectQueryBuilder.Column(string columnName, string alias)
+            {
+                if (string.IsNullOrEmpty(alias))
+                    _sql.AppendFormat(" {0}", columnName);
+                else
+                    _sql.AppendFormat(" {0} AS {1}", columnName, alias);
+                return this;
+            }
+
+            ISelectColumnsBuilder ISelectQueryBuilder.SubQuery(IQuery subquery, string alias)
+            {
+                if (string.IsNullOrEmpty(alias))
+                    _sql.AppendFormat(" ({0})", subquery);
+                else
+                    _sql.AppendFormat(" ({0}) AS {1}", subquery, alias);
+                return this;
+            }
+
+            ISelectColumnsBuilder ISelectColumnsBuilder.Column(string columnName, string alias)
+            {
+                if (string.IsNullOrEmpty(alias))
+                    _sql.AppendFormat(", {0}", columnName);
+                else
+                    _sql.AppendFormat(", {0} AS {1}", columnName, alias);
+                return this;
+            }
+
+            ISelectColumnsBuilder ISelectColumnsBuilder.SubQuery(IQuery subquery, string alias)
+            {
+                return this;
+            }
+
+            ISelectFromQueryBuilder ISelectColumnsBuilder.From(string tableName, string alias)
             {
                 _sql.AppendFormat(" FROM {0}", tableName);
+
+                if (!string.IsNullOrEmpty(alias))
+                    _sql.Append(" AS " + alias);
+
                 return this;
             }
 
@@ -132,6 +197,12 @@ namespace Prius.SqLite.QueryBuilder
                 string rightField)
             {
                 _sql.AppendFormat(" JOIN {2} ON {0}.{1} = {2}.{3}", leftTable, leftField, rightTable, rightField);
+                return this;
+            }
+
+            ISelectFromQueryBuilder ISelectFromQueryBuilder.Join(string leftTable, string field, string rightTable)
+            {
+                _sql.AppendFormat(" JOIN {2} ON {0}.{1} = {2}.{3}", leftTable, field, rightTable, field);
                 return this;
             }
 
@@ -148,15 +219,21 @@ namespace Prius.SqLite.QueryBuilder
                 return this;
             }
 
-            ISelectOrderQueryBuilder ISelectFromQueryBuilder.OrderBy(params string[] fieldNames)
+            ISelectOrderQueryBuilder ISelectFromQueryBuilder.OrderBy(string columnName, params string[] columnNames)
             {
-                _sql.Append(" ORDER BY " + string.Join(", ", fieldNames));
+                if (columnNames.Length == 0)
+                    _sql.Append(" ORDER BY " + columnName);
+                else
+                    _sql.Append(" ORDER BY " + columnName + ", " + string.Join(", ", columnNames));
                 return this;
             }
 
-            ISelectGroupQueryBuilder ISelectFromQueryBuilder.GroupBy(params string[] fieldNames)
+            ISelectGroupQueryBuilder ISelectFromQueryBuilder.GroupBy(string columnName, params string[] columnNames)
             {
-                _sql.Append(" GROUP BY " + string.Join(", ", fieldNames));
+                if (columnNames.Length == 0)
+                    _sql.Append(" GROUP BY " + columnName);
+                else
+                    _sql.Append(" GROUP BY " + columnName + ", " + string.Join(", ", columnNames));
                 return this;
             }
 
@@ -166,9 +243,12 @@ namespace Prius.SqLite.QueryBuilder
                 return this;
             }
 
-            ISelectOrderQueryBuilder ISelectWhereQueryBuilder.OrderBy(params string[] fieldNames)
+            ISelectOrderQueryBuilder ISelectWhereQueryBuilder.OrderBy(string columnName, params string[] columnNames)
             {
-                _sql.Append(" ORDER BY " + string.Join(", ", fieldNames));
+                if (columnNames.Length == 0)
+                    _sql.Append(" ORDER BY " + columnName);
+                else
+                    _sql.Append(" ORDER BY " + columnName + ", " + string.Join(", ", columnNames));
                 return this;
             }
 
@@ -232,9 +312,12 @@ namespace Prius.SqLite.QueryBuilder
                 return this;
             }
 
-            ISelectOrderQueryBuilder ISelectGroupQueryBuilder.OrderBy(params string[] fieldNames)
+            ISelectOrderQueryBuilder ISelectGroupQueryBuilder.OrderBy(string columnName, params string[] columnNames)
             {
-                _sql.Append(" ORDER BY " + string.Join(", ", fieldNames));
+                if (columnNames.Length == 0)
+                    _sql.Append(" ORDER BY " + columnName);
+                else
+                    _sql.Append(" ORDER BY " + columnName + ", " + string.Join(", ", columnNames));
                 return this;
             }
 

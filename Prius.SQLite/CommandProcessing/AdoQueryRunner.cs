@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
 using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Utility;
 using Prius.SqLite.Interfaces;
 using Prius.SqLite.Procedures;
 using Prius.SqLite.QueryBuilder;
@@ -85,6 +87,39 @@ namespace Prius.SqLite.CommandProcessing
         public SQLiteDataReader ExecuteReader(AdoExecutionContext context, IQuery sql)
         {
             return ExecuteReader(context, sql.ToString());
+        }
+
+        public T ExecuteScaler<T>(SQLiteConnection connection, string sql, IList<IParameter> parameters)
+        {
+            return GetScalar<T>(ExecuteReader(connection, sql, parameters));
+        }
+
+        public T ExecuteScaler<T>(AdoExecutionContext context, string sql)
+        {
+            return GetScalar<T>(ExecuteReader(context, sql));
+        }
+
+        public T ExecuteScaler<T>(AdoExecutionContext context, IQuery sql)
+        {
+            return GetScalar<T>(ExecuteReader(context, sql));
+        }
+
+        private T GetScalar<T>(SQLiteDataReader sqLiteDataReader)
+        {
+            using (sqLiteDataReader)
+            {
+                if (!sqLiteDataReader.Read()) return default(T);
+
+                var value = sqLiteDataReader.GetValue(0);
+                if (ReferenceEquals(value, null)) return default(T);
+
+                var type = typeof(T);
+                if (type.IsNullable())
+                    type = type.GetGenericArguments()[0];
+                if (type.IsEnum) type = typeof(int);
+
+                return (T)Convert.ChangeType(value, type);
+            }
         }
     }
 }

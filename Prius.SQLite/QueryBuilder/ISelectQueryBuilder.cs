@@ -1,34 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Prius.SqLite.QueryBuilder
+﻿namespace Prius.SqLite.QueryBuilder
 {
     public interface ISelectQueryBuilder : IQuery
     {
-        ISelectFromQueryBuilder From(string tableName);
+        ISelectColumnsBuilder Column(string columnName, string alias = null);
+        ISelectColumnsBuilder SubQuery(IQuery subquery, string alias = null);
+    }
+
+    public interface ISelectColumnsBuilder : IQuery
+    {
+        ISelectColumnsBuilder Column(string columnName, string alias = null);
+        ISelectColumnsBuilder SubQuery(IQuery subquery, string alias = null);
+        ISelectFromQueryBuilder From(string tableName, string alias = null);
     }
 
     public interface ISelectFromQueryBuilder : IQuery
     {
-        ISelectFromQueryBuilder Join(string leftTable, string leftField, string rightTable, string rightField);
-        ISelectFromQueryBuilder LeftJoin(string leftTable, string leftField, string rightTable, string rightField);
+        ISelectFromQueryBuilder Join(string leftTable, string leftColumn, string rightTable, string rightColumn);
+        ISelectFromQueryBuilder Join(string leftTable, string columnName, string rightTable);
+        ISelectFromQueryBuilder LeftJoin(string leftTable, string leftColumn, string rightTable, string rightColumn);
         ISelectWhereQueryBuilder Where(string condition);
-        ISelectOrderQueryBuilder OrderBy(params string[] fieldNames);
-        ISelectGroupQueryBuilder GroupBy(params string[] fieldNames);
+        ISelectOrderQueryBuilder OrderBy(string columnName, params string[] columnNames);
+        ISelectGroupQueryBuilder GroupBy(string columnName, params string[] columnNames);
     }
 
     public interface ISelectWhereQueryBuilder : IQuery
     {
         ISelectWhereQueryBuilder And(string condition);
-        ISelectOrderQueryBuilder OrderBy(params string[] fieldNames);
+        ISelectOrderQueryBuilder OrderBy(string columnName, params string[] columnNames);
     }
 
     public interface ISelectGroupQueryBuilder: IQuery
     {
         ISelectOrderQueryBuilder Having(string expression);
-        ISelectOrderQueryBuilder OrderBy(params string[] fieldNames);
+        ISelectOrderQueryBuilder OrderBy(string columnName, params string[] columnNames);
     }
 
     public interface ISelectOrderQueryBuilder : IQuery
@@ -36,7 +40,7 @@ namespace Prius.SqLite.QueryBuilder
         ISelectOrderCollateQueryBuilder Collate(string collation);
         ISelectOrderQueryBuilder Ascending();
         ISelectOrderQueryBuilder Descending();
-        ISelectOrderQueryBuilder ThenBy(string fieldName);
+        ISelectOrderQueryBuilder ThenBy(string columnName);
         IQuery Limit(int rowCount);
     }
 
@@ -44,7 +48,7 @@ namespace Prius.SqLite.QueryBuilder
     {
         ISelectOrderQueryBuilder Ascending();
         ISelectOrderQueryBuilder Descending();
-        ISelectOrderQueryBuilder ThenBy(string fieldName);
+        ISelectOrderQueryBuilder ThenBy(string columnName);
         IQuery Limit(int rowCount);
     }
 }

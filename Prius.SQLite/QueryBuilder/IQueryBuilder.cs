@@ -7,8 +7,10 @@
     /// </summary>
     public interface IQueryBuilder
     {
-        ISelectQueryBuilder Select(params string[] fields);
-        ISelectQueryBuilder SelectDistinct(params string[] fields);
+        ISelectQueryBuilder Select();
+        ISelectQueryBuilder SelectDistinct();
+        ISelectColumnsBuilder Select(string columnName, params string[] columnNames);
+        ISelectColumnsBuilder SelectDistinct(string columnName, params string[] columnNames);
         
         IDeleteQueryBuilder DeleteFrom(string tableName);
         
@@ -19,13 +21,13 @@
         IUpdateQueryBuilder UpdateOrFail(string tableName);
         IUpdateQueryBuilder UpdateOrIgnore(string tableName);
 
-        IInsertQueryBuilder InsertInto(string tableName, params string[] fields);
-        IInsertQueryBuilder InsertOrReplaceInto(string tableName, params string[] fields);
-        IInsertQueryBuilder InsertOrRollbackInto(string tableName, params string[] fields);
-        IInsertQueryBuilder InsertOrAbortInto(string tableName, params string[] fields);
-        IInsertQueryBuilder InsertOrFailInto(string tableName, params string[] fields);
-        IInsertQueryBuilder InsertOrIgnoreInto(string tableName, params string[] fields);
+        IInsertQueryBuilder InsertInto(string tableName, string columnName, params string[] columnNames);
+        IInsertQueryBuilder InsertOrReplaceInto(string tableName, string columnName, params string[] columnNames);
+        IInsertQueryBuilder InsertOrRollbackInto(string tableName, string columnName, params string[] columnNames);
+        IInsertQueryBuilder InsertOrAbortInto(string tableName, string columnName, params string[] columnNames);
+        IInsertQueryBuilder InsertOrFailInto(string tableName, string columnName, params string[] columnNames);
+        IInsertQueryBuilder InsertOrIgnoreInto(string tableName, string columnName, params string[] columnNames);
 
-        IInsertQueryBuilder ReplaceInto(string tableName, params string[] fields);
+        IInsertQueryBuilder ReplaceInto(string tableName, string columnName, params string[] columnNames);
     }
 }
