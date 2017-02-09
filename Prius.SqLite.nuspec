@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius.SqLite</id>
-    <version>2.0.1-alpha</version>
+    <version>2.0.1</version>
     <title>Prius driver for SqLite databases</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -15,7 +15,7 @@
     <tags>ORM database prius sqlite</tags>
     <dependencies>
       <dependency id="Ioc.Modules" version="1.1.4" />
-      <dependency id="Prius" version="2.0.1-alpha" />
+      <dependency id="Prius" version="2.0.1" />
       <dependency id="System.Data.SQLite.Core" version="1.0.104.0" />
     </dependencies>
     <references>
