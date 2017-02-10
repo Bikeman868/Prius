@@ -1,4 +1,4 @@
-﻿# SqLite Driver for Prius
+# SqLite Driver for Prius
 
 Prius is an ORM for people that like stored procedures, but SqLite has 
 no support for stored procedures, so what it this library all about?
@@ -187,11 +187,12 @@ so for now you will have to manually copy `SQLite.Interop.dll` into your
 `bin` folder, and the SQLite managed wrapper will detect the 32/64 bitedness 
 of the OS and load the appropriate version.
 
-These files are in the `lib` folder of the source code, and are included
-in the NuGet package, so there are a couple of places you get grab them
-from.
+When you install the `Prius.SQLite` NuGet package it will create a `lib` folder
+in your project directory containing these files. To copy these to the `bin`
+folder during build, open the project properties, navigate to post build steps
+and add `xcopy $(ProjectDir)lib $(TargetDir) /S /C /I /Y` to your post build steps.
 
-You can also download them from https://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki
+You can also download these files from https://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki
 
 # Creating and maintaining the database schema automatically
 
