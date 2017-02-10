@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -50,9 +50,12 @@ namespace Prius.Orm.Connections
                 if (_providers.TryGetValue(serverType, out type))
                     return type;
 
-            throw new ApplicationException("No registered provider for '" + 
-                serverType + "'. Please install the NuGet package that provides "+
-                "access to this type of server.");
+            throw new ApplicationException("Your database config specifies a server type of '" + 
+                serverType + "' but there are no installed Prius drivers for this type of server. "+
+                "Please install the Prius NuGet package that provides access to " + serverType + 
+                " databases or correct your config. If you are not sure what to do, "+
+                "try opening the Package Manager Console and type 'Install-Package "+
+                "Prius." + serverType + "'");
         }
 
         private IConnectionProvider ConstructProvider(Type type)
