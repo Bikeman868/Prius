@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 
 namespace Prius.SqLite.QueryBuilder
@@ -180,6 +180,10 @@ namespace Prius.SqLite.QueryBuilder
 
             ISelectColumnsBuilder ISelectColumnsBuilder.SubQuery(IQuery subquery, string alias)
             {
+                if (string.IsNullOrEmpty(alias))
+                    _sql.AppendFormat(", ({0})", subquery);
+                else
+                    _sql.AppendFormat(", ({0}) AS {1}", subquery, alias);
                 return this;
             }
 
