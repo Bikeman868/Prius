@@ -2,23 +2,26 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using System.Diagnostics;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Utility;
-using Prius.SqLite.Interfaces;
-using Prius.SqLite.Procedures;
-using Prius.SqLite.QueryBuilder;
+using Prius.SQLite.Interfaces;
+using Prius.SQLite.Procedures;
+using Prius.SQLite.QueryBuilder;
 
-namespace Prius.SqLite.CommandProcessing
+#if DEBUG
+using System.Diagnostics;
+#endif
+
+namespace Prius.SQLite.CommandProcessing
 {
     /// <summary>
     /// This is designed to be injected into stored procedures to make
     /// it easier for them to execute queries against the sqlite database.
     /// The stored procedure always has an open connection to the database
     /// which is passed in.
-    /// The ADO Query runner uses the SqLite ADO.Net driver in 
+    /// The ADO Query runner uses the SQLite ADO.Net driver in 
     /// System.Data.SQLite.
-    /// There is also a native query runner that talks directly to the SqLite
+    /// There is also a native query runner that talks directly to the SQLite
     /// engine.
     /// </summary>
     public class AdoQueryRunner: IAdoQueryRunner

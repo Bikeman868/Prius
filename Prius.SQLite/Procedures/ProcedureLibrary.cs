@@ -6,10 +6,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 using Prius.Contracts.Interfaces.External;
 
-namespace Prius.SqLite.Procedures
+namespace Prius.SQLite.Procedures
 {
     /// <summary>
     /// This class implements IProcedureLibrary by reflecting over the DLLs
@@ -25,7 +25,7 @@ namespace Prius.SqLite.Procedures
         private SortedList<string, Assembly> _probedAssemblies;
         private IList<ProcedureTypeWrapper> _procedureTypeWrappers;
 
-        private const string TracePrefix = "Prius SqLite procedure library: ";
+        private const string TracePrefix = "Prius SQLite procedure library: ";
 
         public ProcedureLibrary(
             IFactory factory)

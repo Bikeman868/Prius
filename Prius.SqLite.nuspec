@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Prius.SqLite</id>
-    <version>2.0.1</version>
-    <title>Prius driver for SqLite databases</title>
+    <id>Prius.SQLite</id>
+    <version>2.0.2</version>
+    <title>Prius driver for SQLite databases</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Configure databases in Prius ORM to connect to SqLite databases. Defines the server type 'SqLite' that you can use in your Prius ORM configuration file.</description>
+    <description>Configure databases in Prius ORM to connect to SQLite databases. Defines the server type 'SQLite' that you can use in your Prius ORM configuration file.</description>
     <copyright>Copyright 2017</copyright>
-    <releaseNotes>First release, not fully tested yet</releaseNotes>
+    <releaseNotes>Fixes for bugs discovered in initial deployment</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
     <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
     <tags>ORM database prius sqlite</tags>
@@ -19,18 +19,18 @@
       <dependency id="System.Data.SQLite.Core" version="1.0.104.0" />
     </dependencies>
     <references>
-      <reference file="Prius.SqLite.dll"/>
+      <reference file="Prius.SQLite.dll"/>
     </references>
   </metadata>
   <files>
-    <file src="Prius.SqLite\bin\Net40\Release\Prius.SqLite.dll" target="lib\net40"/>
-    <file src="Prius.SqLite\bin\Net40\Release\Prius.SqLite.pdb" target="lib\net40"/>
+    <file src="Prius.SQLite\bin\Net40\Release\Prius.SQLite.dll" target="lib\net40"/>
+    <file src="Prius.SQLite\bin\Net40\Release\Prius.SQLite.pdb" target="lib\net40"/>
     
-    <file src="Prius.SqLite\bin\Net45\Release\Prius.SqLite.dll" target="lib\net45"/>
-    <file src="Prius.SqLite\bin\Net45\Release\Prius.SqLite.pdb" target="lib\net45"/>
+    <file src="Prius.SQLite\bin\Net45\Release\Prius.SQLite.dll" target="lib\net45"/>
+    <file src="Prius.SQLite\bin\Net45\Release\Prius.SQLite.pdb" target="lib\net45"/>
 
-    <file src="Prius.SqLite\lib\x86\SQLite.Interop.dll" target="content\lib\x86"/>
-    <file src="Prius.SqLite\lib\x64\SQLite.Interop.dll" target="content\lib\x64"/>
+    <file src="Prius.SQLite\lib\x86\SQLite.Interop.dll" target="content\lib\x86"/>
+    <file src="Prius.SQLite\lib\x64\SQLite.Interop.dll" target="content\lib\x64"/>
 
     <file src="*.md" target=""/>
     <file src="*.txt" target=""/>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Prius.SqLite.Procedures
+namespace Prius.SQLite.Procedures
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ProcedureAttribute : Attribute

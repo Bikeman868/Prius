@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite.CommandProcessing
+namespace Prius.SQLite.CommandProcessing
 {
     /// <summary>
-    /// SqLite has very few data types, and you can store any
+    /// SQLite has very few data types, and you can store any
     /// kind of data in any column regardless of its type.
-    /// This class maps System.Data.DbType onto a SqLite type.
+    /// This class maps System.Data.DbType onto a SQLite type.
     /// This mapping only affects the way that data is sorted
     /// in this column.
     /// </summary>

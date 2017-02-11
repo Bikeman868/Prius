@@ -2,7 +2,7 @@
 using System;
 using System.Data.SQLite;
 
-namespace Prius.SqLite.Procedures
+namespace Prius.SQLite.Procedures
 {
     public class FailedAdoProcedureException: Exception
     {

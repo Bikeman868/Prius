@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Prius.SqLite.Schema
+namespace Prius.SQLite.Schema
 {
     public class TableSchema
     {

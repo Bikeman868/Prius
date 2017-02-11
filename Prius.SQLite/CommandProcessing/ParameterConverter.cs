@@ -2,12 +2,12 @@
 using System.Data.SQLite;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Interfaces.Commands;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite.CommandProcessing
+namespace Prius.SQLite.CommandProcessing
 {
     /// <summary>
-    /// This class takes Prius command parameters and sets them into SqLite
+    /// This class takes Prius command parameters and sets them into SQLite
     /// commands. This version only has support for the ADO.Net driver in
     /// System.Data.SQLite
     /// </summary>

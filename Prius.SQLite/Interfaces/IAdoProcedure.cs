@@ -1,7 +1,7 @@
 ﻿using Prius.Contracts.Interfaces;
-using Prius.SqLite.Procedures;
+using Prius.SQLite.Procedures;
 
-namespace Prius.SqLite.Interfaces
+namespace Prius.SQLite.Interfaces
 {
     /// <summary>
     /// Stored procedure classes that use the ADO.Net driver

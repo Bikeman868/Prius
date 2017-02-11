@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Data.SQLite;
 using Prius.Contracts.Interfaces.Commands;
-using Prius.SqLite.Procedures;
-using Prius.SqLite.QueryBuilder;
+using Prius.SQLite.Procedures;
+using Prius.SQLite.QueryBuilder;
 
-namespace Prius.SqLite.Interfaces
+namespace Prius.SQLite.Interfaces
 {
     /// <summary>
     /// Provides a query execution mechanism using the ADO.Net driver
-    /// for SqLite in System.Data.SqLite
+    /// for SQLite in System.Data.SQLite
     /// </summary>
     public interface IAdoQueryRunner
     {

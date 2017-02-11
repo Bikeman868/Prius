@@ -1,4 +1,4 @@
-﻿namespace Prius.SqLite.QueryBuilder
+﻿namespace Prius.SQLite.QueryBuilder
 {
     public interface IInsertQueryBuilder
     {

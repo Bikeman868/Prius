@@ -2,10 +2,10 @@
 using System.Data.SQLite;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.External;
-using Prius.SqLite.Interfaces;
-using Prius.SqLite.Procedures;
+using Prius.SQLite.Interfaces;
+using Prius.SQLite.Procedures;
 
-namespace Prius.SqLite.CommandProcessing
+namespace Prius.SQLite.CommandProcessing
 {
     /// <summary>
     /// This factory for data readers exists to support dependency
@@ -47,7 +47,7 @@ namespace Prius.SqLite.CommandProcessing
             object resultHandle, 
             NativeExecutionContext nativeExecutionContext)
         {
-            // TODO: Add a data reader that supports native access to the SqLite engine
+            // TODO: Add a data reader that supports native access to the SQLite engine
             throw new NotImplementedException();
         }
 

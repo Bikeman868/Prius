@@ -5,12 +5,12 @@ using System.IO;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 
-namespace Prius.SqLite.Procedures
+namespace Prius.SQLite.Procedures
 {
     /// <summary>
     /// Objects of this type are passed to stored procedures that
     /// use the ADO.Net driver in System.Data.SQLite to talk to the
-    /// SqLite database engine. It contains everything the stored
+    /// SQLite database engine. It contains everything the stored
     /// procedure needs to execute and return an open data reader.
     /// </summary>
     public class AdoExecutionContext

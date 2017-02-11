@@ -4,14 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite.Schema
+namespace Prius.SQLite.Schema
 {
     /// <summary>
     /// Reflects over DLLs in the bin folder and finds classes that
     /// are decorated with schema related attributes. Builds a complete
-    /// definition of what the SqLite database schema should be like to
+    /// definition of what the SQLite database schema should be like to
     /// work with the application code.
     /// </summary>
     internal class SchemaEnumerator: ISchemaEnumerator
@@ -20,7 +20,7 @@ namespace Prius.SqLite.Schema
         private SortedList<string, Assembly> _probedAssemblies;
         private IList<TableSchema> _tables;
 
-        private const string TracePrefix = "Prius SqLite schema enumerator: ";
+        private const string TracePrefix = "Prius SQLite schema enumerator: ";
 
         public SchemaEnumerator(IColumnTypeMapper columnTypeMapper)
         {

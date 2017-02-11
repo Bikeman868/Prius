@@ -38,7 +38,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.PostgreSql.Net40", "P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.SqlServer.Net40", "Prius.SqlServer\Prius.SqlServer.Net40.csproj", "{CE802F57-6697-41B9-8B27-937C0AAFA487}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.SqLite.Net40", "Prius.SQLite\Prius.SqLite.Net40.csproj", "{121FFC66-F424-45F3-8CF9-B7E366B310C5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.SQLite.Net40", "Prius.SQLite\Prius.SQLite.Net40.csproj", "{121FFC66-F424-45F3-8CF9-B7E366B310C5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersTestApp", "UsersTestApp\UsersTestApp.csproj", "{89FA9422-9A12-49CC-8202-46C0531163C5}"
 EndProject

@@ -3,7 +3,7 @@ using System.Data.SQLite;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 
-namespace Prius.SqLite.Interfaces
+namespace Prius.SQLite.Interfaces
 {
     /// <summary>
     /// Encapsulates the functionallity of executing stored procedures

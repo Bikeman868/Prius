@@ -1,11 +1,11 @@
 ﻿using System.Data.SQLite;
 using Prius.Contracts.Interfaces.Commands;
 
-namespace Prius.SqLite.Interfaces
+namespace Prius.SQLite.Interfaces
 {
     /// <summary>
     /// Provides a mechanism for converting Prius IParameter interfaces
-    /// into the SqLite equivalent.
+    /// into the SQLite equivalent.
     /// </summary>
     public interface IParameterConverter
     {

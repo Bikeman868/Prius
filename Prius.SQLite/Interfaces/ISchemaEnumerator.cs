@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Prius.SqLite.Schema;
+using Prius.SQLite.Schema;
 
-namespace Prius.SqLite.Interfaces
+namespace Prius.SQLite.Interfaces
 {
     /// <summary>
     /// The schema enumerator is responsible for determining what database schema the

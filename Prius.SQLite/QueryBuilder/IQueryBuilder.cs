@@ -1,9 +1,9 @@
-﻿namespace Prius.SqLite.QueryBuilder
+﻿namespace Prius.SQLite.QueryBuilder
 {
     /// <summary>
-    /// Understands basic SqLite SQL syntax and assists developers in
+    /// Understands basic SQLite SQL syntax and assists developers in
     /// writing syntactically correct SQL. If your syntax is incorrect
-    /// you are likely to get a very unhelpful message from SqLite
+    /// you are likely to get a very unhelpful message from SQLite
     /// </summary>
     public interface IQueryBuilder
     {

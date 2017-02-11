@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Prius.SqLite.Interfaces
+namespace Prius.SQLite.Interfaces
 {
     public interface IColumnTypeMapper
     {

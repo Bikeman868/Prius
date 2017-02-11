@@ -2,9 +2,9 @@
 using Ioc.Modules;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite
+namespace Prius.SQLite
 {
     [Package]
     public class Package : IPackage

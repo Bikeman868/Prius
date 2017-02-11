@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Prius.Contracts.Interfaces.Commands;
 
-namespace Prius.SqLite.Interfaces
+namespace Prius.SQLite.Interfaces
 {
     /// <summary>
     /// Provides some convenient helper methods for dealing with the parameters that are pssed into

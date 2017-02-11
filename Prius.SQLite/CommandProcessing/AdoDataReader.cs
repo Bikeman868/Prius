@@ -4,7 +4,7 @@ using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Utility;
 
-namespace Prius.SqLite.CommandProcessing
+namespace Prius.SQLite.CommandProcessing
 {
     /// <summary>
     /// This class is used to return result sets to Prius.
@@ -16,7 +16,7 @@ namespace Prius.SqLite.CommandProcessing
     /// the data reader is disposed by the application. These
     /// are used to release resources within Prius when the
     /// application is finished with the data.
-    /// This version of the data reader depends on the SqLite
+    /// This version of the data reader depends on the SQLite
     /// ADO.Net driver in System.Data.SQLite
     /// </summary>
     internal class AdoDataReader : Disposable, IDataReader

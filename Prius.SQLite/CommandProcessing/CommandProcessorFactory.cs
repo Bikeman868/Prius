@@ -3,9 +3,9 @@ using System.Data.SQLite;
 using Prius.Contracts.Enumerations;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite.CommandProcessing
+namespace Prius.SQLite.CommandProcessing
 {
     /// <summary>
     /// This class examines the database comand and builds a command

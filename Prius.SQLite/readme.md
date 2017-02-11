@@ -1,15 +1,15 @@
-# SqLite Driver for Prius
+# SQLite Driver for Prius
 
-Prius is an ORM for people that like stored procedures, but SqLite has 
+Prius is an ORM for people that like stored procedures, but SQLite has 
 no support for stored procedures, so what it this library all about?
 
 The main advantage of stored procedures are that they are stored in
 the database (and can be modified independant of the application)
 and they are executed on the database server (which means that the
 data they access does not have to be transmitted over the wire). Since
-SqLite is a DLL that executes within the application, and the data
+SQLite is a DLL that executes within the application, and the data
 is stored locally anyway, there seems to be no advantage to using
-stored procedures with SqLite, however...
+stored procedures with SQLite, however...
 
 I started this project because I was in a position where:
 
@@ -19,7 +19,7 @@ MariaDB for persistence.
 
 * The MariaDB was only accessed by the one specific in-memory database 
 service, so client/server was not required, and it could therefore be 
-replaced by SqLite without any architectural changes.
+replaced by SQLite without any architectural changes.
 
 * The services use Prius to access MariaDB and only have access to 
 stored procedures with no direct SQL execution. The stored procedures
@@ -28,39 +28,39 @@ contain a lot of business logic not only CRUD operations.
 * MariaDB was the weakest link in our system performance and reliability
 by far. After many efforts to make it work reliably at high load we
 decided that we had to switch to something else. After some research I
-decided that SqLite might be the answer and wanted to try it, but I also
+decided that SQLite might be the answer and wanted to try it, but I also
 wanted to leave open the option to switch to something else later if 
 it wasn't the right solution.
 
 I decided the best way forwards was to build a driver for Prius that
-would use SqLite for storage and allow 'stored procedures' to be written
+would use SQLite for storage and allow 'stored procedures' to be written
 in C#. I put 'stored procedures' in quotes because they are not stored,
 they are written in C# and compiled into the application, but they
 perform the same function as stored procedures. Building a Prius driver
-for SqLite and re-creating my stored procedures in C# meant that there 
-were no changes at all to the application and I can switch between SqLite, 
+for SQLite and re-creating my stored procedures in C# meant that there 
+were no changes at all to the application and I can switch between SQLite, 
 MariaDB, MySQL and SQL Server just through configuration changes.
 
 This solution was a good fir for my rather unusual situation. These are 
 some other scenarios in which I think this solution might also be a good fit:
 
-* If you want to use SqLite for performance and stability but also
+* If you want to use SQLite for performance and stability but also
 keep an option open to move up to a client/server model later.
 
 * You have an application that needs to run in both enterprise and stand
 alone configurations. In this case you can configure it to connect to a 
 database like Oracle or MySQL and put business logic into stored procedures 
 for enterprise configurations. For the stand-alone deployment scenario
-configure Pruis to use SqLite and ship a DLL containing the 'stored procedures'
+configure Pruis to use SQLite and ship a DLL containing the 'stored procedures'
 written in C#. In this case the same compiled binaries will work for both
 scenarios.
 
-* I am planning to add the ability to store procedures in the SqLite
+* I am planning to add the ability to store procedures in the SQLite
 database, and to have these compiled and cached at runtime. This will
 bring back the usual advantages of stored procedures.
 
 * During devlopment and testing you might find it more convenient to
-use SqLite (just delete the database file and it will be re-created
+use SQLite (just delete the database file and it will be re-created
 next time you run the application). You can still deploy in production
 using a client/server database like SQL Server.
 
@@ -72,18 +72,18 @@ database logic can make use of domain model objects in this scenario.
 ## What does it do?
 
 This is a plug-in driver for the Prius ORM that allows you to configure
-SqLite databases in your application. SqLite is probably the most widely
+SQLite databases in your application. SQLite is probably the most widely
 used database engine in the world, and is considered to be one of the
-most stable and reliable. SqLite is written in C and compiled into a
-DLL. There are a couple of .Net wrappers around the SqLite DLL. This
+most stable and reliable. SQLite is written in C and compiled into a
+DLL. There are a couple of .Net wrappers around the SQLite DLL. This
 package uses `System.Data.SQLite` which emulates ADO.Net, this made it
 easy to integrate with Prius.
 
 ## Future plans
 
 Eventually I want to allow procedures to be written in a T-SQL
-like language and be stored in the SqLite database. I also want
-to build a client/server database solution that uses SqLite as the 
+like language and be stored in the SQLite database. I also want
+to build a client/server database solution that uses SQLite as the 
 engine on the server side, and uses this library for stored procedure
 support. I think this would be much more robust than some of the
 other client/server database choices available.
@@ -100,11 +100,11 @@ contact me for advice about your particular situation.
 
 ### Getting started from scratch
 
-If you are starting a new application and you want to use SqLite for
+If you are starting a new application and you want to use SQLite for
 relational storage, Prius will provide the the following benefits:
 
 1. You can define your database schema by creating classes and decorating
-them with attributes. Prius will create the SqLite database with all of the
+them with attributes. Prius will create the SQLite database with all of the
 tables and indexes just by examining your data contract classes.
 
 2. If you modify your database schema, Prius will detect this at startup
@@ -123,7 +123,7 @@ exactly like in a client/server database management system.
 ### Converting from a client/server database
 
 If you already use Prius ORM to connect to a client/server database
-such as MySQL or SQL Server, then you can switch to using SqLite
+such as MySQL or SQL Server, then you can switch to using SQLite
 for storage with no modifications to your existing code.
 
 The changes you will need to make can include:
@@ -136,15 +136,15 @@ dll and you can replace it without deploying a new version of your
 application.
 
 * If your application executes SQL statements directly, then you need
-to check that the syntax of these SQL statements works with SqLite. I 
+to check that the syntax of these SQL statements works with SQLite. I 
 would encourage you to change this code into a stored procedure call
-and encapsulate the SQL statements in a SqLite specific DLL instead 
+and encapsulate the SQL statements in a SQLite specific DLL instead 
 because all database engines support slightly different syntax.
 
-* If you want this package to create the SqLite database schema for
+* If you want this package to create the SQLite database schema for
 you, then you need to decorate your data contracts with attributes that
 provide information about primary keys, indexes and unique constraints etc.
-If you plan to maintain the SqLite database schema in a different way
+If you plan to maintain the SQLite database schema in a different way
 then you can skip this step.
 
 ### Integrating this package into your application
@@ -153,8 +153,8 @@ If you are already using Prius ORM them all you need to do is add
 this NuGet package to your solution and it will be detected and
 registered at runtime.
 
-To configure a SqLite reopsitory in Prius use the server type of 
-`SqLite`, for example:
+To configure a SQLite reopsitory in Prius use the server type of 
+`SQLite`, for example:
 
     "prius": 
     {
@@ -162,7 +162,7 @@ To configure a SqLite reopsitory in Prius use the server type of
         [
             {
                 "name": "Users",
-                "type": "SqLite",
+                "type": "SQLite",
                 "connectionString": "Data Source=Users.sqlite;Version=3;New=True;"
             }
         ],
@@ -179,7 +179,7 @@ To configure a SqLite reopsitory in Prius use the server type of
         ]
     }
 
-Because the SqLite engine is unmanaged code, you need different binaries
+Because the SQLite engine is unmanaged code, you need different binaries
 for 32-bit and 64-bit versions of Windows. Unfortunately NuGet does not
 provide a way to do this (see https://github.com/aspnet/dnx/issues/402)
 so for now you will have to manually copy `SQLite.Interop.dll` into your
@@ -210,7 +210,7 @@ with attributes like this:
 
     using System;
     using System.Data;
-    using Prius.SqLite.SchemaUpdating;
+    using Prius.SQLite.SchemaUpdating;
     
     namespace MyApp
     {
@@ -235,11 +235,11 @@ with attributes like this:
 
 # Simulating stored procedures
 
-SqLite does not natively support stored procedures because it runs in the address
+SQLite does not natively support stored procedures because it runs in the address
 space of the application already. This package allows you to simulate stored
 procedure execution so that you can write a single application that can be run
 against a client/server database that does support stored procedures or you can
-run against SqLite without any modifications.
+run against SQLite without any modifications.
 
 It is possible to deploy your 'stored procedures' in a separate DLL and this is
 my recommendation. This DLL does not need to be referenced at all by your application
@@ -284,13 +284,13 @@ The `IAdoProcedure` interface only defines one method with one parameter and a r
 type, so it's not very challenging to implement, but there are also a bunch of helper
 interfaces that you can inject via IoC to help with writing your stored procedure. These are:
 
-* `IQueryBuilder` is useful if you are not very familiar with SqLite SQL syntax. It does
+* `IQueryBuilder` is useful if you are not very familiar with SQLite SQL syntax. It does
 not cover every aspect of the syntax diagrams (for example building expressions) but
-it does help with the overall structure of your query. One of the challenges with SqLite is
+it does help with the overall structure of your query. One of the challenges with SQLite is
 that it provides very poor feedback when syntax is incorrect and this can be frustrating,
 so help in this area is great when you are getting started.
 
-* `IAdoQueryRunner` makes it easier to execute queries against the SqLite engine. Again,
+* `IAdoQueryRunner` makes it easier to execute queries against the SQLite engine. Again,
 this is totally optional, you can call the APIs directly instead if you want.
 
 * `IDataReaderFactory` helps you to create the `IDataReader` that your procedure should
@@ -357,9 +357,9 @@ this package will use your version.
 
 The interfaces you can usefully provide implementations for are:
 
-`IColumnTypeMapper` is responsible for mapping `System.Data.DbType` to the SqLite data type.
+`IColumnTypeMapper` is responsible for mapping `System.Data.DbType` to the SQLite data type.
 
-`IQueryRunner` is responsible for submitting queries to the SqLite engine.
+`IQueryRunner` is responsible for submitting queries to the SQLite engine.
 
 `ICommandProcessorFactory` is responsible for constructing an object that will 
 handle a request. The default implementation uses `System.Data.SQLite` to 

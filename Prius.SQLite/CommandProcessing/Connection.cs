@@ -9,16 +9,16 @@ using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.Contracts.Utility;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite.CommandProcessing
+namespace Prius.SQLite.CommandProcessing
 {
     /// <summary>
-    /// This is the main entry point into the SqLite driver from Prius.
-    /// It defines that any Prius database using a server type 'SqLite'
+    /// This is the main entry point into the SQLite driver from Prius.
+    /// It defines that any Prius database using a server type 'SQLite'
     /// will be handled by this connection provider.
     /// </summary>
-    [Provider("SqLite", "SQLite database connection provider")]
+    [Provider("SQLite", "SQLite database connection provider")]
     public class Connection : Disposable, IConnection, IConnectionProvider
     {
         private readonly IErrorReporter _errorReporter;
@@ -86,7 +86,7 @@ namespace Prius.SqLite.CommandProcessing
                 catch (Exception ex)
                 {
                     _repository.RecordFailure(this);
-                    _errorReporter.ReportError(ex, "Failed to open connection to SqLite on " + _repository.Name);
+                    _errorReporter.ReportError(ex, "Failed to open connection to SQLite on " + _repository.Name);
                     throw;
                 }
             }
@@ -181,7 +181,7 @@ namespace Prius.SqLite.CommandProcessing
                     );
 
                 if (reader == null)
-                    throw new Exception("SqLite command did not return a reader");
+                    throw new Exception("SQLite command did not return a reader");
 
                 foreach (var parameter in _command.GetParameters())
                     parameter.StoreOutputValue(parameter);
@@ -192,7 +192,7 @@ namespace Prius.SqLite.CommandProcessing
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                _errorReporter.ReportError(ex, "Failed to ExecuteReader on SqLite " + _repository.Name, _repository, this);
+                _errorReporter.ReportError(ex, "Failed to ExecuteReader on SQLite " + _repository.Name, _repository, this);
                 if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open) _connection.Close();
                 throw;
             }
@@ -230,7 +230,7 @@ namespace Prius.SqLite.CommandProcessing
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on SqLite " + _repository.Name, _repository, this);
+                _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on SQLite " + _repository.Name, _repository, this);
                 asyncContext.Result = (long)0;
                 throw;
             }
@@ -281,7 +281,7 @@ namespace Prius.SqLite.CommandProcessing
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                _errorReporter.ReportError(ex, "Failed to ExecuteScalar on SqLite repository '" + _repository.Name + "'", _repository, this);
+                _errorReporter.ReportError(ex, "Failed to ExecuteScalar on SQLite repository '" + _repository.Name + "'", _repository, this);
                 throw;
             }
             finally

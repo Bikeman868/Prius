@@ -2,7 +2,7 @@
 using System.Data.SQLite;
 using System.Reflection;
 
-namespace Prius.SqLite.Interfaces
+namespace Prius.SQLite.Interfaces
 {
     /// <summary>
     /// Encapsulates the library of all of the stored procedures. The stored

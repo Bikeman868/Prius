@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Prius.SqLite.Schema
+namespace Prius.SQLite.Schema
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class SchemaTableAttribute : Attribute

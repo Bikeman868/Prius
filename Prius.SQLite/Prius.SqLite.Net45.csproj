@@ -8,8 +8,8 @@
     <ProjectGuid>{34C6AB38-47A3-4803-8E83-0D4D2AC7BED5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Prius.SqLite</RootNamespace>
-    <AssemblyName>Prius.SqLite</AssemblyName>
+    <RootNamespace>Prius.SQLite</RootNamespace>
+    <AssemblyName>Prius.SQLite</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>

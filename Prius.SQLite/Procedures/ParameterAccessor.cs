@@ -4,9 +4,9 @@ using System.Linq;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Utility;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite.Procedures
+namespace Prius.SQLite.Procedures
 {
     public class ParameterAccessor : IParameterAccessor
     {

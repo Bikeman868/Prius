@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace Prius.SqLite.QueryBuilder
+namespace Prius.SQLite.QueryBuilder
 {
     internal class QueryBuilder : IQueryBuilder
     {

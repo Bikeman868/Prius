@@ -7,9 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite.Procedures
+namespace Prius.SQLite.Procedures
 {
     /// <summary>
     /// Implements IProcedureRunner by detecting the type of stored procedure
@@ -48,7 +48,7 @@ namespace Prius.SqLite.Procedures
             var nativeProcedure = procedure as INativeProcedure;
             if (nativeProcedure != null)
             {
-                throw new NotImplementedException("Procedures that access the SqLite engine natively are not supported in this version");
+                throw new NotImplementedException("Procedures that access the SQLite engine natively are not supported in this version");
             }
 
             throw new Exception("Unknown procedure type '" + procedure.GetType().FullName + "'");
@@ -75,7 +75,7 @@ namespace Prius.SqLite.Procedures
             var nativeProcedure = procedure as INativeProcedure;
             if (nativeProcedure != null)
             {
-                throw new NotImplementedException("Procedures that access the SqLite engine natively are not supported in this version");
+                throw new NotImplementedException("Procedures that access the SQLite engine natively are not supported in this version");
             }
 
             throw new Exception("Unknown procedure type '" + procedure.GetType().FullName + "'");
@@ -102,7 +102,7 @@ namespace Prius.SqLite.Procedures
             var nativeProcedure = procedure as INativeProcedure;
             if (nativeProcedure != null)
             {
-                throw new NotImplementedException("Procedures that access the SqLite engine natively are not supported in this version");
+                throw new NotImplementedException("Procedures that access the SQLite engine natively are not supported in this version");
             }
 
             throw new Exception("Unknown procedure type '" + procedure.GetType().FullName + "'");

@@ -6,13 +6,13 @@ using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Utility;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite.CommandProcessing
+namespace Prius.SQLite.CommandProcessing
 {
     /// <summary>
     /// This class executes pseudo stored procedures written as C# classes
-    /// using the ADO.Net driver for SqLite in System.Data.SQLite.
+    /// using the ADO.Net driver for SQLite in System.Data.SQLite.
     /// </summary>
     internal class AdoProcedureCommandProcessor: Disposable, IAdoCommandProcessor
     {

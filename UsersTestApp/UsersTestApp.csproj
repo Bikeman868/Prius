@@ -93,9 +93,9 @@
       <Project>{2d8713eb-1151-4114-8052-9c714fc8885f}</Project>
       <Name>Prius.ORM.Net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Prius.SQLite\Prius.SqLite.Net40.csproj">
+    <ProjectReference Include="..\Prius.SQLite\Prius.SQLite.Net40.csproj">
       <Project>{121ffc66-f424-45f3-8cf9-b7e366b310c5}</Project>
-      <Name>Prius.SqLite.Net40</Name>
+      <Name>Prius.SQLite.Net40</Name>
     </ProjectReference>
     <ProjectReference Include="..\Prius.SqlServer\Prius.SqlServer.Net40.csproj">
       <Project>{ce802f57-6697-41b9-8b27-937c0aafa487}</Project>

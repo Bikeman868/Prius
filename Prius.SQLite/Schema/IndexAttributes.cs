@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Prius.SqLite.Schema
+namespace Prius.SQLite.Schema
 {
     [Flags]
     public enum IndexAttributes

@@ -5,9 +5,9 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using Prius.Contracts.Interfaces.Connections;
-using Prius.SqLite.Interfaces;
+using Prius.SQLite.Interfaces;
 
-namespace Prius.SqLite.Schema
+namespace Prius.SQLite.Schema
 {
     /// <summary>
     /// Compares the actual database schema with the schema defined within the application
@@ -368,9 +368,15 @@ namespace Prius.SqLite.Schema
             {
                 if (reader.Read())
                 {
-                    var createTableSql = reader.GetString(0);
-                    if (string.IsNullOrEmpty(createTableSql)) return null;
-                    tableSchema = ParseCreateTable(createTableSql);
+                    if (!reader.IsDBNull(0))
+                    {
+                        var createTableSql = reader.GetString(0);
+                        if (!string.IsNullOrEmpty(createTableSql))
+                        {
+                            if (string.IsNullOrEmpty(createTableSql)) return null;
+                            tableSchema = ParseCreateTable(createTableSql);
+                        }
+                    }
                 }
             }
             if (tableSchema == null) return null;
@@ -385,9 +391,15 @@ namespace Prius.SqLite.Schema
                 {
                     while (reader.Read())
                     {
-                        var createIndexSql = reader.GetString(0);
-                        var indexSchema = ParseCreateIndex(createIndexSql);
-                        tableSchema.Indexes.Add(indexSchema);
+                        if (!reader.IsDBNull(0))
+                        {
+                            var createIndexSql = reader.GetString(0);
+                            if (!string.IsNullOrEmpty(createIndexSql))
+                            {
+                                var indexSchema = ParseCreateIndex(createIndexSql);
+                                tableSchema.Indexes.Add(indexSchema);
+                            }
+                        }
                     }
                 }
             }
