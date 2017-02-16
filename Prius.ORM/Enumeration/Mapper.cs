@@ -211,6 +211,10 @@ namespace Prius.Orm.Enumeration
                     throw new ApplicationException("You can not add Mapping attributes to properties that are Enums. Please implement IDataContract<T> in your data contract for these properties. " + type.FullName + " " + property.Name);
                     //AddField<Int32>(fieldName, (TDataContract dc, Int32 v) => property.SetValue(dc, Enum.ToObject(type, v), null), 0);
                 }
+                else if (type == typeof(byte[]))
+                {
+                    AddField<byte[]>(fieldName, property, defaultValue);
+                }
                 else AddField<Object>(fieldName, property, defaultValue);
             }
 
@@ -225,17 +229,6 @@ namespace Prius.Orm.Enumeration
                 AddField(fieldName, propertyInfo, defaultValue);
             }
 
-            public void AddField<T>(string fieldName, PropertyInfo property, object defaultValue)
-            {
-                if (defaultValue == null) defaultValue = default(T);
-                AddField<T>(fieldName, property, (T)defaultValue);
-            }
-
-            public void AddField<TProperty>(string fieldName, object writeAction, TProperty defaultValue)
-            {
-                AddField<TProperty>(fieldName, (Action<TDataContract, TProperty>)writeAction, defaultValue);
-            }
-
             public void AddField<TProperty>(string fieldName, Action<TDataContract, TProperty> writeAction, TProperty defaultValue)
             {
                 var field = new FieldDefinition<TDataContract, TProperty>
@@ -247,7 +240,13 @@ namespace Prius.Orm.Enumeration
                 _fieldDefinitions[fieldName.ToLower()] = field;
             }
 
-            public void AddField<TProperty>(string fieldName, PropertyInfo property, TProperty defaultValue)
+            private void AddField<T>(string fieldName, PropertyInfo property, object defaultValue)
+            {
+                if (defaultValue == null) defaultValue = default(T);
+                AddField(fieldName, property, (T)defaultValue);
+            }
+
+            private void AddField<TProperty>(string fieldName, PropertyInfo property, TProperty defaultValue)
             {
                 var targetExpression = Expression.Parameter(typeof(TDataContract), "t");
                 var valueExpression = Expression.Parameter(typeof(TProperty), "v");

@@ -1,7 +1,7 @@
 ﻿using System;
 using Prius.Contracts.Interfaces;
-using Prius.SqLite.Interfaces;
-using Prius.SqLite.Procedures;
+using Prius.SQLite.Interfaces;
+using Prius.SQLite.Procedures;
 
 namespace UsersTestApp.Procedures
 {
