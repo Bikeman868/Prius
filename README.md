@@ -558,7 +558,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
     }
 ```
 
-##Execute a stored procedure that returns no data
+###Execute a stored procedure that returns no data
 ```
     public ICustomer DeleteCustomer(int customerId)
     {
