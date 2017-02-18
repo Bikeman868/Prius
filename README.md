@@ -38,6 +38,9 @@ NuGet package that you need to install.
 | SqlServer       | Prius.SqlServer    |
 | MySql           | Prius.MySql        |
 | PostgreSql      | Prius.PostgreSQL   |
+| SQLite          | Prius.SQLite (1)   |
+
+(1) See readme file in the Prius.SQLite folder.
 
 ## Sample Code
 This is an example of calling a stored procedure with some parameters and 
