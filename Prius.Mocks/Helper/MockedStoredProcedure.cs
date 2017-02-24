@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Prius.Contracts.Attributes;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 
@@ -25,6 +26,15 @@ namespace Prius.Mocks.Helper
 
         public virtual long NonQuery(ICommand command)
         {
+            foreach (var parameter in command.GetParameters())
+            {
+                if (parameter.Direction == ParameterDirection.Output || 
+                    parameter.Direction == ParameterDirection.ReturnValue)
+                {
+                    if (parameter.Value == null)
+                        parameter.Value = Activator.CreateInstance(parameter.Type);
+                }
+            }
             return _rowsAffected;
         }
 
@@ -58,6 +68,18 @@ namespace Prius.Mocks.Helper
             if (parameter == null) return defaultValue;
 
             return (T)Convert.ChangeType(parameter.Value, typeof(T));
+        }
+
+        protected void SetParameterValue<T>(ICommand command, string parameterName, T value)
+        {
+
+            var parameters = command.GetParameters();
+            if (parameters == null) return;
+
+            var parameter = parameters.FirstOrDefault(p => string.Equals(p.Name, parameterName, StringComparison.InvariantCultureIgnoreCase));
+            if (parameter == null) return;
+
+            parameter.Value = value;
         }
     }
 }
