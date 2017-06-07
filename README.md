@@ -48,9 +48,10 @@ returning the results as a collection of objects:
 
 By default database columns are mapped to properties with the same name:
 
+```
     using Prius.Contracts.Interfaces;
 
-	internal class Profile
+    internal class Profile
     {
         long ProfileId { get; set; }
         string UserName { get; set; }
@@ -88,30 +89,32 @@ By default database columns are mapped to properties with the same name:
             }
         }
     }
+```
 
 You can also use different names in the database and in your C#.
-
+```
     /// <summary>
     /// An example of a data contract with declarative mapping to DB columns
     /// </summary>
     internal class User
     {
-      // Maps the Name property onto the 'userName' column in the database, if
-      // the database contains null the Name property will ne Null
-      [Mapping("userName")]
-      public string Name { get; set; }
+        // Maps the Name property onto the 'userName' column in the database, if
+        // the database contains null the Name property will ne Null
+        [Mapping("userName")]
+        public string Name { get; set; }
     
-      // Maps the Age property onto the 'userAge' column in the database. 
-      // If the database contains NULL then the Value property will be set to -1
-      [Mapping("userAge", -1)]
-      public int Age { get; set; }
+        // Maps the Age property onto the 'userAge' column in the database. 
+        // If the database contains NULL then the Value property will be set to -1
+        [Mapping("userAge", -1)]
+        public int Age { get; set; }
     
-      // Maps the Description property onto the 'descr' column in the
-      // database. If the database contains NULL then the Description property 
-      // will be set to an empty string
-      [Mapping("descr", "")]
-      public string Description { get; set; }
+        // Maps the Description property onto the 'descr' column in the
+        // database. If the database contains NULL then the Description property 
+        // will be set to an empty string
+        [Mapping("descr", "")]
+        public string Description { get; set; }
     }
+```
 
 > Note that column names are case insensitive.
 
@@ -152,6 +155,7 @@ define everything in terms of interfaces.
 For greater flexibility you can also implement the `IDataContract` interface, in
 this case any declarative mappings will be applied first, then your `IDataContract`
 implementation will execute, and can modify the mappings.
+```
 
     internal enum Enum1 { Value1, Value2, Value3 }
     
@@ -176,6 +180,7 @@ implementation will execute, and can modify the mappings.
             Title = Name + "=" + Value;
         }
     }
+```
 
 For ultimate flexibility you can also implement the `IDataContract` interface in a way that
 creates different column mappings for different stored procedures. This is useful only
@@ -184,7 +189,7 @@ which stored procedure you call, for example if some stored procedures return ag
 and others return age as an integer even though they both return essentially the same data
 (this would be pretty messed up I know, but I have had to work with legacy databases that have 
 these kinds of problems).
-
+```
     internal enum Enum1 { Value1, Value2, Value3 }
     
     internal class SampleDataContract: IDataContract<SampleDataContract>
@@ -197,20 +202,20 @@ these kinds of problems).
     
         public void AddMappings(ITypeDefinition<SampleDataContract> typeDefinition, string dataSetName)
         {
-			if (string.Equals(dataSetName, "someWeirdSproc", StringComparison.OrdinalIgnoreCase))
-			{
-				typeDefinition.AddField("n", c => c.Name, string.Empty);
-				typeDefinition.AddField("v", c => c.Value, -1);
-				typeDefinition.AddField("d", (c, v) => c.Description = v.ToLower(), string.Empty);
-				typeDefinition.AddField("e", c => c.MyEnum, Enum1.Value1);
-			}
-			else
-			{
-				typeDefinition.AddField("name", c => c.Name, string.Empty);
-				typeDefinition.AddField("value", c => c.Value, -1);
-				typeDefinition.AddField("descr", (c, v) => c.Description = v.ToLower(), string.Empty);
-				typeDefinition.AddField("enum", c => c.MyEnum, Enum1.Value1);
-			}
+            if (string.Equals(dataSetName, "someWeirdSproc", StringComparison.OrdinalIgnoreCase))
+            {
+                typeDefinition.AddField("n", c => c.Name, string.Empty);
+                typeDefinition.AddField("v", c => c.Value, -1);
+                typeDefinition.AddField("d", (c, v) => c.Description = v.ToLower(), string.Empty);
+                typeDefinition.AddField("e", c => c.MyEnum, Enum1.Value1);
+            }
+            else
+            {
+                typeDefinition.AddField("name", c => c.Name, string.Empty);
+                typeDefinition.AddField("value", c => c.Value, -1);
+                typeDefinition.AddField("descr", (c, v) => c.Description = v.ToLower(), string.Empty);
+                typeDefinition.AddField("enum", c => c.MyEnum, Enum1.Value1);
+            }
         }
     
         public void SetCalculated(IDataReader dataReader, string dataSetName)
@@ -218,7 +223,7 @@ these kinds of problems).
             Title = Name + "=" + Value;
         }
     }
-
+```
 
 ## How does Prius compare with the alternatives
 Prius is all about convenience, programmer productivity and runtime performence. I tried
@@ -341,7 +346,7 @@ The interfaces you need to implement are:
 | `IErrorReporter` | Used to report errors. This interface also defines a couple of very straightforward methods. |
 
 Your `Package.cs` file should look something like this:
-
+```
     using System.Collections.Generic;
     using Ioc.Modules;
     using Prius.Contracts.Interfaces.External;
@@ -366,6 +371,7 @@ Your `Package.cs` file should look something like this:
             }
         }
     }
+```
 
 ### Without using `Ioc.Modules`
 
@@ -427,35 +433,32 @@ This is a sample Urchin configuration for Prius:
         prius:{
             databases:[
                 {
-    			    name:"db1", 
-    				type:"SqlServer", 
-    				connectionString:"",
-    				procedures:
-    				[
-    				    {name:"Sproc1", timeout:3},
-    				    {name:"Sproc2", timeout:7}
-    				]
-    			},
+                    name:"db1", 
+                    type:"SqlServer", 
+                    connectionString:"",
+                    procedures: [
+                        {name:"Sproc1", timeout:3},
+                        {name:"Sproc2", timeout:7}
+                    ]
+                },
                 {
-    			    name:"db2", 
-    				type:"MySQL", 
-    				connectionString:"",
-    				procedures:
-    				[
-    				    {name:"Sproc1", timeout:6},
-    				    {name:"Sproc2", timeout:15}
-    				]
-    			},
+                    name:"db2", 
+                    type:"MySQL", 
+                    connectionString:"",
+                    procedures: [
+                        {name:"Sproc1", timeout:6},
+                        {name:"Sproc2", timeout:15}
+                    ]
+                },
                 {
-    			    name:"db3", 
-    				type:"MySQL", 
-    				connectionString:"",
-    				procedures:
-    				[
-    				    {name:"Sproc1", timeout:6},
-    				    {name:"Sproc2", timeout:15}
-    				]
-    			}
+                    name:"db3", 
+                    type:"MySQL", 
+                    connectionString:"",
+                    procedures: [
+                        {name:"Sproc1", timeout:6},
+                        {name:"Sproc2", timeout:15}
+                    ]
+                }
             ],
             fallbackPolicies:[
                 {name:"primary", allowedFailurePercent:20, backOffTime:"00:01:00"},
