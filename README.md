@@ -242,7 +242,7 @@ to runtime performance.
 | Can execute stored procedures                   | Yes   | Yes     | Yes        | Yes |
 | Can execute asynchronous requests               | Yes   | Yes     | Yes        | Yes |
 | Can generate efficient SQL from LINQ            | No    | No      | Yes        | Yes |
-| Can use IoC container to construst data models  | Yes   | No      | No         | No  |
+| Can use IoC container to construct data models  | Yes   | No      | No         | No  |
 | Can generate database from data model           | No    | No      | Yes        | Yes |
 | Can generate data model from the database       | No    | No      | Yes        | Yes |
 | Can fill any class with query results           | Yes   | No      | No         | No  |
@@ -502,9 +502,9 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
 > configuration based approach. Remember that Prius uses the Urchin rules 
 > based configuration management system that can define environment specific rules.
 
-##Prius recipies
+## Prius recipies
 
-###Inject Prius interfaces into my data access class
+### Inject Prius interfaces into my data access class
 ```
     using Prius.Contracts.Interfaces;
 
@@ -530,7 +530,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
 ```
 > Note that you always need `IContextFactory` and `ICommandFactory`. The other interfaces are only needed for some more advanced techniques.
 
-###Execute a stored procedure and return a list of objects
+### Execute a stored procedure and return a list of objects
 ```
     public IList<ICustomer> GetCustomers()
     {
@@ -545,7 +545,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
     }
 ```
 
-###Execute a stored procedure and return a single object
+### Execute a stored procedure and return a single object
 ```
     public ICustomer GetCustomer(int customerId)
     {
@@ -561,7 +561,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
     }
 ```
 
-###Execute a stored procedure that returns no data
+### Execute a stored procedure that returns no data
 ```
     public ICustomer DeleteCustomer(int customerId)
     {
@@ -576,7 +576,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
     }
 ```
 
-###Execute a stored procedure with output parameters
+### Execute a stored procedure with output parameters
 ```
     public bool InsertCustomer(ICustomer customer)
     {
@@ -597,7 +597,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
     }
 ```
 
-###Execute a stored procedure that returns multiple sets of data
+### Execute a stored procedure that returns multiple sets of data
 Note that the `context.ExecuteEnumerable` method is a shorthand syntax that works for the most common use case of a 
 single data set. To work with multiple sets of data you have to use a slightly more verbose syntax, but this results
 in the same internal operation.
@@ -631,7 +631,7 @@ customer's orders in the second data set. This example therefore demonstrates tw
 
 ```
 
-###Execute two stored procedures at the same time
+### Execute two stored procedures at the same time
 Note that the database context can only have one open data reader at a time, so you will need multiple context 
 objects to execute multiple stored procedures concurrently.
 You could nest using statements, but this can get very deep if you have many concurrent requests. In this example
@@ -676,7 +676,7 @@ Note that if you are using .Net 4.5 or higher then you can use the async...await
     }
 ```
 
-###Combine the results of two or more stored procedures into one object
+### Combine the results of two or more stored procedures into one object
 This example assumes that news articles have a very large 'content' column that isn't required most of the time,
 so the `sp_GetNewsArticle` stored procedure does not return the 'content' column. There is a separate stored 
 procedure that only returns the 'content' column.
@@ -725,7 +725,7 @@ database technology.
     }
 ```
 
-###Execute a stored procedure and map DB columns using an interface
+### Execute a stored procedure and map DB columns using an interface
 ```
 	public interface ICustomer
 	{
