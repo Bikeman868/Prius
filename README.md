@@ -553,7 +553,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
         {
             using (var command = _commandFactory.CreateStoredProcedure("sp_GetCustomer"))
             {
-    			command.AddParameter("CustomerID", customerId);
+                command.AddParameter("CustomerID", customerId);
                 using (var data = context.ExecuteEnumerable<Customer>(command))
                     return data.FirstOrDefault();
             }
@@ -569,7 +569,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
         {
             using (var command = _commandFactory.CreateStoredProcedure("sp_DeleteCustomer"))
             {
-    			command.AddParameter("CustomerID", customerId);
+                command.AddParameter("CustomerID", customerId);
                 context.ExecuteNonQuery(command));
             }
         }
@@ -584,14 +584,14 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
         {
             using (var command = _commandFactory.CreateStoredProcedure("sp_InsertCustomer"))
             {
-    			var idParam = command.AddParameter("CustomerID", SqlDbType.Int);
+                var idParam = command.AddParameter("CustomerID", SqlDbType.Int);
                 var rowsAffected = context.ExecuteNonQuery(command));
     
-    			if (rowsAffected != 1)
-    			    return false;
+                if (rowsAffected != 1)
+                    return false;
     
-    			customer.CustomerId = (int)idParam.Value;
-    			return true;
+                customer.CustomerId = (int)idParam.Value;
+                return true;
             }
         }
     }
@@ -606,7 +606,7 @@ In this example the stored procedure returns a single customer record in the fir
 customer's orders in the second data set. This example therefore demonstrates two different techniques
 ```
     public ICustomer GetCustomerAndOrders(int customerId)
-	{
+    {
        using (var command = _commandFactory.CreateStoredProcedure("dbo.sp_GetCustomerAndOrders"))
        {
            command.AddParameter("CustomerID", customerId);
@@ -644,11 +644,11 @@ Note that if you are using .Net 4.5 or higher then you can use the async...await
     {
         var customerContext = _contextFactory.Create("MyData");
         var customerCommand = _commandFactory.CreateStoredProcedure("dbo.sp_GetCustomer");
-		customersCommand.AddParameter("CustomerID", customerId);
+        customersCommand.AddParameter("CustomerID", customerId);
 
         var ordersContext = _contextFactory.Create("MyData");
         var ordersCommand = _commandFactory.CreateStoredProcedure("dbo.sp_GetCustomerOrders");
-		ordersCommand.AddParameter("CustomerID", customerId);
+        ordersCommand.AddParameter("CustomerID", customerId);
     
         try
         {
@@ -656,12 +656,12 @@ Note that if you are using .Net 4.5 or higher then you can use the async...await
             var ordersResult = ordersContext.BeginExecuteEnumerable(ordersCommand);
             WaitHandle.WaitAll(new[] { customerResult.AsyncWaitHandle, ordersResult.AsyncWaitHandle });
     
-			Customer customer;
+            Customer customer;
             using (var customerRecords = customerContext.EndExecuteEnumerable<Customer>(customerResult))
                 customer = customerRecords.FirstOrDefault();
 
-			if (customer == null)
-				return null;
+            if (customer == null)
+                return null;
 
             using (var orderRecords = ordersContext.EndExecuteEnumerable<Order>(ordersResult))
                 customer.Orders = orderRecords.ToList();
@@ -727,20 +727,14 @@ database technology.
 
 ### Execute a stored procedure and map DB columns using an interface
 ```
-	public interface ICustomer
-	{
-		[Mapping("fld_CustomerID")]
-		long Id { get; set; }
+    public interface ICustomer
+    {
+        [Mapping("fld_CustomerID")]
+        long Id { get; set; }
 
-		[Mapping("fld_CustomerName")]
-		string Name { get; set; }
-	}
-
-	internal class Customer: ICustomer
-	{
-		public long Id { get; set; }
-		pulic string Name { get; set; }
-	}
+        [Mapping("fld_CustomerName")]
+        string Name { get; set; }
+    }
 
     public IList<ICustomer> GetCustomers()
     {
