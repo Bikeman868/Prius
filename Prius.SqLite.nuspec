@@ -11,7 +11,7 @@
     <copyright>Copyright 2017</copyright>
     <releaseNotes>Fixes for bugs discovered in initial deployment</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
-    <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <tags>ORM database prius sqlite</tags>
     <dependencies>
       <dependency id="Ioc.Modules" version="1.1.4" />

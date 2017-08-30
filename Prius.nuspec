@@ -11,7 +11,7 @@
     <copyright>Copyright 2017</copyright>
     <releaseNotes>Database engine providers are now in separate NuGet packages  - Prius.SqlServer, Prius.MySql and Prius.PostgreSql</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
-    <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <tags>ORM database mapping sqlserver mysql mariadb postgresql procedures</tags>
     <dependencies>
       <dependency id="Newtonsoft.Json" version="7.0.1" />
