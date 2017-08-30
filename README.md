@@ -48,9 +48,10 @@ returning the results as a collection of objects:
 
 By default database columns are mapped to properties with the same name:
 
+```
     using Prius.Contracts.Interfaces;
 
-	internal class Profile
+    internal class Profile
     {
         long ProfileId { get; set; }
         string UserName { get; set; }
@@ -88,30 +89,32 @@ By default database columns are mapped to properties with the same name:
             }
         }
     }
+```
 
 You can also use different names in the database and in your C#.
-
+```
     /// <summary>
     /// An example of a data contract with declarative mapping to DB columns
     /// </summary>
     internal class User
     {
-      // Maps the Name property onto the 'userName' column in the database, if
-      // the database contains null the Name property will ne Null
-      [Mapping("userName")]
-      public string Name { get; set; }
+        // Maps the Name property onto the 'userName' column in the database, if
+        // the database contains null the Name property will ne Null
+        [Mapping("userName")]
+        public string Name { get; set; }
     
-      // Maps the Age property onto the 'userAge' column in the database. 
-      // If the database contains NULL then the Value property will be set to -1
-      [Mapping("userAge", -1)]
-      public int Age { get; set; }
+        // Maps the Age property onto the 'userAge' column in the database. 
+        // If the database contains NULL then the Value property will be set to -1
+        [Mapping("userAge", -1)]
+        public int Age { get; set; }
     
-      // Maps the Description property onto the 'descr' column in the
-      // database. If the database contains NULL then the Description property 
-      // will be set to an empty string
-      [Mapping("descr", "")]
-      public string Description { get; set; }
+        // Maps the Description property onto the 'descr' column in the
+        // database. If the database contains NULL then the Description property 
+        // will be set to an empty string
+        [Mapping("descr", "")]
+        public string Description { get; set; }
     }
+```
 
 > Note that column names are case insensitive.
 
@@ -152,6 +155,7 @@ define everything in terms of interfaces.
 For greater flexibility you can also implement the `IDataContract` interface, in
 this case any declarative mappings will be applied first, then your `IDataContract`
 implementation will execute, and can modify the mappings.
+```
 
     internal enum Enum1 { Value1, Value2, Value3 }
     
@@ -176,6 +180,7 @@ implementation will execute, and can modify the mappings.
             Title = Name + "=" + Value;
         }
     }
+```
 
 For ultimate flexibility you can also implement the `IDataContract` interface in a way that
 creates different column mappings for different stored procedures. This is useful only
@@ -184,7 +189,7 @@ which stored procedure you call, for example if some stored procedures return ag
 and others return age as an integer even though they both return essentially the same data
 (this would be pretty messed up I know, but I have had to work with legacy databases that have 
 these kinds of problems).
-
+```
     internal enum Enum1 { Value1, Value2, Value3 }
     
     internal class SampleDataContract: IDataContract<SampleDataContract>
@@ -197,20 +202,20 @@ these kinds of problems).
     
         public void AddMappings(ITypeDefinition<SampleDataContract> typeDefinition, string dataSetName)
         {
-			if (string.Equals(dataSetName, "someWeirdSproc", StringComparison.OrdinalIgnoreCase))
-			{
-				typeDefinition.AddField("n", c => c.Name, string.Empty);
-				typeDefinition.AddField("v", c => c.Value, -1);
-				typeDefinition.AddField("d", (c, v) => c.Description = v.ToLower(), string.Empty);
-				typeDefinition.AddField("e", c => c.MyEnum, Enum1.Value1);
-			}
-			else
-			{
-				typeDefinition.AddField("name", c => c.Name, string.Empty);
-				typeDefinition.AddField("value", c => c.Value, -1);
-				typeDefinition.AddField("descr", (c, v) => c.Description = v.ToLower(), string.Empty);
-				typeDefinition.AddField("enum", c => c.MyEnum, Enum1.Value1);
-			}
+            if (string.Equals(dataSetName, "someWeirdSproc", StringComparison.OrdinalIgnoreCase))
+            {
+                typeDefinition.AddField("n", c => c.Name, string.Empty);
+                typeDefinition.AddField("v", c => c.Value, -1);
+                typeDefinition.AddField("d", (c, v) => c.Description = v.ToLower(), string.Empty);
+                typeDefinition.AddField("e", c => c.MyEnum, Enum1.Value1);
+            }
+            else
+            {
+                typeDefinition.AddField("name", c => c.Name, string.Empty);
+                typeDefinition.AddField("value", c => c.Value, -1);
+                typeDefinition.AddField("descr", (c, v) => c.Description = v.ToLower(), string.Empty);
+                typeDefinition.AddField("enum", c => c.MyEnum, Enum1.Value1);
+            }
         }
     
         public void SetCalculated(IDataReader dataReader, string dataSetName)
@@ -218,7 +223,7 @@ these kinds of problems).
             Title = Name + "=" + Value;
         }
     }
-
+```
 
 ## How does Prius compare with the alternatives
 Prius is all about convenience, programmer productivity and runtime performence. I tried
@@ -242,7 +247,7 @@ to runtime performance.
 | Can execute stored procedures                   | Yes   | Yes     | Yes        | Yes |
 | Can execute asynchronous requests               | Yes   | Yes     | Yes        | Yes |
 | Can generate efficient SQL from LINQ            | No    | No      | Yes        | Yes |
-| Can use IoC container to construst data models  | Yes   | No      | No         | No  |
+| Can use IoC container to construct data models  | Yes   | No      | No         | No  |
 | Can generate database from data model           | No    | No      | Yes        | Yes |
 | Can generate data model from the database       | No    | No      | Yes        | Yes |
 | Can fill any class with query results           | Yes   | No      | No         | No  |
@@ -341,7 +346,7 @@ The interfaces you need to implement are:
 | `IErrorReporter` | Used to report errors. This interface also defines a couple of very straightforward methods. |
 
 Your `Package.cs` file should look something like this:
-
+```
     using System.Collections.Generic;
     using Ioc.Modules;
     using Prius.Contracts.Interfaces.External;
@@ -366,6 +371,7 @@ Your `Package.cs` file should look something like this:
             }
         }
     }
+```
 
 ### Without using `Ioc.Modules`
 
@@ -427,35 +433,32 @@ This is a sample Urchin configuration for Prius:
         prius:{
             databases:[
                 {
-    			    name:"db1", 
-    				type:"SqlServer", 
-    				connectionString:"",
-    				procedures:
-    				[
-    				    {name:"Sproc1", timeout:3},
-    				    {name:"Sproc2", timeout:7}
-    				]
-    			},
+                    name:"db1", 
+                    type:"SqlServer", 
+                    connectionString:"",
+                    procedures: [
+                        {name:"Sproc1", timeout:3},
+                        {name:"Sproc2", timeout:7}
+                    ]
+                },
                 {
-    			    name:"db2", 
-    				type:"MySQL", 
-    				connectionString:"",
-    				procedures:
-    				[
-    				    {name:"Sproc1", timeout:6},
-    				    {name:"Sproc2", timeout:15}
-    				]
-    			},
+                    name:"db2", 
+                    type:"MySQL", 
+                    connectionString:"",
+                    procedures: [
+                        {name:"Sproc1", timeout:6},
+                        {name:"Sproc2", timeout:15}
+                    ]
+                },
                 {
-    			    name:"db3", 
-    				type:"MySQL", 
-    				connectionString:"",
-    				procedures:
-    				[
-    				    {name:"Sproc1", timeout:6},
-    				    {name:"Sproc2", timeout:15}
-    				]
-    			}
+                    name:"db3", 
+                    type:"MySQL", 
+                    connectionString:"",
+                    procedures: [
+                        {name:"Sproc1", timeout:6},
+                        {name:"Sproc2", timeout:15}
+                    ]
+                }
             ],
             fallbackPolicies:[
                 {name:"primary", allowedFailurePercent:20, backOffTime:"00:01:00"},
@@ -502,9 +505,9 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
 > configuration based approach. Remember that Prius uses the Urchin rules 
 > based configuration management system that can define environment specific rules.
 
-##Prius recipies
+## Prius recipies
 
-###Inject Prius interfaces into my data access class
+### Inject Prius interfaces into my data access class
 ```
     using Prius.Contracts.Interfaces;
 
@@ -530,7 +533,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
 ```
 > Note that you always need `IContextFactory` and `ICommandFactory`. The other interfaces are only needed for some more advanced techniques.
 
-###Execute a stored procedure and return a list of objects
+### Execute a stored procedure and return a list of objects
 ```
     public IList<ICustomer> GetCustomers()
     {
@@ -545,7 +548,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
     }
 ```
 
-###Execute a stored procedure and return a single object
+### Execute a stored procedure and return a single object
 ```
     public ICustomer GetCustomer(int customerId)
     {
@@ -553,7 +556,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
         {
             using (var command = _commandFactory.CreateStoredProcedure("sp_GetCustomer"))
             {
-    			command.AddParameter("CustomerID", customerId);
+                command.AddParameter("CustomerID", customerId);
                 using (var data = context.ExecuteEnumerable<Customer>(command))
                     return data.FirstOrDefault();
             }
@@ -561,7 +564,7 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
     }
 ```
 
-###Execute a stored procedure that returns no data
+### Execute a stored procedure that returns no data
 ```
     public ICustomer DeleteCustomer(int customerId)
     {
@@ -569,14 +572,14 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
         {
             using (var command = _commandFactory.CreateStoredProcedure("sp_DeleteCustomer"))
             {
-    			command.AddParameter("CustomerID", customerId);
+                command.AddParameter("CustomerID", customerId);
                 context.ExecuteNonQuery(command));
             }
         }
     }
 ```
 
-###Execute a stored procedure with output parameters
+### Execute a stored procedure with output parameters
 ```
     public bool InsertCustomer(ICustomer customer)
     {
@@ -584,20 +587,20 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
         {
             using (var command = _commandFactory.CreateStoredProcedure("sp_InsertCustomer"))
             {
-    			var idParam = command.AddParameter("CustomerID", SqlDbType.Int);
+                var idParam = command.AddParameter("CustomerID", SqlDbType.Int);
                 var rowsAffected = context.ExecuteNonQuery(command));
     
-    			if (rowsAffected != 1)
-    			    return false;
+                if (rowsAffected != 1)
+                    return false;
     
-    			customer.CustomerId = (int)idParam.Value;
-    			return true;
+                customer.CustomerId = (int)idParam.Value;
+                return true;
             }
         }
     }
 ```
 
-###Execute a stored procedure that returns multiple sets of data
+### Execute a stored procedure that returns multiple sets of data
 Note that the `context.ExecuteEnumerable` method is a shorthand syntax that works for the most common use case of a 
 single data set. To work with multiple sets of data you have to use a slightly more verbose syntax, but this results
 in the same internal operation.
@@ -606,7 +609,7 @@ In this example the stored procedure returns a single customer record in the fir
 customer's orders in the second data set. This example therefore demonstrates two different techniques
 ```
     public ICustomer GetCustomerAndOrders(int customerId)
-	{
+    {
        using (var command = _commandFactory.CreateStoredProcedure("dbo.sp_GetCustomerAndOrders"))
        {
            command.AddParameter("CustomerID", customerId);
@@ -631,7 +634,7 @@ customer's orders in the second data set. This example therefore demonstrates tw
 
 ```
 
-###Execute two stored procedures at the same time
+### Execute two stored procedures at the same time
 Note that the database context can only have one open data reader at a time, so you will need multiple context 
 objects to execute multiple stored procedures concurrently.
 You could nest using statements, but this can get very deep if you have many concurrent requests. In this example
@@ -644,11 +647,11 @@ Note that if you are using .Net 4.5 or higher then you can use the async...await
     {
         var customerContext = _contextFactory.Create("MyData");
         var customerCommand = _commandFactory.CreateStoredProcedure("dbo.sp_GetCustomer");
-		customersCommand.AddParameter("CustomerID", customerId);
+        customersCommand.AddParameter("CustomerID", customerId);
 
         var ordersContext = _contextFactory.Create("MyData");
         var ordersCommand = _commandFactory.CreateStoredProcedure("dbo.sp_GetCustomerOrders");
-		ordersCommand.AddParameter("CustomerID", customerId);
+        ordersCommand.AddParameter("CustomerID", customerId);
     
         try
         {
@@ -656,12 +659,12 @@ Note that if you are using .Net 4.5 or higher then you can use the async...await
             var ordersResult = ordersContext.BeginExecuteEnumerable(ordersCommand);
             WaitHandle.WaitAll(new[] { customerResult.AsyncWaitHandle, ordersResult.AsyncWaitHandle });
     
-			Customer customer;
+            Customer customer;
             using (var customerRecords = customerContext.EndExecuteEnumerable<Customer>(customerResult))
                 customer = customerRecords.FirstOrDefault();
 
-			if (customer == null)
-				return null;
+            if (customer == null)
+                return null;
 
             using (var orderRecords = ordersContext.EndExecuteEnumerable<Order>(ordersResult))
                 customer.Orders = orderRecords.ToList();
@@ -676,7 +679,7 @@ Note that if you are using .Net 4.5 or higher then you can use the async...await
     }
 ```
 
-###Combine the results of two or more stored procedures into one object
+### Combine the results of two or more stored procedures into one object
 This example assumes that news articles have a very large 'content' column that isn't required most of the time,
 so the `sp_GetNewsArticle` stored procedure does not return the 'content' column. There is a separate stored 
 procedure that only returns the 'content' column.
@@ -725,22 +728,16 @@ database technology.
     }
 ```
 
-###Execute a stored procedure and map DB columns using an interface
+### Execute a stored procedure and map DB columns using an interface
 ```
-	public interface ICustomer
-	{
-		[Mapping("fld_CustomerID")]
-		long Id { get; set; }
+    public interface ICustomer
+    {
+        [Mapping("fld_CustomerID")]
+        long Id { get; set; }
 
-		[Mapping("fld_CustomerName")]
-		string Name { get; set; }
-	}
-
-	internal class Customer: ICustomer
-	{
-		public long Id { get; set; }
-		pulic string Name { get; set; }
-	}
+        [Mapping("fld_CustomerName")]
+        string Name { get; set; }
+    }
 
     public IList<ICustomer> GetCustomers()
     {
