@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Prius.Contracts.Enumerations;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
@@ -67,12 +68,16 @@ namespace Prius.Orm.Connections
             }
 
             var fallbackPolicies = config.FallbackPolicies == null 
-                ? new Dictionary<string, FallbackPolicy>() 
-                : config.FallbackPolicies.ToDictionary(p => p.Name);
+                ? new Dictionary<string, FallbackPolicy>()
+                : config.FallbackPolicies.ToDictionary(p => p.Name.ToLowerInvariant());
 
             var databases = config.Databases == null
                 ? new Dictionary<string, Database>()
-                : config.Databases.ToDictionary(s => s.Name);
+                : config.Databases.ToDictionary(s => s.Name.ToLowerInvariant());
+
+            var storedProcedures = repositoryConfiguration.StoredProcedures == null
+                ? new Dictionary<string, StoredProcedure>()
+                : repositoryConfiguration.StoredProcedures.ToDictionary(s => s.Name.ToLowerInvariant());
 
             var groups = repositoryConfiguration.Clusters
                 .Where(cluster => cluster.Enabled)
@@ -80,14 +85,14 @@ namespace Prius.Orm.Connections
                 .Select(cluster =>
                 {
                     FallbackPolicy fallbackPolicy;
-                    if (!fallbackPolicies.TryGetValue(cluster.FallbackPolicyName, out fallbackPolicy))
+                    if (!fallbackPolicies.TryGetValue(cluster.FallbackPolicyName.ToLowerInvariant(), out fallbackPolicy))
                         fallbackPolicy = new FallbackPolicy();
 
                     var servers = cluster.DatabaseNames
                         .Select(databaseName =>
                         {
                             Database database;
-                            return databases.TryGetValue(databaseName, out database)
+                            return databases.TryGetValue(databaseName.ToLowerInvariant(), out database)
                                 ? database
                                 : null;
                         })
@@ -96,7 +101,8 @@ namespace Prius.Orm.Connections
                         .Select(database => new Server(
                             database.ServerType, 
                             database.ConnectionString, 
-                            database.StoredProcedures == null ? null : database.StoredProcedures.ToDictionary(p => p.Name.ToLower(), p => p.TimeoutSeconds)));
+                            database.StoredProcedures == null ? null : database.StoredProcedures.ToDictionary(p => p.Name.ToLower(), p => p.TimeoutSeconds),
+                            database.Role));
 
                     return new Group().Initialize
                         (
@@ -105,7 +111,8 @@ namespace Prius.Orm.Connections
                             fallbackPolicy.AllowedFailurePercent / 100f,
                             fallbackPolicy.WarningFailurePercent / 100f,
                             fallbackPolicy.BackOffTime,
-                            servers
+                            servers,
+                            storedProcedures
                         );
                 });
             _groups = groups.ToArray();
@@ -113,7 +120,9 @@ namespace Prius.Orm.Connections
 
         public IConnection GetConnection(ICommand command)
         {
-            var server = GetOnlineServer();
+            var server = command.CommandType == CommandType.StoredProcedure 
+                ? GetOnlineServer(command.CommandText)
+                : GetOnlineServer(string.Empty);
 
             if (server == null)
                 return null;
@@ -197,7 +206,7 @@ namespace Prius.Orm.Connections
         {
         }
 
-        private Server GetOnlineServer()
+        private Server GetOnlineServer(string storedProcedureName)
         {
             var groups = _groups;
             for (var groupIndex = 0; groupIndex < groups.Length; groupIndex++)
@@ -207,7 +216,7 @@ namespace Prius.Orm.Connections
                 {
                     if (group.IsOnline())
                     {
-                        var server = group.ChooseServer();
+                        var server = group.ChooseServer(storedProcedureName);
                         if (server != null) return server;
                     }
                 }
@@ -226,7 +235,9 @@ namespace Prius.Orm.Connections
             private float _warningFailureRate;
             private TimeSpan _backOffTime;
             private Server[] _servers;
-            private int _nextServerIndex;
+            private Dictionary<string, StoredProcedure> _storedProcedures;
+            private Dictionary<string, Server[]> _serversByRole;
+            private Random _random = new Random();
 
             public Group Initialize(
                 Repository repository, 
@@ -234,7 +245,8 @@ namespace Prius.Orm.Connections
                 float allowedFailureRate, 
                 float warningFailureRate, 
                 TimeSpan backOffTime, 
-                IEnumerable<Server> servers)
+                IEnumerable<Server> servers,
+                Dictionary<string, StoredProcedure> storedProcedures)
             {
                 _repository = repository;
                 _failureWindowSeconds = failureWindowSeconds;
@@ -242,8 +254,26 @@ namespace Prius.Orm.Connections
                 _warningFailureRate = warningFailureRate;
                 _backOffTime = backOffTime;
                 _servers = servers.ToArray();
+                _storedProcedures = storedProcedures;
 
-                foreach (var server in _servers) server.Group = this;
+                _serversByRole = new Dictionary<string, Server[]>();
+                foreach (var server in _servers)
+                {
+                    server.Group = this;
+
+                    Server[] serversWithRole;
+                    if (_serversByRole.TryGetValue(server.ReplicationRole, out serversWithRole))
+                    {
+                        var tempArray = new Server[serversWithRole.Length + 1];
+                        serversWithRole.CopyTo(tempArray, 1);
+                        tempArray[0] = server;
+                        _serversByRole[server.ReplicationRole] = tempArray;
+                    }
+                    else
+                    {
+                        _serversByRole[server.ReplicationRole] = new[] {server};
+                    }
+                }
 
                 _history = new HistoryBucketQueue<HistoryBucket, bool>(
                     TimeSpan.FromSeconds(failureWindowSeconds),
@@ -302,15 +332,42 @@ namespace Prius.Orm.Connections
                 return true;
             }
 
-            public Server ChooseServer()
+            public Server ChooseServer(string storedProcedureName)
             {
                 if (_servers.Length == 0) return null;
+                if (_servers.Length == 1) return _servers[0];
 
-                // it doesn't matter too much about thread safety here, so long as
-                // all of the servers see some action, not a problem if it's not
-                // exactly true round robin.
-                _nextServerIndex = (_nextServerIndex + 1) % _servers.Length;
-                return _servers[_nextServerIndex];
+
+                StoredProcedure storedProcedure;
+                if (string.IsNullOrEmpty(storedProcedureName))
+                {
+                    storedProcedure = null;
+                }
+                else
+                {
+                    lock (_storedProcedures)
+                        _storedProcedures.TryGetValue(storedProcedureName.ToLowerInvariant(), out storedProcedure);
+                }
+
+                var servers = _servers;
+
+                if (storedProcedure != null &&
+                    storedProcedure.AllowedRoles != null &&
+                    storedProcedure.AllowedRoles.Count > 0)
+                {
+
+                    foreach (var allowedRole in storedProcedure.AllowedRoles)
+                    {
+                        Server[] roleServers;
+                        if (_serversByRole.TryGetValue(allowedRole.ToLowerInvariant(), out roleServers))
+                        {
+                            servers = roleServers;
+                            break;
+                        }
+                    }
+                }
+
+                return servers[_random.Next(servers.Length)];
             }
 
             private float CalculateFailureRate()
@@ -355,12 +412,14 @@ namespace Prius.Orm.Connections
             public string InstanceName { get; private set; }
             public string SchemaName { get; private set; }
             public IDictionary<string, int> CommandTimeouts { get; private set; }
+            public string ReplicationRole { get; private set; }
 
-            public Server(string serverType, string connectionString, IDictionary<string, int> commandTimeouts)
+            public Server(string serverType, string connectionString, IDictionary<string, int> commandTimeouts, string replicationRole)
             {
                 ServerType = serverType;
                 ConnectionString = connectionString;
                 CommandTimeouts = commandTimeouts ?? new Dictionary<string, int>();
+                ReplicationRole = replicationRole.ToLowerInvariant();
 
                 var connectionParameters = connectionString.Split(';')
                     .Where(cs => !string.IsNullOrEmpty(cs) && cs.Contains('='))

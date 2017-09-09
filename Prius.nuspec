@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>Prius</id>
-    <version>2.0.1</version>
+    <version>2.0.3</version>
     <title>Prius ORM for people who like stored procedures</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Fast and robust layer for accessing databases. SQL Server, MySQL and PostgrSQL. For people that mostly use stored procedures.</description>
     <copyright>Copyright 2017</copyright>
-    <releaseNotes>Database engine providers are now in separate NuGet packages  - Prius.SqlServer, Prius.MySql and Prius.PostgreSql</releaseNotes>
+    <releaseNotes>Supports master/slave replication scenarios without any code changes</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <tags>ORM database mapping sqlserver mysql mariadb postgresql procedures</tags>

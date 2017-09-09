@@ -4,14 +4,13 @@ An Object Relational Mapper (ORM) for people who like stored procedures.
 ## What Does Prius Do?
 Prius is an extremely efficient way of executing queries or stored 
 procedures in your database, and mapping the results onto objects. Prius 
-provides a lot of convenience. The advanced code generation techniques 
-is uses also gives it much higher performance than coding ADO.Net 
-the long handed way.
+provides a lot of convenience and the advanced code generation techniques 
+is uses often produces higher performance results than hand coding ADO.Net.
 
 Apart from being convenient and fast, Prius also adds enterprise level features 
 like measuring database performance, and switching to alternate connections, 
 and throttling database access to allow the database to recover from 
-performance bottlenecks.
+performance bottlenecks, and master/slave replication scenarios.
 
 ## Prius 2
 
@@ -255,6 +254,7 @@ to runtime performance.
 | Can fill objects using results from multiple stored procedure calls | Yes   | No      | No         | No  |
 | Can easily handle stored procedures that return multiple data sets | Yes   | No      | No         | No  |
 | Separates code and configuration for things like stored procedure timeout | Yes   | No      | No         | No  |
+| Routes requests to master or read-only replica without code changes | Yes   | No      | No         | No  |
 
 EF refers to the Microsoft Entity Framework.
 
@@ -430,47 +430,53 @@ changing a rule on the Urchin configuration service.
 This is a sample Urchin configuration for Prius:
 ```
     {
-        prius:{
-            databases:[
+        "prius": {
+            "databases": [
                 {
-                    name:"db1", 
-                    type:"SqlServer", 
-                    connectionString:"",
-                    procedures: [
-                        {name:"Sproc1", timeout:3},
-                        {name:"Sproc2", timeout:7}
+                    "name": "db1", 
+                    "type": "SqlServer", 
+                    "connectionString": "",
+                    "procedures": [
+                        {"name": "Sproc1", "timeout": 3},
+                        {"name": "Sproc2", "timeout": 7}
                     ]
                 },
                 {
-                    name:"db2", 
-                    type:"MySQL", 
-                    connectionString:"",
-                    procedures: [
-                        {name:"Sproc1", timeout:6},
-                        {name:"Sproc2", timeout:15}
+                    "name": "db2", 
+                    "type": "MySQL", 
+					"role": "master",
+                    "connectionString": "",
+                    "procedures": [
+                        {"name": "Sproc1", "timeout": 6},
+                        {"name": "Sproc2", "timeout": 15}
                     ]
                 },
                 {
-                    name:"db3", 
-                    type:"MySQL", 
-                    connectionString:"",
-                    procedures: [
-                        {name:"Sproc1", timeout:6},
-                        {name:"Sproc2", timeout:15}
+                    "name": "db3", 
+                    "type": "MySQL", 
+					"role": "slave",
+                    "connectionString:"",
+                    "procedures": [
+                        {"name": "Sproc1", "timeout": 6},
+                        {"name": "Sproc2", "timeout": 15}
                     ]
                 }
             ],
-            fallbackPolicies:[
-                {name:"primary", allowedFailurePercent:20, backOffTime:"00:01:00"},
-                {name:"backup", allowedFailurePercent:100}
+            "fallbackPolicies": [
+                {"name": "primary", "allowedFailurePercent": 20, "backOffTime": "00:01:00"},
+                {"name": "backup", "allowedFailurePercent": 100}
             ],
-            repositories:[
+            "repositories": [
                 {
-                     name:"users",
-                     clusters:[
-                         {sequence:1, databases:["db1"], fallbackPolicy:"primary"},
-                         {sequence:2, databases:["db2","db3"], fallbackPolicy:"backup"}
-                     ]
+                     "name": "users",
+                     "clusters": [
+                         {"sequence": 1, "databases": ["db1"], "fallbackPolicy": "primary"},
+                         {"sequence": 2, "databases": ["db2", "db3"], "fallbackPolicy": "backup"}
+                     ],
+					 "procedures": [
+                        {"name": "Sproc1", "roles": ["master"]},
+                        {"name": "Sproc2", "roles": ["master", "slave"]}
+					 ]
                 }
             ]
         }
@@ -487,7 +493,9 @@ for 1 minute if more than 20% of database requests error or timeout.
 3. Defines a 'backup' fallback policy that will not fail over even when the error rate is 100%.
 
 4. Defines a 'users' repository that uses Microsoft SQL server initially, but fails 
-over to a pair of MySQL databases if SQL Server is slow or unavailable.
+over to a pair of MySQL databases if SQL Server is slow or unavailable. The MySQL databases
+have master/slave replication set up where stored procedures that modify the data must be
+executed against the master database.
 
 > Note that because the code you write in your application is identical for all 
 > databases, it is possible for Prius to fall back from SQL Server to MySQL.
@@ -504,6 +512,10 @@ over to a pair of MySQL databases if SQL Server is slow or unavailable.
 > stored procedure, but this is generally less maintainable than the 
 > configuration based approach. Remember that Prius uses the Urchin rules 
 > based configuration management system that can define environment specific rules.
+
+> Note that stored procedures can be configured to run on servers with specific roles.
+> Stored procedures that are not configured in this way will be executed against any
+> available server.
 
 ## Prius recipies
 
