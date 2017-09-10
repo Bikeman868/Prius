@@ -1,41 +1,73 @@
 {
-    "prius": 
-    {
-        "databases": 
-        [
+    "prius": {
+        "databases": [
             {
-                "name": "SqlServer",
+                "name": "SqlServerMaster",
                 "type": "SqlServer",
+                "role": "master",
                 "connectionString": "Data Source=.\\SQLEXPRESS;Initial Catalog=PriusPerformanceTests;Integrated Security=SSPI;"
             },
             {
-                "name": "MySQL",
+                "name": "SqlServerSlave",
+                "type": "SqlServer",
+                "role": "slave",
+                "connectionString": "Data Source=.\\SQLEXPRESS;Initial Catalog=PriusPerformanceTests;Integrated Security=SSPI;"
+            },
+            {
+                "name": "MySQLMaster",
                 "type": "MySQL",
+                "role": "master",
                 "connectionString": "Server=localhost;Database=Users;Uid=user;Pwd=password;"
             },
             {
-                "name": "SqLite",
+                "name": "MySQLSlave",
+                "type": "MySQL",
+                "role": "slave",
+                "connectionString": "Server=localhost;Database=Users;Uid=user;Pwd=password;"
+            },
+            {
+                "name": "SqLiteMaster",
                 "type": "SqLite",
+                "role": "master",
+                "connectionString": "Data Source=Users.sqlite;Version=3;New=True;"
+            },
+            {
+                "name": "SqLiteSlave",
+                "type": "SqLite",
+                "role": "slave",
                 "connectionString": "Data Source=Users.sqlite;Version=3;New=True;"
             }
         ],
-        "fallbackPolicies": 
-        [
+        "fallbackPolicies": [
             { "name": "noFallback", "allowedFailurePercent": 100 }
         ],
-        "repositories": 
-        [
+        "repositories": [
             {
                 "name": "SqlServer",
-                "clusters": [{ "sequence": 1, "databases": [ "SqlServer" ], "fallbackPolicy": "noFallback" }]
+                "clusters": [ { "sequence": 1, "databases": [ "SqlServerMaster", "SqlServerSlave" ], "fallbackPolicy": "noFallback" } ],
+                "procedures": [
+                    { "name": "sp_InsertUser", "roles": [ "master" ] },
+                    { "name": "sp_DeleteUser", "roles": [ "master" ] },
+                    { "name": "sp_GetUsers", "roles": [ "slave" ] }
+                ]
             },
             {
                 "name": "MySQL",
-                "clusters": [{ "sequence": 1, "databases": [ "MySQL" ], "fallbackPolicy": "noFallback" }]
+                "clusters": [ { "sequence": 1, "databases": [ "MySQLMaster", "MySQLSlave" ], "fallbackPolicy": "noFallback" } ],
+                "procedures": [
+                    { "name": "sp_InsertUser", "roles": [ "master" ] },
+                    { "name": "sp_DeleteUser", "roles": [ "master" ] },
+                    { "name": "sp_GetUsers", "roles": [ "slave" ] }
+                ]
             },
             {
                 "name": "SqLite",
-                "clusters": [{ "sequence": 1, "databases": [ "SqLite" ], "fallbackPolicy": "noFallback" }]
+                "clusters": [ { "sequence": 1, "databases": [ "SqLiteMaster", "SqLiteSlave" ], "fallbackPolicy": "noFallback" } ],
+                "procedures": [
+                    { "name": "sp_InsertUser", "roles": [ "master" ] },
+                    { "name": "sp_DeleteUser", "roles": [ "master" ] },
+                    { "name": "sp_GetUsers", "roles": [ "slave" ] }
+                ]
             }
         ]
     }

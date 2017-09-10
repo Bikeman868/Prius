@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Enumerations;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Factory;
@@ -73,7 +74,7 @@ namespace Prius.Orm.Commands
         public void SetParameterValue<T>(string name, T value)
         {
             var parameter = _parameters.FirstOrDefault(p => p.Name.ToLower() == name.ToLower());
-            if (parameter == null) throw new ApplicationException("Parameter not found " + name);
+            if (parameter == null) throw new PriusException("Parameter not found " + name);
             parameter.Value = value;
         }
 

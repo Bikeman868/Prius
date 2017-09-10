@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading;
 using Npgsql;
 using NpgsqlTypes;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
@@ -18,6 +19,7 @@ namespace Prius.PostgreSql
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
 
         public object RepositoryContext { get; set; }
+        public ITraceWriter TraceWriter { get; set; }
 
         private IRepository _repository;
         private NpgsqlConnection _connection;
@@ -361,7 +363,7 @@ namespace Prius.PostgreSql
                     // we should get an error in response to our cancel request:
                     if (!("" + e2).Contains("Undo copy"))
                     {
-                        throw new Exception("Failed to cancel copy: " + copy + " upon failure: " + e);
+                        throw new PriusException("Failed to cancel copy: " + copy + " upon failure: " + e);
                     }
                 }
 

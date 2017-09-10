@@ -1,5 +1,6 @@
 ﻿using System;
 using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.External;
 
 namespace Prius.Contracts.Interfaces.Connections
 {
@@ -9,5 +10,6 @@ namespace Prius.Contracts.Interfaces.Connections
         IConnection GetConnection(ICommand command);
         void RecordSuccess(IConnection connection, double elapsedSeconds);
         void RecordFailure(IConnection connection);
+        void EnableTracing(ITraceWriterFactory traceWriterFactory);
     }
 }

@@ -6,11 +6,13 @@ using Prius.Contracts.Enumerations;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.Contracts.Interfaces.Utility;
 using Prius.Orm.Config;
 using Prius.Orm.Utility;
 using Urchin.Client.Interfaces;
+using Prius.Contracts.Exceptions;
 
 namespace Prius.Orm.Connections
 {
@@ -23,6 +25,7 @@ namespace Prius.Orm.Connections
 
         private IDisposable _configChangeNotifier;
         private Group[] _groups;
+        private ITraceWriterFactory _traceWriterFactory;
 
         public Repository(
             IConnectionFactory connectionFactory,
@@ -99,6 +102,7 @@ namespace Prius.Orm.Connections
                         .Where(database => database != null && database.Enabled)
                         .OrderBy(database => database.SequenceNumber)
                         .Select(database => new Server(
+                            database.Name,
                             database.ServerType, 
                             database.ConnectionString, 
                             database.StoredProcedures == null ? null : database.StoredProcedures.ToDictionary(p => p.Name.ToLower(), p => p.TimeoutSeconds),
@@ -106,6 +110,7 @@ namespace Prius.Orm.Connections
 
                     return new Group().Initialize
                         (
+                            cluster.Name,
                             this,
                             fallbackPolicy.FailureWindowSeconds,
                             fallbackPolicy.AllowedFailurePercent / 100f,
@@ -124,24 +129,47 @@ namespace Prius.Orm.Connections
                 ? GetOnlineServer(command.CommandText)
                 : GetOnlineServer(string.Empty);
 
+            var traceWriterFactory = _traceWriterFactory;
+            var traceWriter = traceWriterFactory == null ? null : traceWriterFactory.Create(Name);
+
+            if (traceWriter != null)
+                traceWriter.SetProcedure(command.CommandText);
+
             if (server == null)
+            {
+                if (traceWriter != null) 
+                    traceWriter.WriteLine("There are no available servers to execute this command");
                 return null;
+            }
+
+            if (traceWriter != null)
+            {
+                traceWriter.SetCluster(server.Group.Name);
+                traceWriter.SetDatabase(server.Name);
+            }
 
             if (!command.TimeoutSeconds.HasValue)
-                SetTimeout(command, server);
+            {
+                SetTimeout(command, server, traceWriter);
+            }
 
             IConnection result;
             try
             {
                 result = _connectionFactory.Create(server.ServerType, this, command, server.ConnectionString, server.SchemaName);
+                result.TraceWriter = traceWriter;
             }
-            catch
+            catch (Exception ex)
             {
+                if (traceWriter != null)
+                    traceWriter.WriteLine("Failed to connect to " + server.Name + ". " + ex.Message);
+
                 server.Group.RecordFailure(server);
-                throw;
+
+                throw new PriusException("Failed to create connection to " + server.Name, ex);
             }
 
-            if (result != null) result.RepositoryContext = server;
+            result.RepositoryContext = server;
             return result;
         }
 
@@ -149,9 +177,21 @@ namespace Prius.Orm.Connections
         {
             if (connection != null)
             {
+                var traceWriter = connection.TraceWriter;
+
                 var server = connection.RepositoryContext as Server;
-                if (server != null)
+                if (server == null)
+                {
+                    if (traceWriter != null)
+                        traceWriter.WriteLine("Success after " + (elapsedSeconds < 10e-3 ? (elapsedSeconds * 1e3).ToString("f2") + "ms" : elapsedSeconds.ToString("f2") + "s"));
+                }
+                else
+                {
+                    if (traceWriter != null)
+                        traceWriter.WriteLine("Success after " + (elapsedSeconds < 10e-3 ? (elapsedSeconds * 1e3).ToString("f2") + "ms" : elapsedSeconds.ToString("f2") + "s") + " against server " + server.Name);
+
                     server.Group.RecordSuccess(server, elapsedSeconds);
+                }
             }
         }
 
@@ -159,9 +199,21 @@ namespace Prius.Orm.Connections
         {
             if (connection != null)
             {
+                var traceWriter = connection.TraceWriter;
+
                 var server = connection.RepositoryContext as Server;
-                if (server != null)
+                if (server == null)
+                {
+                    if (traceWriter != null)
+                        traceWriter.WriteLine("Execution failure for unknown server");
+                }
+                else
+                {
+                    if (traceWriter != null)
+                        traceWriter.WriteLine("Recording execution failure in stats for " + server.Name);
+
                     server.Group.RecordFailure(server);
+                }
             }
         }
 
@@ -172,12 +224,18 @@ namespace Prius.Orm.Connections
             sb.AppendFormat("Name='{0}'; ", Name);
             for (var groupIndex = 0; groupIndex < groups.Length; groupIndex++)
             {
-                sb.AppendFormat("Group[{0}]={1}; ", groupIndex, groups[groupIndex].IsOnline() ? "online" : "failed");
+                var group = groups[groupIndex];
+                sb.AppendFormat("Group[{0}]={1}; ", group.Name, group.IsOnline() ? "online" : "failed");
             }
             return sb.ToString();
         }
 
-        private void SetTimeout(ICommand command, Server server)
+        public void EnableTracing(ITraceWriterFactory traceWriterFactory)
+        {
+            _traceWriterFactory = traceWriterFactory;
+        }
+
+        private void SetTimeout(ICommand command, Server server, ITraceWriter traceWriter)
         {
             const int defaultTimeout = 5;
 
@@ -186,6 +244,9 @@ namespace Prius.Orm.Connections
 
             if (ReferenceEquals(server, null) || string.IsNullOrEmpty(command.CommandText))
             {
+                if (traceWriter != null)
+                    traceWriter.WriteLine("Setting default timeout of " + defaultTimeout + "s");
+
                 command.TimeoutSeconds = defaultTimeout;
                 return;
             }
@@ -193,17 +254,25 @@ namespace Prius.Orm.Connections
             var key = command.CommandText.ToLower();
             lock (server.CommandTimeouts)
             {
-                int timeout;
-                command.TimeoutSeconds = server.CommandTimeouts.TryGetValue(key, out timeout) ? timeout : defaultTimeout;
+                int timeout = server.CommandTimeouts.TryGetValue(key, out timeout) ? timeout : defaultTimeout;
+
+                if (traceWriter != null)
+                    traceWriter.WriteLine("Setting timeout of " + timeout + "s");
+
+                command.TimeoutSeconds = timeout;
             }
         }
 
-        private void RecordFailover(Group group)
+        private void RecordFailover(Group group, ITraceWriter traceWriter)
         {
+            if (traceWriter != null)
+                traceWriter.WriteLine("Failing over to backup for " + group.Name + " cluster");
         }
 
-        private void RecordWarning(Group group, string warning)
+        private void RecordWarning(Group group, string warning, ITraceWriter traceWriter)
         {
+            if (traceWriter != null)
+                traceWriter.WriteLine("Warning for " + group.Name + " cluster. " + warning);
         }
 
         private Server GetOnlineServer(string storedProcedureName)
@@ -226,6 +295,8 @@ namespace Prius.Orm.Connections
 
         private class Group
         {
+            public string Name { get; private set; }
+
             private Repository _repository;
             private IHistoryBucketQueue<HistoryBucket, bool> _history;
             private DateTime? _retryAt;
@@ -237,9 +308,10 @@ namespace Prius.Orm.Connections
             private Server[] _servers;
             private Dictionary<string, StoredProcedure> _storedProcedures;
             private Dictionary<string, Server[]> _serversByRole;
-            private Random _random = new Random();
+            private readonly Random _random = new Random();
 
             public Group Initialize(
+                string name,
                 Repository repository, 
                 float failureWindowSeconds, 
                 float allowedFailureRate, 
@@ -248,6 +320,7 @@ namespace Prius.Orm.Connections
                 IEnumerable<Server> servers,
                 Dictionary<string, StoredProcedure> storedProcedures)
             {
+                Name = name;
                 _repository = repository;
                 _failureWindowSeconds = failureWindowSeconds;
                 _allowedFailureRate = allowedFailureRate;
@@ -318,13 +391,18 @@ namespace Prius.Orm.Connections
                     var failureRate = CalculateFailureRate();
                     if (failureRate > _allowedFailureRate)
                     {
-                        _repository.RecordFailover(this);
+                        _repository.RecordFailover(this, null);
                         _retryAt = now + _backOffTime;
                         return false;
                     }
                     if (failureRate > _warningFailureRate)
                     {
-                        _repository.RecordWarning(this, "Failure rate exceeds warning limit of " + _warningFailureRate + " winthin " + _failureWindowSeconds + " seconds");
+                        _repository.RecordWarning(
+                            this, 
+                            "Failure rate exceeds warning limit of " 
+                                + _warningFailureRate + " winthin " 
+                                + _failureWindowSeconds + " seconds",
+                            null);
                     }
                     _evaluateAt = now.AddSeconds(_failureWindowSeconds / 5);
                 }
@@ -406,6 +484,7 @@ namespace Prius.Orm.Connections
         private class Server
         {
             public Group Group { get; set; }
+            public string Name { get; private set; }
             public string ServerType { get; private set; }
             public string ConnectionString { get; private set; }
             public string HostName { get; private set; }
@@ -414,8 +493,14 @@ namespace Prius.Orm.Connections
             public IDictionary<string, int> CommandTimeouts { get; private set; }
             public string ReplicationRole { get; private set; }
 
-            public Server(string serverType, string connectionString, IDictionary<string, int> commandTimeouts, string replicationRole)
+            public Server(
+                string name, 
+                string serverType, 
+                string connectionString, 
+                IDictionary<string, int> commandTimeouts, 
+                string replicationRole)
             {
+                Name = name;
                 ServerType = serverType;
                 ConnectionString = connectionString;
                 CommandTimeouts = commandTimeouts ?? new Dictionary<string, int>();

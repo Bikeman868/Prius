@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Prius.Contracts.Exceptions;
 
 namespace Prius.Orm.Utility
 {
@@ -27,7 +28,7 @@ namespace Prius.Orm.Utility
             var msg = GetType().FullName + " objects are disposable, you should not allow the garbage collector to dispose of them, ";
             msg += "you should explicitly dispose of them in your application. The stack trace of where this object was created is:\r\n";
             msg += _constructorStackTrace;
-            throw new Exception(msg);
+            throw new PriusException(msg);
         }
 
         public void Dispose()

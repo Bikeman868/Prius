@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Prius.Contracts.Attributes;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.External;
@@ -71,7 +72,7 @@ namespace Prius.Orm.Enumeration
                     .Where(a => a != null))
                 {
                     if (mappingAttribute.DefaultValue != null && !property.PropertyType.IsInstanceOfType(mappingAttribute.DefaultValue))
-                        throw new Exception("The default value in the mapping attribute must match the type of property the mapping references. Field: " + mappingAttribute.FieldName + ", Type: " + typeof(T).FullName);
+                        throw new PriusException("The default value in the mapping attribute must match the type of property the mapping references. Field: " + mappingAttribute.FieldName + ", Type: " + typeof(T).FullName);
 
                     typedTypeDefinition.AddField(mappingAttribute.FieldName, property, mappingAttribute.DefaultValue);
                     hasMappings = true;
@@ -200,7 +201,7 @@ namespace Prius.Orm.Enumeration
                     else if (type == typeof(Decimal?)) AddField<Decimal?>(fieldName, property, defaultValue);
                     else if (type == typeof(Guid?)) AddField<Guid?>(fieldName, property, defaultValue);
 
-                    else throw new Exception("Mapping with type of: " + type.FullName + " are not currently supported. Please add to Mapper.cs");
+                         else throw new PriusException("Mapping with type of: " + type.FullName + " are not currently supported. Please add to Mapper.cs");
                 }
                 else if (type.IsNullable())
                 {
@@ -208,7 +209,7 @@ namespace Prius.Orm.Enumeration
                 }
                 else if (type.IsEnum)
                 {
-                    throw new ApplicationException("You can not add Mapping attributes to properties that are Enums. Please implement IDataContract<T> in your data contract for these properties. " + type.FullName + " " + property.Name);
+                    throw new PriusException("You can not add Mapping attributes to properties that are Enums. Please implement IDataContract<T> in your data contract for these properties. " + type.FullName + " " + property.Name);
                     //AddField<Int32>(fieldName, (TDataContract dc, Int32 v) => property.SetValue(dc, Enum.ToObject(type, v), null), 0);
                 }
                 else if (type == typeof(byte[]))
@@ -385,7 +386,7 @@ namespace Prius.Orm.Enumeration
                                 fieldIndex, 
                                 field.PropertyType.Name, 
                                 field.DefaultValue);
-                            throw new Exception(msg, ex);
+                            throw new PriusException(msg, ex);
                         }
                         try
                         {

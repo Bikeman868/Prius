@@ -4,10 +4,12 @@ using System.Linq;
 using System.Reflection;
 using Ioc.Modules;
 using Microsoft.Practices.Unity;
+using Prius.Contracts.Interfaces.Factory;
 using Prius.SQLite.Interfaces;
 using Urchin.Client.Sources;
 using Prius.Contracts.Interfaces.External;
 using UsersTestApp.DataAccess;
+using UsersTestApp.Integration;
 
 namespace UsersTestApp
 {
@@ -156,6 +158,9 @@ namespace UsersTestApp
         {
             _errorReporter = container.Resolve<IErrorReporter>();
             _dataAccessLayer = container.Resolve<IDataAccessLayer>();
+
+            var repositoryFactory = container.Resolve<IRepositoryFactory>();
+            repositoryFactory.EnableTracing(new TraceWriterFactory());
         }
 
         private static void ConfigureUrchin(UnityContainer container)

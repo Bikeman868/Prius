@@ -3,6 +3,7 @@ using System.Data.SQLite;
 using System.Text;
 using System.Threading;
 using Prius.Contracts.Attributes;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
@@ -27,6 +28,7 @@ namespace Prius.SQLite.CommandProcessing
         private readonly ISchemaUpdater _schemaUpdater;
 
         public object RepositoryContext { get; set; }
+        public ITraceWriter TraceWriter { get; set; }
 
         private IRepository _repository;
         private ICommand _command;
@@ -181,7 +183,7 @@ namespace Prius.SQLite.CommandProcessing
                     );
 
                 if (reader == null)
-                    throw new Exception("SQLite command did not return a reader");
+                    throw new PriusException("SQLite command did not return a reader");
 
                 foreach (var parameter in _command.GetParameters())
                     parameter.StoreOutputValue(parameter);

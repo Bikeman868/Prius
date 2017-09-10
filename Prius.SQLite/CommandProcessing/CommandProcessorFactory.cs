@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SQLite;
 using Prius.Contracts.Enumerations;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.SQLite.Interfaces;
@@ -55,7 +56,7 @@ namespace Prius.SQLite.CommandProcessing
             }
 
             if (commandProcessor == null)
-                throw new Exception("The SQLite Prius driver does not support commands of type " + command.CommandType);
+                throw new PriusException("The SQLite Prius driver does not support commands of type " + command.CommandType);
 
             commandProcessor.Initialize(repository, command, connection, transaction);
             return commandProcessor;

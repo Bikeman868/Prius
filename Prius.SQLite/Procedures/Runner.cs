@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.SQLite.Interfaces;
@@ -51,7 +52,7 @@ namespace Prius.SQLite.Procedures
                 throw new NotImplementedException("Procedures that access the SQLite engine natively are not supported in this version");
             }
 
-            throw new Exception("Unknown procedure type '" + procedure.GetType().FullName + "'");
+            throw new PriusException("Unknown procedure type '" + procedure.GetType().FullName + "'");
         }
 
         public T ExecuteScalar<T>(
@@ -78,7 +79,7 @@ namespace Prius.SQLite.Procedures
                 throw new NotImplementedException("Procedures that access the SQLite engine natively are not supported in this version");
             }
 
-            throw new Exception("Unknown procedure type '" + procedure.GetType().FullName + "'");
+            throw new PriusException("Unknown procedure type '" + procedure.GetType().FullName + "'");
         }
 
         public long ExecuteNonQuery(
@@ -105,7 +106,7 @@ namespace Prius.SQLite.Procedures
                 throw new NotImplementedException("Procedures that access the SQLite engine natively are not supported in this version");
             }
 
-            throw new Exception("Unknown procedure type '" + procedure.GetType().FullName + "'");
+            throw new PriusException("Unknown procedure type '" + procedure.GetType().FullName + "'");
         }
 
         private IDataReader ExecuteReader(

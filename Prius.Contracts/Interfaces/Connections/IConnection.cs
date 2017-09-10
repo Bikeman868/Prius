@@ -1,11 +1,13 @@
 ﻿using System;
 using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.External;
 
 namespace Prius.Contracts.Interfaces.Connections
 {
     public interface IConnection : IDisposable
     {
         object RepositoryContext { get; set; }
+        ITraceWriter TraceWriter { get; set; }
 
         void BeginTransaction();
         void Commit();

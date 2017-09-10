@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
@@ -83,7 +84,7 @@ namespace Prius.Orm.Connections
         {
             if (command != null) PrepareCommand(command);
             if (!_isPrepared)
-                throw new ApplicationException(
+                throw new PriusException(
                     "You must call the PrepareCommand() method before calling BeginExecuteReader() " +
                     "or pass the command to the BeginExecuteReader() method");
             try
@@ -119,14 +120,14 @@ namespace Prius.Orm.Connections
         public IDataReader ExecuteReader(ICommand command)
         {
             if (command != null) PrepareCommand(command);
-            if (!_isPrepared) 
-                throw new ApplicationException(
+            if (!_isPrepared)
+                throw new PriusException(
                     "You must call the PrepareCommand() method before calling ExecuteReader() " +
                     "or pass the command to the ExecuteReader() method");
             try
             {
                 if (_connection == null)
-                    throw new Exception("Empty connection.");
+                    throw new PriusException("Empty connection.");
                 return _connection.ExecuteReader();
             }
             catch (Exception ex)
@@ -168,8 +169,8 @@ namespace Prius.Orm.Connections
         public IAsyncResult BeginExecuteNonQuery(ICommand command, AsyncCallback callback)
         {
             if (command != null) PrepareCommand(command);
-            if (!_isPrepared) 
-                throw new ApplicationException(
+            if (!_isPrepared)
+                throw new PriusException(
                     "You must call the PrepareCommand() method before calling BeginExecuteNonQuery() "+
                     "or pass the command to the BeginExecuteNonQuery() method");
             try
@@ -207,7 +208,7 @@ namespace Prius.Orm.Connections
         {
             if (command != null) PrepareCommand(command);
             if (!_isPrepared)
-                throw new ApplicationException(
+                throw new PriusException(
                     "You must call the PrepareCommand() method before calling ExecuteNonQuery() " +
                     "or pass the command to the ExecuteNonQuery() method");
             if (_connection == null)
@@ -269,7 +270,7 @@ namespace Prius.Orm.Connections
         {
             if (command != null) PrepareCommand(command);
             if (!_isPrepared)
-                throw new ApplicationException(
+                throw new PriusException(
                     "You must call the PrepareCommand() method before calling ExecuteScalar() " +
                     "or pass the command to the ExecuteScalar() method");
             if (_connection == null)

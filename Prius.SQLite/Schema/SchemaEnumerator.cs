@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Prius.Contracts.Exceptions;
 using Prius.SQLite.Interfaces;
 
 namespace Prius.SQLite.Schema
@@ -77,7 +78,7 @@ namespace Prius.SQLite.Schema
                             foreach (SchemaIndexAttribute index in propertyInfo.GetCustomAttributes(typeof(SchemaIndexAttribute), true))
                             {
                                 if (columnName == null)
-                                    throw new Exception(
+                                    throw new PriusException(
                                         "You can not add an index to a property that is not mapped to a column in the database. "+
                                         "Please check the '" + propertyInfo.Name + "' property of the '" + type.FullName + "' class.");
 
@@ -150,7 +151,7 @@ namespace Prius.SQLite.Schema
             var binFolderPath = Path.GetDirectoryName(assemblyPath);
 
             if (ReferenceEquals(binFolderPath, null))
-                throw new Exception(TracePrefix + "Unable to discover the path to the bin folder");
+                throw new PriusException(TracePrefix + "Unable to discover the path to the bin folder");
 
             var assemblyFileNames = Directory.GetFiles(binFolderPath, "*.dll");
 

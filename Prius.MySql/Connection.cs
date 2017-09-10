@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using MySql.Data.MySqlClient;
 using Prius.Contracts.Attributes;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
@@ -12,13 +14,14 @@ using Prius.Contracts.Utility;
 
 namespace Prius.MySql
 {
-    [Provider("MySql", "MySQL and MariaDB connection provider")]
+    [Provider("MySql", "MySQL, Aurora and MariaDB connection provider")]
     public class Connection : Disposable, IConnection, IConnectionProvider
     {
         private readonly IErrorReporter _errorReporter;
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
 
         public object RepositoryContext { get; set; }
+        public ITraceWriter TraceWriter { get; set; }
 
         private IRepository _repository;
         private ICommand _command;
@@ -73,6 +76,7 @@ namespace Prius.MySql
                     throw;
                 }
             }
+            Trace("Starting a new MySQL transaction");
             _transaction = _connection.BeginTransaction();
         }
 
@@ -80,6 +84,7 @@ namespace Prius.MySql
         {
             if (_transaction != null)
             {
+                Trace("Committing MySQL transaction");
                 _transaction.Commit();
                 _transaction = null;
             }
@@ -89,6 +94,7 @@ namespace Prius.MySql
         {
             if (_transaction != null)
             {
+                Trace("Rolling back MySQL transaction");
                 _transaction.Rollback();
                 _transaction = null;
             }
@@ -103,11 +109,15 @@ namespace Prius.MySql
             if (command == null) return;
             _command = command;
 
+            Trace("Creating MySQL command " + command.CommandText);
+
             _mySqlCommand = new MySqlCommand(command.CommandText, _connection, _transaction);
             _mySqlCommand.CommandType = (System.Data.CommandType)command.CommandType;
 
             if (command.TimeoutSeconds.HasValue)
                 _mySqlCommand.CommandTimeout = command.TimeoutSeconds.Value;
+
+            Trace("Binding parameters to MySQL command");
 
             foreach (var parameter in command.GetParameters())
             {
@@ -139,17 +149,20 @@ namespace Prius.MySql
 
         public IAsyncResult BeginExecuteEnumerable(AsyncCallback callback)
         {
+            Trace("MySQL begin execute enumerable");
             return BeginExecuteReader(callback);
         }
 
         public IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult) where T : class
         {
+            Trace("MySQL end execute enumerable");
             var reader = EndExecuteReader(asyncResult);
             return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
         }
 
         public IDataEnumerator<T> ExecuteEnumerable<T>() where T : class
         {
+            Trace("MySQL execute enumerable");
             var reader = ExecuteReader();
             return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
         }
@@ -160,6 +173,8 @@ namespace Prius.MySql
 
         public IAsyncResult BeginExecuteReader(AsyncCallback callback)
         {
+            Trace("Begin MySQL execute reader");
+
             var asyncContext = new AsyncContext
             {
                 InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
@@ -171,7 +186,7 @@ namespace Prius.MySql
                 if (asyncContext.InitiallyClosed) _connection.Open();
                 var reader = _mySqlCommand.ExecuteReader();
                 if (reader == null)
-                    throw new Exception("MySQL command did not return a reader");
+                    throw new PriusException("MySQL command did not return a reader");
 
                 foreach (var parameter in _command.GetParameters())
                     parameter.StoreOutputValue(parameter);
@@ -205,6 +220,8 @@ namespace Prius.MySql
 
         public IDataReader EndExecuteReader(IAsyncResult asyncResult)
         {
+            Trace("End MySQL execute reader");
+
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             return (IDataReader)asyncContext.Result;
         }
@@ -220,6 +237,7 @@ namespace Prius.MySql
 
         public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
         {
+            Trace("Begin MySQL execute non query");
             var asyncContext = new AsyncContext
             {
                 InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
@@ -242,6 +260,8 @@ namespace Prius.MySql
 
         public long EndExecuteNonQuery(IAsyncResult asyncResult)
         {
+            Trace("End MySQL execute non query");
+            
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             try
             {
@@ -279,6 +299,8 @@ namespace Prius.MySql
 
         public IAsyncResult BeginExecuteScalar(AsyncCallback callback)
         {
+            Trace("Begin MySQL execute scalar");
+
             var asyncContext = new AsyncContext
             {
                 InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
@@ -307,6 +329,8 @@ namespace Prius.MySql
 
         public T EndExecuteScalar<T>(IAsyncResult asyncResult)
         {
+            Trace("End MySQL execute scalar");
+
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             try
             {
@@ -329,7 +353,7 @@ namespace Prius.MySql
 
         #endregion
 
-        #region ToString
+        #region Diagnostics
 
         public override string ToString()
         {
@@ -340,6 +364,15 @@ namespace Prius.MySql
             sb.AppendFormat("CommandType='{0}'; ", _mySqlCommand.CommandType);
             sb.AppendFormat("CommandText='{0}'; ", _mySqlCommand.CommandText);
             return sb.ToString();
+        }
+
+        private void Trace(string message)
+        {
+            if (string.IsNullOrEmpty(message)) return;
+
+            var traceWriter = TraceWriter;
+            if (traceWriter != null)
+                traceWriter.WriteLine(message);
         }
 
         #endregion
@@ -444,5 +477,6 @@ namespace Prius.MySql
         }
 
         #endregion
+
     }
 }

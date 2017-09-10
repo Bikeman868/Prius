@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Moq.Modules;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Attributes;
 using System.Reflection;
@@ -58,8 +59,8 @@ namespace Prius.Mocks
                         .Select(a => a as MappingAttribute)
                         .Where(a => a != null))
                     {
-                        if (mappingAttribute.DefaultValue != null && !property.PropertyType.IsAssignableFrom(mappingAttribute.DefaultValue.GetType()))
-                            throw new Exception("The default value in the mapping attribute must match the type of property the mapping references. Field: " + mappingAttribute.FieldName + ", Type: " + typeof(T).FullName);
+                        if (mappingAttribute.DefaultValue != null && !property.PropertyType.IsInstanceOfType(mappingAttribute.DefaultValue))
+                            throw new PriusException("The default value in the mapping attribute must match the type of property the mapping references. Field: " + mappingAttribute.FieldName + ", Type: " + typeof(T).FullName);
 
                         typedTypeDefinition.AddField(mappingAttribute.FieldName, property, mappingAttribute.DefaultValue);
                     }
@@ -158,7 +159,7 @@ namespace Prius.Mocks
                         else if (type == typeof(Decimal?)) AddField<Decimal?>(fieldName, property, defaultValue);
                         else if (type == typeof(Guid?)) AddField<Guid?>(fieldName, property, defaultValue);
 
-                        else throw new Exception("Mapping with type of: " + type.FullName + " are not currently supported. Please add to Mapper.cs");
+                        else throw new PriusException("Mapping with type of: " + type.FullName + " are not currently supported. Please add to Mapper.cs");
                     }
                     else if (type.IsGenericType && type.BaseType == typeof(ValueType))
                     {
@@ -166,7 +167,7 @@ namespace Prius.Mocks
                     }
                     else if (type.IsEnum)
                     {
-                        throw new ApplicationException("You can not add Mapping attributes to properties that are Enums. Please implement IDataContract<T> in your data contract for these properties. " + type.FullName + " " + property.Name);
+                        throw new PriusException("You can not add Mapping attributes to properties that are Enums. Please implement IDataContract<T> in your data contract for these properties. " + type.FullName + " " + property.Name);
                         //AddField<Int32>(fieldName, (TDataContract dc, Int32 v) => property.SetValue(dc, Enum.ToObject(type, v), null), 0);
                     }
                     else AddField<Object>(fieldName, property, defaultValue);
@@ -234,7 +235,7 @@ namespace Prius.Mocks
                         }
                         else
                         {
-                            throw new Exception("Error filling " + typeof(TDataContract).FullName + " there is no mapping for field " + fieldName);
+                            throw new PriusException("Error filling " + typeof(TDataContract).FullName + " there is no mapping for field " + fieldName);
                         }
                     }
                     var dataContractInterface = dataContract as IDataContract<TDataContract>;

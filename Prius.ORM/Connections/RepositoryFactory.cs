@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.Orm.Config;
 using Prius.Orm.Utility;
@@ -15,8 +17,9 @@ namespace Prius.Orm.Connections
         private readonly IConnectionFactory _connectionFactory;
         private readonly IConfigurationStore _configurationStore;
 
-        private IDisposable _configChangeNotifier;
+        private readonly IDisposable _configChangeNotifier;
         private Dictionary<string, IRepository> _repositories;
+        private ITraceWriterFactory _traceWriterFactory;
 
         public RepositoryFactory(
             IConnectionFactory connectionFactory,
@@ -64,7 +67,7 @@ namespace Prius.Orm.Connections
         public IRepository Create(string repositoryName)
         {
             if (string.IsNullOrEmpty(repositoryName))
-                throw new Exception("No Prius repository name was specified, please check your configuration");
+                throw new PriusException("No Prius repository name was specified, please check your configuration");
 
             var repositories = _repositories;
 
@@ -72,9 +75,17 @@ namespace Prius.Orm.Connections
             {
                 IRepository repository;
                 if (repositories.TryGetValue(repositoryName.ToLower(), out repository))
+                {
+                    repository.EnableTracing(_traceWriterFactory);
                     return repository;
-                throw new Exception("No configuration for repository '" + repositoryName + "' in /prius");
+                }
+                throw new PriusException("No configuration for repository '" + repositoryName + "' in /prius/repositories");
             }
+        }
+
+        public void EnableTracing(ITraceWriterFactory traceWriterFactory)
+        {
+            _traceWriterFactory = traceWriterFactory;
         }
     }
 }

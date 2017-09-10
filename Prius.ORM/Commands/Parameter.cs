@@ -1,5 +1,6 @@
 ﻿using System;
 using Prius.Contracts.Attributes;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Orm.Utility;
@@ -25,7 +26,7 @@ namespace Prius.Orm.Commands
             Object value,
             Action<IParameter> storeOutputValue = null)
         {
-            if (string.IsNullOrEmpty(name)) throw new ApplicationException("Parameter name can not be blank");
+            if (string.IsNullOrEmpty(name)) throw new PriusException("Parameter name can not be blank");
             Name = name[0] == '@' ? name.Substring(1) : name;
             Type = type;
             Size = size;

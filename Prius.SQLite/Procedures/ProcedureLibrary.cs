@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Prius.Contracts.Exceptions;
 using Prius.SQLite.Interfaces;
 using Prius.Contracts.Interfaces.External;
 
@@ -51,7 +52,7 @@ namespace Prius.SQLite.Procedures
                 string.Equals(p.Attribute.ProcedureName, procedureName, StringComparison.OrdinalIgnoreCase));
 
             if (procedureTypeWrapper == null)
-                throw new Exception("There is no procedure '" + procedureName + "' in repository '" + repositoryName + "'");
+                throw new PriusException("There is no procedure '" + procedureName + "' in repository '" + repositoryName + "'");
 
             return procedureTypeWrapper.Pool.Get();
         }
@@ -142,7 +143,7 @@ namespace Prius.SQLite.Procedures
             var binFolderPath = Path.GetDirectoryName(assemblyPath);
 
             if (ReferenceEquals(binFolderPath, null))
-                throw new Exception(TracePrefix + "Unable to discover the path to the bin folder");
+                throw new PriusException(TracePrefix + "Unable to discover the path to the bin folder");
 
             var assemblyFileNames = Directory.GetFiles(binFolderPath, "*.dll");
 

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Prius.Contracts.Attributes;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.External;
@@ -50,7 +51,7 @@ namespace Prius.Orm.Connections
                 if (_providers.TryGetValue(serverType, out type))
                     return type;
 
-            throw new ApplicationException("Your database config specifies a server type of '" + 
+            throw new PriusException("Your database config specifies a server type of '" + 
                 serverType + "' but there are no installed Prius drivers for this type of server. "+
                 "Please install the Prius NuGet package that provides access to " + serverType + 
                 " databases or correct your config. If you are not sure what to do, "+
@@ -146,7 +147,7 @@ namespace Prius.Orm.Connections
             var binFolderPath = Path.GetDirectoryName(assemblyPath);
 
             if (ReferenceEquals(binFolderPath, null))
-                throw new Exception(TracePrefix + "Unable to discover the path to the bin folder");
+                throw new PriusException(TracePrefix + "Unable to discover the path to the bin folder");
 
             var assemblyFileNames = Directory.GetFiles(binFolderPath, "*.dll");
 

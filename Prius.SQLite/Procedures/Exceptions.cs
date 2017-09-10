@@ -1,10 +1,11 @@
-﻿using Prius.Contracts.Interfaces.Commands;
+﻿using Prius.Contracts.Exceptions;
+using Prius.Contracts.Interfaces.Commands;
 using System;
 using System.Data.SQLite;
 
 namespace Prius.SQLite.Procedures
 {
-    public class FailedAdoProcedureException: Exception
+    public class FailedAdoProcedureException : PriusException
     {
         public ICommand Command { get; private set; }
         public SQLiteConnection Connection { get; private set; }

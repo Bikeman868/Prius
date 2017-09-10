@@ -19,6 +19,7 @@ namespace Prius.SqlServer
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
 
         public object RepositoryContext { get; set; }
+        public ITraceWriter TraceWriter { get; set; }
 
         private IRepository _repository;
         private ICommand _command;

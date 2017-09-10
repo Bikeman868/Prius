@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Security.Cryptography;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
@@ -48,7 +49,7 @@ namespace Prius.SQLite.CommandProcessing
             _storedProcedure = _procedureLibrary.Get(connection, repository.Name, command.CommandText);
 
             if (_storedProcedure == null)
-                throw new Exception("There is no stored procedure with the name " + command.CommandText);
+                throw new PriusException("There is no stored procedure with the name " + command.CommandText);
 
             return this;
         }

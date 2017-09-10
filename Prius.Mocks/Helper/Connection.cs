@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
+using Prius.Contracts.Interfaces.External;
 
 namespace Prius.Mocks.Helper
 {
@@ -14,6 +16,7 @@ namespace Prius.Mocks.Helper
         private ICommand _command;
 
         public object RepositoryContext { get; set; }
+        public ITraceWriter TraceWriter { get; set; }
 
         public Connection(IMockedRepository mockedRepository, ICommand command = null)
         {
@@ -41,7 +44,7 @@ namespace Prius.Mocks.Helper
         public IAsyncResult BeginExecuteReader(AsyncCallback callback)
         {
             if (_command == null)
-                throw new Exception("You must provide a command before executing reader");
+                throw new PriusException("You must provide a command before executing reader");
             return new SyncronousResult(_command, callback);
         }
 
@@ -58,7 +61,7 @@ namespace Prius.Mocks.Helper
         public IAsyncResult BeginExecuteEnumerable(AsyncCallback callback)
         {
             if (_command == null)
-                throw new Exception("You must provide a command before executing enumerable");
+                throw new PriusException("You must provide a command before executing enumerable");
             return new SyncronousResult(_command, callback);
         }
 

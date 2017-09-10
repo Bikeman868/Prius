@@ -1,4 +1,5 @@
 ﻿using System;
+using Prius.Contracts.Exceptions;
 using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Utility;
@@ -118,7 +119,7 @@ namespace Prius.SqlServer
             catch (Exception ex)
             {
                 var msg = string.Format("DataReader failed to get field #{0} with type {1} as type {2}", fieldIndex, _reader.GetDataTypeName(fieldIndex), type.Name);
-                throw new Exception(msg, ex);
+                throw new PriusException(msg, ex);
             }
         }
 

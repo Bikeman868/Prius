@@ -19,6 +19,12 @@ namespace Prius.Orm.Config
         }
 
         /// <summary>
+        /// Optional name for this cluster
+        /// </summary>
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        /// <summary>
         /// Database requests for this cluster will be distributed in
         /// round-robin fashbetween the databases listed here
         /// </summary>

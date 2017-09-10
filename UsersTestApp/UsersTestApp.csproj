@@ -76,6 +76,8 @@
     <Compile Include="DataAccess\IDataAccessLayer.cs" />
     <Compile Include="Integration\ErrorReporter.cs" />
     <Compile Include="Integration\Factory.cs" />
+    <Compile Include="Integration\TraceWriter.cs" />
+    <Compile Include="Integration\TraceWriterFactory.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
