@@ -517,6 +517,18 @@ executed against the master database.
 > Stored procedures that are not configured in this way will be executed against any
 > available server.
 
+## Diagnostics
+
+If you want to test that your requests are going to the right database you can
+enable a tracing mechanism. This is only recommended in a development or test
+environment. It is not recommended to turn on tracing in a busy production
+environment.
+
+To enable tracing you must write a class that implements `ITraceWriterFactory`
+then pass an instance of it to the `EnableTracing` method of `IRepositoryFactory` 
+singelton before opening any database connections. The `UsersTestApp` project is 
+an example of how to do this (see `Program.cs`, `TraceWriter.cs` and `TraceWriterFactory.cs`).
+
 ## Prius recipies
 
 ### Inject Prius interfaces into my data access class

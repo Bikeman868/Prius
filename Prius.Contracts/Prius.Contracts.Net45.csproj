@@ -41,7 +41,10 @@
     </Compile>
     <Compile Include="Attributes\ProviderAttribute.cs" />
     <Compile Include="Enumerations\CommandType.cs" />
+    <Compile Include="Exceptions\PriusException.cs" />
     <Compile Include="Interfaces\Connections\IConnectionProvider.cs" />
+    <Compile Include="Interfaces\External\ITraceWriter.cs" />
+    <Compile Include="Interfaces\External\ITraceWriterFactory.cs" />
     <Compile Include="Interfaces\Factory\IAsyncEnumerableFactory.cs" />
     <Compile Include="Interfaces\Commands\IAsyncEnumerable.cs" />
     <Compile Include="Interfaces\Commands\ICommand.cs" />

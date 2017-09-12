@@ -67,6 +67,7 @@ namespace Prius.MySql
             {
                 try
                 {
+                    Trace("Opening connection to MySQL database");
                     _connection.Open();
                 }
                 catch (Exception ex)

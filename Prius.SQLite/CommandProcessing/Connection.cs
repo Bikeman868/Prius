@@ -83,6 +83,7 @@ namespace Prius.SQLite.CommandProcessing
             {
                 try
                 {
+                    Trace("Opening a connection to SQlite database");
                     _connection.Open();
                 }
                 catch (Exception ex)
@@ -92,6 +93,7 @@ namespace Prius.SQLite.CommandProcessing
                     throw;
                 }
             }
+            Trace("Starting a new SQlite transaction");
             _transaction = _connection.BeginTransaction();
         }
 
@@ -99,6 +101,7 @@ namespace Prius.SQLite.CommandProcessing
         {
             if (_transaction != null)
             {
+                Trace("Committing SQlite transaction");
                 _transaction.Commit();
                 _transaction = null;
             }
@@ -108,6 +111,7 @@ namespace Prius.SQLite.CommandProcessing
         {
             if (_transaction != null)
             {
+                Trace("Rolling back SQlite transaction");
                 _transaction.Rollback();
                 _transaction = null;
             }
@@ -133,17 +137,20 @@ namespace Prius.SQLite.CommandProcessing
 
         public IAsyncResult BeginExecuteEnumerable(AsyncCallback callback)
         {
+            Trace("SQlite begin execute enumerable");
             return BeginExecuteReader(callback);
         }
 
         public IDataEnumerator<T> EndExecuteEnumerable<T>(IAsyncResult asyncResult) where T : class
         {
+            Trace("SQlite end execute enumerable");
             var reader = EndExecuteReader(asyncResult);
             return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
         }
 
         public IDataEnumerator<T> ExecuteEnumerable<T>() where T : class
         {
+            Trace("SQlite execute enumerable");
             var reader = ExecuteReader();
             return _dataEnumeratorFactory.Create<T>(reader, reader.Dispose);
         }
@@ -154,6 +161,7 @@ namespace Prius.SQLite.CommandProcessing
 
         public IAsyncResult BeginExecuteReader(AsyncCallback callback)
         {
+            Trace("SQlite begin execute reader");
             var asyncContext = new AsyncContext
             {
                 InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
@@ -193,6 +201,7 @@ namespace Prius.SQLite.CommandProcessing
             }
             catch (Exception ex)
             {
+                Trace("SQlite exception executing reader");
                 _repository.RecordFailure(this);
                 _errorReporter.ReportError(ex, "Failed to ExecuteReader on SQLite " + _repository.Name, _repository, this);
                 if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open) _connection.Close();
@@ -203,6 +212,7 @@ namespace Prius.SQLite.CommandProcessing
 
         public IDataReader EndExecuteReader(IAsyncResult asyncResult)
         {
+            Trace("SQlite end execute reader");
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             return (IDataReader)asyncContext.Result;
         }
@@ -218,6 +228,7 @@ namespace Prius.SQLite.CommandProcessing
 
         public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback)
         {
+            Trace("SQlite begin execute non-query");
             var asyncContext = new AsyncContext
             {
                 InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
@@ -226,11 +237,16 @@ namespace Prius.SQLite.CommandProcessing
 
             try
             {
-                if (asyncContext.InitiallyClosed) _connection.Open();
+                if (asyncContext.InitiallyClosed)
+                {
+                    Trace("Opening a connection to the SQlite database");
+                    _connection.Open();
+                }
                 asyncContext.Result = _commandProcessor.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
+                Trace("Exception executing SQlite non-query");
                 _repository.RecordFailure(this);
                 _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on SQLite " + _repository.Name, _repository, this);
                 asyncContext.Result = (long)0;
@@ -241,6 +257,7 @@ namespace Prius.SQLite.CommandProcessing
 
         public long EndExecuteNonQuery(IAsyncResult asyncResult)
         {
+            Trace("SQlite end execute non-query");
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
             return (long)asyncContext.Result;
         }
@@ -256,23 +273,30 @@ namespace Prius.SQLite.CommandProcessing
 
         public IAsyncResult BeginExecuteScalar(AsyncCallback callback)
         {
+            Trace("SQlite begin execute scalar");
             return new SyncronousResult(new AsyncContext(), callback);
         }
 
         public T EndExecuteScalar<T>(IAsyncResult asyncResult)
         {
+            Trace("SQlite end execute scalar");
             return ExecuteScalar<T>();
         }
 
         public T ExecuteScalar<T>()
         {
+            Trace("SQlite execute scalar");
             var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
 
             try
             {
                 var startTime = PerformanceTimer.TimeNow;
 
-                if (initiallyClosed) _connection.Open();
+                if (initiallyClosed)
+                {
+                    Trace("Opening a connection to the SQlite database");
+                    _connection.Open();
+                }
                 var result = _commandProcessor.ExecuteScalar<T>();
 
                 var elapsedTicks = PerformanceTimer.TimeNow - startTime;
@@ -295,7 +319,7 @@ namespace Prius.SQLite.CommandProcessing
 
         #endregion
 
-        #region ToString
+        #region Diagnostics
 
         public override string ToString()
         {
@@ -305,6 +329,15 @@ namespace Prius.SQLite.CommandProcessing
             sb.AppendFormat("DataSource='{0}'; ", _connection.DataSource);
             sb.AppendFormat("Command='{0}'; ", _commandProcessor);
             return sb.ToString();
+        }
+
+        private void Trace(string message)
+        {
+            if (string.IsNullOrEmpty(message)) return;
+
+            var traceWriter = TraceWriter;
+            if (traceWriter != null)
+                traceWriter.WriteLine(message);
         }
 
         #endregion
