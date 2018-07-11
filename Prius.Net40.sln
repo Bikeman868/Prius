@@ -12,6 +12,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{92BF7A08-7496-4C9A-AE7E-78A5001C2B5B}"
 	ProjectSection(SolutionItems) = preProject
 		Package.cmd = Package.cmd
+		paket.dependencies = paket.dependencies
+		paket.lock = paket.lock
 		Prius.Mocks.nuspec = Prius.Mocks.nuspec
 		Prius.MySql.nuspec = Prius.MySql.nuspec
 		Prius.nuspec = Prius.nuspec
@@ -22,7 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		SharedVersion.cs = SharedVersion.cs
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.ORM.Net40", "Prius.ORM\Prius.ORM.Net40.csproj", "{2D8713EB-1151-4114-8052-9C714FC8885F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Orm.Net40", "Prius.ORM\Prius.Orm.Net40.csproj", "{2D8713EB-1151-4114-8052-9C714FC8885F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prius.Performance.Shared", "Prius.Performance.Shared\Prius.Performance.Shared.csproj", "{DD3846EA-A3BD-4E9B-8718-B35EE4EA5245}"
 EndProject

@@ -1,0 +1,21 @@
+framework: net40, net45
+
+source https://nuget.org/api/v2
+
+nuget Moq = 4.2.1507.0118
+nuget Moq.Modules ~> 1.0
+
+nuget Newtonsoft.Json ~> 7.0
+nuget CommonServiceLocator
+nuget NUnit ~> 2.6
+nuget EntityFramework ~> 6.1
+
+nuget MySql.Data ~> 6.9
+nuget Npgsql ~> 2.2.5
+nuget System.Data.SQLite.Core ~> 1.0
+
+nuget Urchin.Client ~> 1.2
+
+nuget Ioc.Modules
+nuget Ioc.Modules.Unity
+nuget Unity ~> 2.1

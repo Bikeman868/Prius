@@ -19,7 +19,7 @@ namespace Prius.Orm.Config
         [JsonProperty("fallbackPolicies")]
         public List<FallbackPolicy> FallbackPolicies { get; set; }
 
-        [ConfigurationProperty("repositories")]
+        [JsonProperty("repositories")]
         public List<Repository> Repositories { get; set; }
     }
 

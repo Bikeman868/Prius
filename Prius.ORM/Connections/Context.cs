@@ -83,14 +83,17 @@ namespace Prius.Orm.Connections
         public IAsyncResult BeginExecuteReader(ICommand command, AsyncCallback callback)
         {
             if (command != null) PrepareCommand(command);
+
             if (!_isPrepared)
                 throw new PriusException(
                     "You must call the PrepareCommand() method before calling BeginExecuteReader() " +
-                    "or pass the command to the BeginExecuteReader() method");
+                    "or pass the command to the BeginExecuteReader() method", null, command, _connection, _repository);
+            
+            if (_connection == null)
+                throw new PriusException("The database is currently offline", null, command, _connection, _repository);
+
             try
             {
-                if (_connection == null)
-                    return new SyncronousResult(callback, new Exception("Empty connection."));
                 return _connection.BeginExecuteReader();
             }
             catch (Exception ex)
@@ -105,8 +108,6 @@ namespace Prius.Orm.Connections
         {
             try
             {
-                if (asyncResult is SyncronousResult && asyncResult.AsyncState is Exception)
-                    throw (Exception)asyncResult.AsyncState;
                 return _connection.EndExecuteReader(asyncResult);
             }
             catch (Exception ex)
@@ -120,14 +121,17 @@ namespace Prius.Orm.Connections
         public IDataReader ExecuteReader(ICommand command)
         {
             if (command != null) PrepareCommand(command);
+
             if (!_isPrepared)
                 throw new PriusException(
                     "You must call the PrepareCommand() method before calling ExecuteReader() " +
-                    "or pass the command to the ExecuteReader() method");
+                    "or pass the command to the ExecuteReader() method", null, command, _connection, _repository);
+            
+            if (_connection == null)
+                throw new PriusException("The database is currently offline", null, command, _connection, _repository);
+            
             try
             {
-                if (_connection == null)
-                    throw new PriusException("Empty connection.");
                 return _connection.ExecuteReader();
             }
             catch (Exception ex)
@@ -169,14 +173,17 @@ namespace Prius.Orm.Connections
         public IAsyncResult BeginExecuteNonQuery(ICommand command, AsyncCallback callback)
         {
             if (command != null) PrepareCommand(command);
+            
             if (!_isPrepared)
                 throw new PriusException(
                     "You must call the PrepareCommand() method before calling BeginExecuteNonQuery() "+
-                    "or pass the command to the BeginExecuteNonQuery() method");
+                    "or pass the command to the BeginExecuteNonQuery() method", null, command, _connection, _repository);
+            
+            if (_connection == null)
+                throw new PriusException("The database is currently offline", null, command, _connection, _repository);
+
             try
             {
-                if (_connection == null)
-                    return new SyncronousResult(callback, 0L);
                 return _connection.BeginExecuteNonQuery();
             }
             catch (Exception ex)
@@ -191,10 +198,7 @@ namespace Prius.Orm.Connections
         {
             try
             {
-                if (asyncResult is SyncronousResult)
-                    return (long)asyncResult.AsyncState;
-                else
-                    return _connection.EndExecuteNonQuery(asyncResult);
+                return _connection.EndExecuteNonQuery(asyncResult);
             }
             catch (Exception ex)
             {
@@ -207,12 +211,15 @@ namespace Prius.Orm.Connections
         public long ExecuteNonQuery(ICommand command)
         {
             if (command != null) PrepareCommand(command);
+
             if (!_isPrepared)
                 throw new PriusException(
                     "You must call the PrepareCommand() method before calling ExecuteNonQuery() " +
-                    "or pass the command to the ExecuteNonQuery() method");
+                    "or pass the command to the ExecuteNonQuery() method", null, command, _connection, _repository);
+
             if (_connection == null)
-                return 0L;
+                throw new PriusException("The database is currently offline", null, command, _connection, _repository);
+
             try
             {
                 return _connection.ExecuteNonQuery();
@@ -232,14 +239,17 @@ namespace Prius.Orm.Connections
         public IAsyncResult BeginExecuteScalar(ICommand command, AsyncCallback callback)
         {
             if (command != null) PrepareCommand(command);
-            if (!_isPrepared) 
-                throw new ApplicationException(
+
+            if (!_isPrepared)
+                throw new PriusException(
                     "You must call the PrepareCommand() method before calling BeginExecuteScalar() "+
-                    "or pass the command to the BeginExecuteScalar() method");
+                    "or pass the command to the BeginExecuteScalar() method", null, command, _connection, _repository);
+
+            if (_connection == null)
+                throw new PriusException("The database is currently offline", null, command, _connection, _repository);
+
             try
             {
-                if (_connection == null)
-                    return new SyncronousResult(callback, null);
                 return _connection.BeginExecuteScalar();
             }
             catch (Exception ex)
@@ -254,8 +264,6 @@ namespace Prius.Orm.Connections
         {
             try
             {
-                if (asyncResult is SyncronousResult)
-                    return default(T);
                 return _connection.EndExecuteScalar<T>(asyncResult);
             }
             catch (Exception ex)
@@ -269,12 +277,15 @@ namespace Prius.Orm.Connections
         public T ExecuteScalar<T>(ICommand command)
         {
             if (command != null) PrepareCommand(command);
+
             if (!_isPrepared)
                 throw new PriusException(
                     "You must call the PrepareCommand() method before calling ExecuteScalar() " +
-                    "or pass the command to the ExecuteScalar() method");
+                    "or pass the command to the ExecuteScalar() method", null, command, _connection, _repository);
+
             if (_connection == null)
-                return default(T);
+                throw new PriusException("The database is currently offline", null, command, _connection, _repository);
+
             try
             {
                 return _connection.ExecuteScalar<T>();
@@ -288,20 +299,5 @@ namespace Prius.Orm.Connections
         }
 
         #endregion
-
-        protected class SyncronousResult : IAsyncResult
-        {
-            public WaitHandle AsyncWaitHandle { get; private set; }
-            public object AsyncState { get; private set; }
-            public bool CompletedSynchronously { get { return true; } }
-            public bool IsCompleted { get { return true; } }
-
-            public SyncronousResult(AsyncCallback callback, object state)
-            {
-                AsyncState = state;
-                AsyncWaitHandle = new ManualResetEvent(true);
-                if (callback != null) callback(this);
-            }
-        }
     }
 }

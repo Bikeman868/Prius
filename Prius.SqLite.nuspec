@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius.SQLite</id>
-    <version>2.0.5</version>
+    <version>2.0.6</version>
     <title>Prius driver for SQLite databases</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -14,9 +14,9 @@
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <tags>ORM database prius sqlite</tags>
     <dependencies>
-      <dependency id="Ioc.Modules" version="1.2.1" />
-      <dependency id="Prius" version="2.0.5" />
-      <dependency id="System.Data.SQLite.Core" version="1.0.104.0" />
+      <dependency id="Ioc.Modules" version="1.3.1" />
+      <dependency id="Prius" version="2.0.6" />
+      <dependency id="System.Data.SQLite.Core" version="1.0.108" />
     </dependencies>
     <references>
       <reference file="Prius.SQLite.dll"/>
