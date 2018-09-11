@@ -71,6 +71,9 @@ namespace Prius.Orm.Connections
 
             var repositories = _repositories;
 
+            if (repositories == null)
+                throw new PriusException("No repositories are configured in /prius/repositories");
+
             lock (repositories)
             {
                 IRepository repository;
