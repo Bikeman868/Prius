@@ -69,20 +69,5 @@ namespace Prius.Orm.Connections
             public bool InitiallyClosed;
             public long StartTime;
         }
-
-        protected class SyncronousResult : IAsyncResult
-        {
-            public WaitHandle AsyncWaitHandle { get; private set; }
-            public object AsyncState { get; private set;}
-            public bool CompletedSynchronously { get { return true; } }
-            public bool IsCompleted { get { return true; } }
-
-            public SyncronousResult(AsyncContext asyncContext, AsyncCallback callback)
-            {
-                AsyncState = asyncContext;
-                AsyncWaitHandle = new ManualResetEvent(true);
-                if (callback != null) callback(this);
-            }
-        }
     }
 }
