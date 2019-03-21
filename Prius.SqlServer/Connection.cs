@@ -105,13 +105,15 @@ namespace Prius.SqlServer
 
             _sqlCommand = new SqlCommand(command.CommandText, _connection, _transaction);
             _sqlCommand.CommandType = (System.Data.CommandType)command.CommandType;
+
             if (command.TimeoutSeconds.HasValue)
                 _sqlCommand.CommandTimeout = command.TimeoutSeconds.Value;
+
             foreach (var parameter in command.GetParameters())
             {
                 var sqlParameter = _sqlCommand.Parameters.Add("@" + parameter.Name, parameter.DbType, (int)parameter.Size);
                 sqlParameter.Direction = (System.Data.ParameterDirection)parameter.Direction;
-                sqlParameter.Value = parameter.Value;
+                sqlParameter.Value = ReferenceEquals(parameter.Value, null) ? DBNull.Value : parameter.Value;
 
                 if (parameter.Direction == ParameterDirection.InputOutput || parameter.Direction == ParameterDirection.Output)
                     parameter.StoreOutputValue = p => p.Value = sqlParameter.Value;
