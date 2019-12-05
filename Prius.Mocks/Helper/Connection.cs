@@ -17,6 +17,7 @@ namespace Prius.Mocks.Helper
 
         public object RepositoryContext { get; set; }
         public ITraceWriter TraceWriter { get; set; }
+        public IAnalyticRecorder AnalyticRecorder { get; set; }
 
         public Connection(IMockedRepository mockedRepository, ICommand command = null)
         {

@@ -4,5 +4,4 @@
     {
         ITraceWriter Create(string repositoryName);
     }
-
 }

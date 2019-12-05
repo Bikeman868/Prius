@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using MySql.Data.MySqlClient;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Exceptions;
-using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.Contracts.Utility;
+using IDataReader = Prius.Contracts.Interfaces.IDataReader;
 
 namespace Prius.MySql
 {
@@ -20,8 +21,11 @@ namespace Prius.MySql
         private readonly IErrorReporter _errorReporter;
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
 
+        private static volatile int _openCount;
+
         public object RepositoryContext { get; set; }
         public ITraceWriter TraceWriter { get; set; }
+        public IAnalyticRecorder AnalyticRecorder { get; set; }
 
         private IRepository _repository;
         private ICommand _command;
@@ -40,22 +44,78 @@ namespace Prius.MySql
             _dataEnumeratorFactory = dataEnumeratorFactory;
         }
 
-        public IConnection Open(IRepository repository, ICommand command, string connectionString, string schemaName)
+        public IConnection Open(
+            IRepository repository,
+            ICommand command,
+            string connectionString,
+            string schemaName,
+            ITraceWriter traceWriter,
+            IAnalyticRecorder analyticRecorder)
         {
             _repository = repository;
             _connection = new MySqlConnection(connectionString);
             _transaction = null;
+
+            TraceWriter = traceWriter;
+            AnalyticRecorder = analyticRecorder;
+
+            _openCount++;
+
             SetCommand(command);
+
             return this;
         }
 
         protected override void Dispose(bool destructor)
         {
             Commit();
+
+            _openCount--;
+
+            CloseConnection();
+
             _connection.Dispose();
             base.Dispose(destructor);
         }
-        
+
+        private void OpenConnection()
+        {
+            try
+            {
+                Trace("Opening a connection to MySQL database");
+                _connection.Open();
+                AnalyticRecorder?.ConnectionOpened("MySQL", _connection.ConnectionString, false, 0, _openCount);
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, "Failed to open connection to MySQL on " + _repository.Name);
+                throw;
+            }
+        }
+
+        private void CloseConnection()
+        {
+            if (_connection.State == ConnectionState.Closed)
+                return;
+
+            try
+            {
+                Trace("Closing the connection to MySQL database");
+                _connection.Close();
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, "Failed to close connection to MySQL on " + _repository.Name);
+                throw;
+            }
+            finally
+            {
+                AnalyticRecorder?.ConnectionClosed("MySQL", _connection.ConnectionString, false, 0, _openCount);
+            }
+        }
+
         #endregion
 
         #region Transactions
@@ -63,20 +123,10 @@ namespace Prius.MySql
         public void BeginTransaction()
         {
             Commit();
-            if (_connection.State == System.Data.ConnectionState.Closed)
-            {
-                try
-                {
-                    Trace("Opening connection to MySQL database");
-                    _connection.Open();
-                }
-                catch (Exception ex)
-                {
-                    _repository.RecordFailure(this);
-                    _errorReporter.ReportError(ex, "Failed to open connection to MySql on " + _repository.Name);
-                    throw;
-                }
-            }
+
+            if (_connection.State == ConnectionState.Closed)
+                OpenConnection();
+
             Trace("Starting a new MySQL transaction");
             _transaction = _connection.BeginTransaction();
         }
@@ -178,13 +228,14 @@ namespace Prius.MySql
 
             var asyncContext = new AsyncContext
             {
-                InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
+                InitiallyClosed = _connection.State == ConnectionState.Closed,
                 StartTime = PerformanceTimer.TimeNow
             };
 
             try
             {
-                if (asyncContext.InitiallyClosed) _connection.Open();
+                if (asyncContext.InitiallyClosed) OpenConnection();
+
                 var reader = _mySqlCommand.ExecuteReader();
                 if (reader == null)
                     throw new PriusException("MySQL command did not return a reader", null, null, this, _repository);
@@ -199,21 +250,25 @@ namespace Prius.MySql
                     () =>
                         {
                             reader.Dispose();
-                            _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime));
-                            if (asyncContext.InitiallyClosed) _connection.Close();
+                            var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
+                            _repository.RecordSuccess(this, elapsedSeconds);
+                            AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
+                            if (asyncContext.InitiallyClosed) CloseConnection();
                         },
                     () =>
                         {
                             _repository.RecordFailure(this);
-                            if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open) _connection.Close();
+                            AnalyticRecorder?.CommandFailed(this, _command);
+                            if (asyncContext.InitiallyClosed) CloseConnection();
                         }
                     );
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(this, _command);
                 _errorReporter.ReportError(ex, "Failed to ExecuteReader on MySQL " + _repository.Name, _repository, this);
-                if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open) _connection.Close();
+                if (asyncContext.InitiallyClosed) CloseConnection();
                 throw;
             }
             return new SyncronousResult(asyncContext, callback);
@@ -241,19 +296,20 @@ namespace Prius.MySql
             Trace("Begin MySQL execute non query");
             var asyncContext = new AsyncContext
             {
-                InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
+                InitiallyClosed = _connection.State == ConnectionState.Closed,
                 StartTime = PerformanceTimer.TimeNow
             };
 
             try
             {
-                if (asyncContext.InitiallyClosed) _connection.Open();
+                if (asyncContext.InitiallyClosed) OpenConnection();
                 return _mySqlCommand.BeginExecuteNonQuery(callback, asyncContext);
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on MySQL Server " + _repository.Name, _repository, this);
+                AnalyticRecorder?.CommandFailed(this, _command);
+                _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on MySQL " + _repository.Name, _repository, this);
                 asyncContext.Result = (long)0;
                 throw;
             }
@@ -268,24 +324,28 @@ namespace Prius.MySql
             {
                 if (asyncContext.Result != null) return (long)asyncContext.Result;
 
-                var rowsAffacted = _mySqlCommand.EndExecuteNonQuery(asyncResult);
-                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime));
+                var rowsAffected = _mySqlCommand.EndExecuteNonQuery(asyncResult);
+
+                var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
+                _repository.RecordSuccess(this, elapsedSeconds);
+                AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
 
                 foreach (var parameter in _command.GetParameters())
                     parameter.StoreOutputValue(parameter);
 
-                return rowsAffacted;
+                return rowsAffected;
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                    _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on MySQL Server " + _repository.Name, _repository, this);
+                AnalyticRecorder?.CommandFailed(this, _command);
+                _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on MySQL " + _repository.Name, _repository, this);
                 throw;
             }
             finally
             {
-                if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
+                if (asyncContext.InitiallyClosed)
+                    CloseConnection();
             }
         }
 
@@ -304,26 +364,30 @@ namespace Prius.MySql
 
             var asyncContext = new AsyncContext
             {
-                InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
+                InitiallyClosed = _connection.State == ConnectionState.Closed,
                 StartTime = PerformanceTimer.TimeNow
             };
 
             try
             {
-                if (asyncContext.InitiallyClosed) _connection.Open();
+                if (asyncContext.InitiallyClosed) OpenConnection();
                 asyncContext.Result = _mySqlCommand.ExecuteScalar();
+
+                var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
                 _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime));
+                AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                    _errorReporter.ReportError(ex, "Failed to ExecuteScalar on MySQL Server " + _repository.Name, _repository, this);
+                AnalyticRecorder?.CommandFailed(this, _command);
+                _errorReporter.ReportError(ex, "Failed to ExecuteScalar on MySQL " + _repository.Name, _repository, this);
                 throw;
             }
             finally
             {
-                if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
+                if (asyncContext.InitiallyClosed)
+                    CloseConnection();
             }
             return new SyncronousResult(asyncContext, callback);
         }
@@ -342,7 +406,7 @@ namespace Prius.MySql
             }
             catch (Exception ex)
             {
-                _errorReporter.ReportError(ex, "Failed to convert type of result from ExecuteScalar on MySQL Server " + _repository.Name, _repository, this);
+                _errorReporter.ReportError(ex, "Failed to convert type of result from ExecuteScalar on MySQL " + _repository.Name, _repository, this);
                 throw;
             }
         }

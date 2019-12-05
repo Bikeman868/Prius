@@ -37,11 +37,20 @@ namespace Prius.Orm.Connections
             _probedAssemblies = new SortedList<string, Assembly>();
         }
 
-        public IConnection Create(string serverType, IRepository repository, ICommand command, string connectionString, string schema)
+        public IConnection Create(
+            string serverType, 
+            IRepository repository, 
+            ICommand command, 
+            string connectionString, 
+            string schema,
+            ITraceWriter traceWriter,
+            IAnalyticRecorder analyticRecorder)
         {
             var type = GetProvider(serverType);
             var provider = ConstructProvider(type);
-            return provider.Open(repository, command, connectionString, schema);
+            var connection = provider.Open(repository, command, connectionString, schema, traceWriter, analyticRecorder);
+
+            return connection;
         }
 
         private Type GetProvider(string serverType)

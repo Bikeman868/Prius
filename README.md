@@ -8,7 +8,7 @@ provides a lot of convenience and the advanced code generation techniques
 is uses often produces higher performance results than hand coding ADO.Net.
 
 Apart from being convenient and fast, Prius also adds enterprise level features 
-like measuring database performance, and switching to alternate connections, 
+like measuring database performance and switching to alternate connections, 
 and throttling database access to allow the database to recover from 
 performance bottlenecks, and master/slave replication scenarios.
 
@@ -528,6 +528,23 @@ To enable tracing you must write a class that implements `ITraceWriterFactory`
 then pass an instance of it to the `EnableTracing` method of `IRepositoryFactory` 
 singelton before opening any database connections. The `UsersTestApp` project is 
 an example of how to do this (see `Program.cs`, `TraceWriter.cs` and `TraceWriterFactory.cs`).
+
+## Analytics
+
+If you want to get some insight into how many connections your application is making
+to the database, the ration of sucesfull to failed commands, or the average time it takes
+to execute a particular stored procedure then you can turn on analytic reporting. This
+will add some CPU cycles to all database accesses so make sure your servers are not close
+to theor limit before enabling this option.
+
+To enable analytics you must write a class that implements `IAnalyticRecorderFactory`
+then pass an instance of it to the `EnableAnalyticReporting` method of `IRepositoryFactory` 
+singelton before opening any database connections. The `UsersTestApp` project is 
+an example of how to do this (see `Program.cs` and `AnalyticRecorderFactory.cs`).
+
+Be aware that any code you write to gather analytics will be executed in the context of
+requests to the database and this will slow down all database operations. You should be
+mindful of writing scaleable and thread-safe code in your implementation.
 
 ## Prius recipies
 

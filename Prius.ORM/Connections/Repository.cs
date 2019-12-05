@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Prius.Contracts.Enumerations;
-using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.External;
@@ -26,6 +25,7 @@ namespace Prius.Orm.Connections
         private IDisposable _configChangeNotifier;
         private Group[] _groups;
         private ITraceWriterFactory _traceWriterFactory;
+        private IAnalyticRecorderFactory _analyticRecorderFactory;
 
         public Repository(
             IConnectionFactory connectionFactory,
@@ -128,7 +128,7 @@ namespace Prius.Orm.Connections
                 : GetOnlineServer(string.Empty);
 
             var traceWriterFactory = _traceWriterFactory;
-            var traceWriter = traceWriterFactory == null ? null : traceWriterFactory.Create(Name);
+            var traceWriter = traceWriterFactory?.Create(Name);
 
             traceWriter?.SetProcedure(command.CommandText);
 
@@ -149,15 +149,27 @@ namespace Prius.Orm.Connections
                 SetTimeout(command, server, traceWriter);
             }
 
+            var analyticRecorderFactory = _analyticRecorderFactory;
+            var analyticRecorder = analyticRecorderFactory?.Create(Name, command);
+
             IConnection result;
             try
             {
-                result = _connectionFactory.Create(server.ServerType, this, command, server.ConnectionString, server.SchemaName);
-                result.TraceWriter = traceWriter;
+                result = _connectionFactory.Create(
+                    server.ServerType, 
+                    this, 
+                    command, 
+                    server.ConnectionString, 
+                    server.SchemaName,
+                    traceWriter,
+                    analyticRecorder);
+
+                traceWriter?.WriteLine("Connected to " + server.Name);
             }
             catch (Exception ex)
             {
                 traceWriter?.WriteLine("Failed to connect to " + server.Name + ". " + ex.Message);
+                analyticRecorder?.ConnectionFailed(server.ServerType, server.Name);
 
                 server.Group.RecordFailure(server);
 
@@ -182,7 +194,6 @@ namespace Prius.Orm.Connections
                 else
                 {
                     traceWriter?.WriteLine("Success after " + (elapsedSeconds < 10e-3 ? (elapsedSeconds * 1e3).ToString("f2") + "ms" : elapsedSeconds.ToString("f2") + "s") + " against server " + server.Name);
-
                     server.Group.RecordSuccess(server, elapsedSeconds);
                 }
             }
@@ -202,7 +213,6 @@ namespace Prius.Orm.Connections
                 else
                 {
                     traceWriter?.WriteLine("Recording execution failure in stats for " + server.Name);
-
                     server.Group.RecordFailure(server);
                 }
             }
@@ -224,6 +234,11 @@ namespace Prius.Orm.Connections
         public void EnableTracing(ITraceWriterFactory traceWriterFactory)
         {
             _traceWriterFactory = traceWriterFactory;
+        }
+
+        public void EnableAnalyticRecording(IAnalyticRecorderFactory analyticRecorderFactory)
+        {
+            _analyticRecorderFactory = analyticRecorderFactory;
         }
 
         private void SetTimeout(ICommand command, Server server, ITraceWriter traceWriter)

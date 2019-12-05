@@ -20,6 +20,7 @@ namespace Prius.PostgreSql
 
         public object RepositoryContext { get; set; }
         public ITraceWriter TraceWriter { get; set; }
+        public IAnalyticRecorder AnalyticRecorder { get; set; }
 
         private IRepository _repository;
         private NpgsqlConnection _connection;
@@ -41,7 +42,13 @@ namespace Prius.PostgreSql
             _dataEnumeratorFactory = dataEnumeratorFactory;
         }
 
-        public IConnection Open(IRepository repository, ICommand command, string connectionString, string schema)
+        public IConnection Open(
+            IRepository repository, 
+            ICommand command, 
+            string connectionString, 
+            string schema,
+            ITraceWriter traceWriter,
+            IAnalyticRecorder analyticRecorder)
         {
             _repository = repository;
             _connection = new NpgsqlConnection(connectionString);

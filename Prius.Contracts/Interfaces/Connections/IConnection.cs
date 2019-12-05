@@ -8,6 +8,7 @@ namespace Prius.Contracts.Interfaces.Connections
     {
         object RepositoryContext { get; set; }
         ITraceWriter TraceWriter { get; set; }
+        IAnalyticRecorder AnalyticRecorder { get; set; }
 
         void BeginTransaction();
         void Commit();

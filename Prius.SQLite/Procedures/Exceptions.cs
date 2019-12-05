@@ -7,17 +7,15 @@ namespace Prius.SQLite.Procedures
 {
     public class FailedAdoProcedureException : PriusException
     {
-        public ICommand Command { get; private set; }
-        public SQLiteConnection Connection { get; private set; }
+        public new SQLiteConnection Connection { get; private set; }
 
         public FailedAdoProcedureException(
             string message,
             Exception exception,
             ICommand command,
             SQLiteConnection connection)
-            : base(message, exception)
+            : base(message, exception, command, null, null)
         {
-            Command = command;
             Connection = connection;
         }
     }

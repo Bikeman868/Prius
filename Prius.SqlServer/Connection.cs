@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 using System.Threading;
 using Prius.Contracts.Attributes;
-using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.Contracts.Utility;
+using IDataReader = Prius.Contracts.Interfaces.IDataReader;
+using ParameterDirection = Prius.Contracts.Attributes.ParameterDirection;
 
 namespace Prius.SqlServer
 {
@@ -18,8 +20,11 @@ namespace Prius.SqlServer
         private readonly IErrorReporter _errorReporter;
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
 
+        private static volatile int _openCount;
+
         public object RepositoryContext { get; set; }
         public ITraceWriter TraceWriter { get; set; }
+        public IAnalyticRecorder AnalyticRecorder { get; set; }
 
         private IRepository _repository;
         private ICommand _command;
@@ -38,19 +43,74 @@ namespace Prius.SqlServer
             _dataEnumeratorFactory = dataEnumeratorFactory;
         }
 
-        public IConnection Open(IRepository repository, ICommand command, string connectionString, string schemaName)
+        public IConnection Open(
+            IRepository repository,
+            ICommand command,
+            string connectionString,
+            string schema,
+            ITraceWriter traceWriter,
+            IAnalyticRecorder analyticRecorder)
         {
             _repository = repository;
             _connection = new SqlConnection(connectionString);
             _transaction = null;
+
+            TraceWriter = traceWriter;
+            AnalyticRecorder = analyticRecorder;
+
+            _openCount++;
+
             SetCommand(command);
+
             return this;
         }
 
         protected override void Dispose(bool destructor)
         {
             Commit();
+            _openCount--;
+
+            CloseConnection();
+
             _connection.Dispose();
+        }
+
+        private void OpenConnection()
+        {
+            try
+            {
+                Trace("Opening a connection to SQL Server database");
+                _connection.Open();
+                AnalyticRecorder?.ConnectionOpened("SqlServer", _connection.ConnectionString, false, 0, _openCount);
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, "Failed to open connection to SQL Server on " + _repository.Name);
+                throw;
+            }
+        }
+
+        private void CloseConnection()
+        {
+            if (_connection.State == ConnectionState.Closed)
+                return;
+
+            try
+            {
+                Trace("Closing the connection to SQL Server database");
+                _connection.Close();
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, "Failed to close connection to SQL Server on " + _repository.Name);
+                throw;
+            }
+            finally
+            {
+                AnalyticRecorder?.ConnectionClosed("SqlServer", _connection.ConnectionString, false, 0, _openCount);
+            }
         }
 
         #endregion
@@ -60,19 +120,12 @@ namespace Prius.SqlServer
         public void BeginTransaction()
         {
             Commit();
-            if (_connection.State == System.Data.ConnectionState.Closed)
-            {
-                try
-                {
-                    _connection.Open();
-                }
-                catch (Exception ex)
-                {
-                    _repository.RecordFailure(this);
-                    _errorReporter.ReportError(ex, _sqlCommand, "Failed to open connection on " + _repository.Name);
-                    throw;
-                }
-            }
+
+            if (_connection.State == ConnectionState.Closed)
+                OpenConnection();
+
+            Trace("Starting a new Sql Server transaction");
+
             _transaction = _connection.BeginTransaction();
         }
 
@@ -80,6 +133,7 @@ namespace Prius.SqlServer
         {
             if (_transaction != null)
             {
+                Trace("Committing Sql Server transaction");
                 _transaction.Commit();
                 _transaction = null;
             }
@@ -89,6 +143,7 @@ namespace Prius.SqlServer
         {
             if (_transaction != null)
             {
+                Trace("Rolling back Sql Server transaction");
                 _transaction.Rollback();
                 _transaction = null;
             }
@@ -128,21 +183,24 @@ namespace Prius.SqlServer
         {
             var asyncContext = new AsyncContext 
             { 
-                InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed, 
+                InitiallyClosed = _connection.State == ConnectionState.Closed, 
                 StartTime = PerformanceTimer.TimeNow 
             };
 
             try
             {
-                if (asyncContext.InitiallyClosed) _connection.Open();
+                if (asyncContext.InitiallyClosed) OpenConnection();
                 return _sqlCommand.BeginExecuteReader(callback, asyncContext);
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(this, _command);
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteReader on SQL Server " + _repository.Name, _repository, this);
-                if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
+
+                if (asyncContext.InitiallyClosed)
+                    CloseConnection();
+
                 throw;
             }
         }
@@ -167,36 +225,39 @@ namespace Prius.SqlServer
                     () =>
                     {
                         reader.Dispose();
-                        _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime));
-                        if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                            _connection.Close();
+                        var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
+                        _repository.RecordSuccess(this, elapsedSeconds);
+                        AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
+                        if (asyncContext.InitiallyClosed)
+                            CloseConnection();
                     },
                     () =>
                     {
                         _repository.RecordFailure(this);
-                        if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                            _connection.Close();
+                        AnalyticRecorder?.CommandFailed(this, _command);
+                        if (asyncContext.InitiallyClosed)
+                            CloseConnection();
                     }
                     );
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(this, _command);
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteReader on SQL Server " + _repository.Name, _repository, this);
-                if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
+                if (asyncContext.InitiallyClosed) CloseConnection();
                 throw;
             }
         }
 
         public IDataReader ExecuteReader()
         {
-            var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
+            var initiallyClosed = _connection.State == ConnectionState.Closed;
             var startTime = PerformanceTimer.TimeNow;
 
             try
             {
-                if (initiallyClosed) _connection.Open();
+                if (initiallyClosed) OpenConnection();
                 var reader = _sqlCommand.ExecuteReader();
 
                 foreach (var parameter in _command.GetParameters())
@@ -210,24 +271,25 @@ namespace Prius.SqlServer
                     () =>
                         {
                             reader.Dispose();
-                            _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime));
-                            if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                                _connection.Close();
+                            var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime);
+                            _repository.RecordSuccess(this, elapsedSeconds);
+                            AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
+                            if (initiallyClosed) CloseConnection();
                         },
                     () =>
                         {
                             _repository.RecordFailure(this);
-                            if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                                _connection.Close();
+                            AnalyticRecorder?.CommandFailed(this, _command);
+                            if (initiallyClosed) CloseConnection();
                         }
                     );
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(this, _command);
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteReader on SQL Server " + _repository.Name, _repository, this);
-                if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
+                if (initiallyClosed) CloseConnection();
                 throw;
             }
         }
@@ -267,12 +329,13 @@ namespace Prius.SqlServer
 
             try
             {
-                if (asyncContext.InitiallyClosed) _connection.Open();
+                if (asyncContext.InitiallyClosed) OpenConnection();
                 return _sqlCommand.BeginExecuteNonQuery(callback, asyncContext);
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(this, _command);
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteNonQuery on SQL Server " + _repository.Name, _repository, this);
                 asyncContext.Result = (long)0;
                 throw;
@@ -286,53 +349,57 @@ namespace Prius.SqlServer
             {
                 if (asyncContext.Result != null) return (long)asyncContext.Result;
 
-                var rowsAffacted = _sqlCommand.EndExecuteNonQuery(asyncResult);
-                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime));
+                var rowsAffected = _sqlCommand.EndExecuteNonQuery(asyncResult);
+                var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
+                _repository.RecordSuccess(this, elapsedSeconds);
+                AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
 
                 foreach (var parameter in _command.GetParameters())
                     parameter.StoreOutputValue(parameter);
 
-                return rowsAffacted;
+                return rowsAffected;
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(this, _command);
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteNonQuery on SQL Server " + _repository.Name, _repository, this);
                 throw;
             }
             finally
             {
-                if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
+                if (asyncContext.InitiallyClosed) CloseConnection();
             }
         }
 
         public long ExecuteNonQuery()
         {
-            var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
+            var initiallyClosed = _connection.State == ConnectionState.Closed;
             var startTime = PerformanceTimer.TimeNow;
 
             try
             {
-                if (initiallyClosed) _connection.Open();
-                var rowsAffacted = _sqlCommand.ExecuteNonQuery();
-                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime));
+                if (initiallyClosed) OpenConnection();
+                var rowsAffected = _sqlCommand.ExecuteNonQuery();
+                var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime);
+                _repository.RecordSuccess(this, elapsedSeconds);
+                AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
 
                 foreach (var parameter in _command.GetParameters())
                     parameter.StoreOutputValue(parameter);
 
-                return rowsAffacted;
+                return rowsAffected;
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(this, _command);
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteNonQuery on SQL Server " + _repository.Name, _repository, this);
                 throw;
             }
             finally
             {
-                if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
+                if (initiallyClosed) CloseConnection();
             }
         }
 
@@ -351,20 +418,23 @@ namespace Prius.SqlServer
 
             try
             {
-                if (asyncContext.InitiallyClosed) _connection.Open();
+                if (asyncContext.InitiallyClosed) OpenConnection();
                 asyncContext.Result = _sqlCommand.ExecuteScalar();
-                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime));
+
+                var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
+                _repository.RecordSuccess(this, elapsedSeconds);
+                AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(this, _command);
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteScalar on SQL Server " + _repository.Name, _repository, this);
                 throw;
             }
             finally
             {
-                if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
+                if (asyncContext.InitiallyClosed) CloseConnection();
             }
             return new SyncronousResult(asyncContext, callback);
         }
@@ -388,14 +458,17 @@ namespace Prius.SqlServer
 
         public T ExecuteScalar<T>()
         {
-            var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
+            var initiallyClosed = _connection.State == ConnectionState.Closed;
             var startTime = PerformanceTimer.TimeNow;
 
             try
             {
-                if (initiallyClosed) _connection.Open();
+                if (initiallyClosed) OpenConnection();
                 var result = _sqlCommand.ExecuteScalar();
-                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime));
+
+                var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime);
+                _repository.RecordSuccess(this, elapsedSeconds);
+                AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
 
                 if (result == null) return default(T);
                 var resultType = typeof(T);
@@ -405,6 +478,7 @@ namespace Prius.SqlServer
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(this, _command);
                 _errorReporter.ReportError(ex, _sqlCommand, "Failed to ExecuteScalar on SQL Server " + _repository.Name, _repository, this);
                 throw;
             }
@@ -428,6 +502,12 @@ namespace Prius.SqlServer
             sb.AppendFormat("CommandType='{0}'; ", _sqlCommand.CommandType);
             sb.AppendFormat("CommandText='{0}'; ", _sqlCommand.CommandText);
             return sb.ToString();
+        }
+
+        private void Trace(string message)
+        {
+            if (string.IsNullOrEmpty(message)) return;
+            TraceWriter?.WriteLine(message);
         }
 
         #endregion

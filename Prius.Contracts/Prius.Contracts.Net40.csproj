@@ -40,6 +40,8 @@
     <Compile Include="Enumerations\CommandType.cs" />
     <Compile Include="Exceptions\PriusException.cs" />
     <Compile Include="Interfaces\Connections\IConnectionProvider.cs" />
+    <Compile Include="Interfaces\External\IAnalyticRecorderFactory.cs" />
+    <Compile Include="Interfaces\External\IAnalyticRecorder.cs" />
     <Compile Include="Interfaces\External\ITraceWriter.cs" />
     <Compile Include="Interfaces\External\ITraceWriterFactory.cs" />
     <Compile Include="Interfaces\Factory\IAsyncEnumerableFactory.cs" />

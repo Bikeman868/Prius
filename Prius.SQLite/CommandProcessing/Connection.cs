@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Data;
 using System.Data.SQLite;
 using System.Text;
 using System.Threading;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Exceptions;
-using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Connections;
 using Prius.Contracts.Interfaces.External;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.Contracts.Utility;
 using Prius.SQLite.Interfaces;
+using IDataReader = Prius.Contracts.Interfaces.IDataReader;
 
 namespace Prius.SQLite.CommandProcessing
 {
@@ -27,8 +28,11 @@ namespace Prius.SQLite.CommandProcessing
         private readonly ICommandProcessorFactory _commandProcessorFactory;
         private readonly ISchemaUpdater _schemaUpdater;
 
+        private static volatile int _openCount;
+
         public object RepositoryContext { get; set; }
         public ITraceWriter TraceWriter { get; set; }
+        public IAnalyticRecorder AnalyticRecorder { get; set; }
 
         private IRepository _repository;
         private ICommand _command;
@@ -52,26 +56,81 @@ namespace Prius.SQLite.CommandProcessing
             _schemaUpdater = schemaUpdater;
         }
 
-        public IConnection Open(IRepository repository, ICommand command, string connectionString, string schemaName)
+        public IConnection Open(
+            IRepository repository, 
+            ICommand command, 
+            string connectionString, 
+            string schemaName,
+            ITraceWriter traceWriter,
+            IAnalyticRecorder analyticRecorder)
         {
             _repository = repository;
             _connection = new SQLiteConnection(connectionString);
             _transaction = null;
 
+            TraceWriter = traceWriter;
+            AnalyticRecorder = analyticRecorder;
+
+            _openCount++;
+
             _schemaUpdater.CheckSchema(_repository, _connection);
 
             SetCommand(command);
+
             return this;
         }
 
         protected override void Dispose(bool destructor)
         {
             Commit();
+
+            _openCount--;
+
+            CloseConnection();
+
             _commandProcessor.Dispose();
             _connection.Dispose();
             base.Dispose(destructor);
         }
-        
+
+        private void OpenConnection()
+        {
+            try
+            {
+                Trace("Opening a connection to SQlite database");
+                _connection.Open();
+                AnalyticRecorder?.ConnectionOpened("SQLite", _connection.ConnectionString, false, 0, _openCount);
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, "Failed to open connection to SQLite on " + _repository.Name);
+                throw;
+            }
+        }
+
+        private void CloseConnection()
+        {
+            if (_connection.State == ConnectionState.Closed)
+                return;
+
+            try
+            {
+                Trace("Closing the connection to SQlite database");
+                _connection.Close();
+            }
+            catch (Exception ex)
+            {
+                _repository.RecordFailure(this);
+                _errorReporter.ReportError(ex, "Failed to close connection to SQLite on " + _repository.Name);
+                throw;
+            }
+            finally
+            {
+                AnalyticRecorder?.ConnectionClosed("SQLite", _connection.ConnectionString, false, 0, _openCount);
+            }
+        }
+
         #endregion
 
         #region Transactions
@@ -79,21 +138,12 @@ namespace Prius.SQLite.CommandProcessing
         public void BeginTransaction()
         {
             Commit();
-            if (_connection.State == System.Data.ConnectionState.Closed)
-            {
-                try
-                {
-                    Trace("Opening a connection to SQlite database");
-                    _connection.Open();
-                }
-                catch (Exception ex)
-                {
-                    _repository.RecordFailure(this);
-                    _errorReporter.ReportError(ex, "Failed to open connection to SQLite on " + _repository.Name);
-                    throw;
-                }
-            }
+
+            if (_connection.State == ConnectionState.Closed)
+                OpenConnection();
+
             Trace("Starting a new SQlite transaction");
+
             _transaction = _connection.BeginTransaction();
         }
 
@@ -164,13 +214,15 @@ namespace Prius.SQLite.CommandProcessing
             Trace("SQlite begin execute reader");
             var asyncContext = new AsyncContext
             {
-                InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
+                InitiallyClosed = _connection.State == ConnectionState.Closed,
                 StartTime = PerformanceTimer.TimeNow
             };
 
             try
             {
-                if (asyncContext.InitiallyClosed) _connection.Open();
+                if (asyncContext.InitiallyClosed)
+                    OpenConnection();
+
                 var reader = _commandProcessor.ExecuteReader(
                     _dataShapeName,
                     r =>
@@ -179,14 +231,14 @@ namespace Prius.SQLite.CommandProcessing
                             _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(elapsedTicks));
 
                             if (asyncContext.InitiallyClosed) 
-                                _connection.Close();
+                                CloseConnection();
                         },
                     r =>
                         {
                             _repository.RecordFailure(this);
 
-                            if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open) 
-                                _connection.Close();
+                            if (asyncContext.InitiallyClosed)
+                                CloseConnection();
                         }
                     );
 
@@ -204,7 +256,10 @@ namespace Prius.SQLite.CommandProcessing
                 Trace("SQlite exception executing reader");
                 _repository.RecordFailure(this);
                 _errorReporter.ReportError(ex, "Failed to ExecuteReader on SQLite " + _repository.Name, _repository, this);
-                if (asyncContext.InitiallyClosed && _connection.State == System.Data.ConnectionState.Open) _connection.Close();
+
+                if (asyncContext.InitiallyClosed)
+                    CloseConnection();
+
                 throw;
             }
             return new SyncronousResult(asyncContext, callback);
@@ -231,17 +286,15 @@ namespace Prius.SQLite.CommandProcessing
             Trace("SQlite begin execute non-query");
             var asyncContext = new AsyncContext
             {
-                InitiallyClosed = _connection.State == System.Data.ConnectionState.Closed,
+                InitiallyClosed = _connection.State == ConnectionState.Closed,
                 StartTime = PerformanceTimer.TimeNow
             };
 
             try
             {
                 if (asyncContext.InitiallyClosed)
-                {
-                    Trace("Opening a connection to the SQlite database");
-                    _connection.Open();
-                }
+                    OpenConnection();
+
                 asyncContext.Result = _commandProcessor.ExecuteNonQuery();
             }
             catch (Exception ex)
@@ -286,17 +339,15 @@ namespace Prius.SQLite.CommandProcessing
         public T ExecuteScalar<T>()
         {
             Trace("SQlite execute scalar");
-            var initiallyClosed = _connection.State == System.Data.ConnectionState.Closed;
+            var initiallyClosed = _connection.State == ConnectionState.Closed;
 
             try
             {
                 var startTime = PerformanceTimer.TimeNow;
 
                 if (initiallyClosed)
-                {
-                    Trace("Opening a connection to the SQlite database");
-                    _connection.Open();
-                }
+                    OpenConnection();
+
                 var result = _commandProcessor.ExecuteScalar<T>();
 
                 var elapsedTicks = PerformanceTimer.TimeNow - startTime;
@@ -312,8 +363,8 @@ namespace Prius.SQLite.CommandProcessing
             }
             finally
             {
-                if (initiallyClosed && _connection.State == System.Data.ConnectionState.Open)
-                    _connection.Close();
+                if (initiallyClosed)
+                    CloseConnection();
             }
         }
 
@@ -334,9 +385,7 @@ namespace Prius.SQLite.CommandProcessing
         private void Trace(string message)
         {
             if (string.IsNullOrEmpty(message)) return;
-
-            var traceWriter = TraceWriter;
-            traceWriter?.WriteLine(message);
+            TraceWriter?.WriteLine(message);
         }
 
         #endregion
