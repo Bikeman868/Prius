@@ -76,8 +76,7 @@ namespace Prius.Orm.Connections
 
             lock (repositories)
             {
-                IRepository repository;
-                if (repositories.TryGetValue(repositoryName.ToLower(), out repository))
+                if (repositories.TryGetValue(repositoryName.ToLower(), out var repository))
                 {
                     repository.EnableTracing(_traceWriterFactory);
                     return repository;

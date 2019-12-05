@@ -22,8 +22,7 @@ namespace Prius.Performance.Shared
         {
             get
             {
-                Int64 counter;
-                QueryPerformanceCounter(out counter);
+                QueryPerformanceCounter(out var counter);
                 return counter;
             }
         }

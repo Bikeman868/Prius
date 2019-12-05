@@ -31,8 +31,7 @@ namespace Prius.Contracts.Utility
         {
             get
             {
-                Int64 startTime;
-                QueryPerformanceCounter(out startTime);
+                QueryPerformanceCounter(out var startTime);
                 return startTime;
             }
         }

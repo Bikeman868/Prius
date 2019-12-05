@@ -18,8 +18,7 @@ namespace Prius.Mocks.Helper
 
         public IMockedStoredProcedure GetProcedure(string name)
         {
-            IMockedStoredProcedure storedProcedure;
-            if (_storedProcedures.TryGetValue(name.ToLower(), out storedProcedure))
+            if (_storedProcedures.TryGetValue(name.ToLower(), out var storedProcedure))
                 return storedProcedure;
 
             return _notMockedProcedure;

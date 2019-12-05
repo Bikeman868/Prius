@@ -87,15 +87,13 @@ namespace Prius.Orm.Connections
                 .OrderBy(cluster => cluster.SequenceNumber)
                 .Select(cluster =>
                 {
-                    FallbackPolicy fallbackPolicy;
-                    if (!fallbackPolicies.TryGetValue(cluster.FallbackPolicyName.ToLowerInvariant(), out fallbackPolicy))
+                    if (!fallbackPolicies.TryGetValue(cluster.FallbackPolicyName.ToLowerInvariant(), out var fallbackPolicy))
                         fallbackPolicy = new FallbackPolicy();
 
                     var servers = cluster.DatabaseNames
                         .Select(databaseName =>
                         {
-                            Database database;
-                            return databases.TryGetValue(databaseName.ToLowerInvariant(), out database)
+                            return databases.TryGetValue(databaseName.ToLowerInvariant(), out var database)
                                 ? database
                                 : null;
                         })
@@ -323,8 +321,7 @@ namespace Prius.Orm.Connections
                 {
                     server.Group = this;
 
-                    Server[] serversWithRole;
-                    if (_serversByRole.TryGetValue(server.ReplicationRole, out serversWithRole))
+                    if (_serversByRole.TryGetValue(server.ReplicationRole, out var serversWithRole))
                     {
                         var tempArray = new Server[serversWithRole.Length + 1];
                         serversWithRole.CopyTo(tempArray, 1);
@@ -425,8 +422,7 @@ namespace Prius.Orm.Connections
 
                     foreach (var allowedRole in storedProcedure.AllowedRoles)
                     {
-                        Server[] roleServers;
-                        if (_serversByRole.TryGetValue(allowedRole.ToLowerInvariant(), out roleServers))
+                        if (_serversByRole.TryGetValue(allowedRole.ToLowerInvariant(), out var roleServers))
                         {
                             servers = roleServers;
                             break;

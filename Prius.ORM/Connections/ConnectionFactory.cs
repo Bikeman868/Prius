@@ -46,9 +46,8 @@ namespace Prius.Orm.Connections
 
         private Type GetProvider(string serverType)
         {
-            Type type;
             lock (_providers)
-                if (_providers.TryGetValue(serverType, out type))
+                if (_providers.TryGetValue(serverType, out var type))
                     return type;
 
             throw new PriusException("Your database config specifies a server type of '" + 

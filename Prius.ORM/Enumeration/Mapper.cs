@@ -268,8 +268,7 @@ namespace Prius.Orm.Enumeration
                 for (var fieldIndex = 0; fieldIndex < dataReader.FieldCount; fieldIndex++)
                 {
                     var fieldName = dataReader.GetFieldName(fieldIndex).ToLower();
-                    FieldDefinition<TDataContract> field;
-                    if (_fieldDefinitions.TryGetValue(fieldName, out field))
+                    if (_fieldDefinitions.TryGetValue(fieldName, out var field))
                     {
                         try
                         {
@@ -291,8 +290,7 @@ namespace Prius.Orm.Enumeration
 
             private DataReaderMapping<TDataContract> GetDataReaderMapping(IDataReader dataReader)
             {
-                DataReaderMapping<TDataContract> result;
-                if (_dataReaderMappings.TryGetValue(dataReader.DataShapeName, out result)) return result;
+                if (_dataReaderMappings.TryGetValue(dataReader.DataShapeName, out var result)) return result;
                 lock (_dataReaderMappings)
                 {
                     if (_dataReaderMappings.TryGetValue(dataReader.DataShapeName, out result)) return result;
@@ -331,8 +329,7 @@ namespace Prius.Orm.Enumeration
                 for (var fieldIndex = 0; fieldIndex < dataReader.FieldCount; fieldIndex++)
                 {
                     var fieldName = dataReader.GetFieldName(fieldIndex).ToLower();
-                    FieldDefinition<TDataContract> field;
-                    if (fieldDefinitions.TryGetValue(fieldName, out field))
+                    if (fieldDefinitions.TryGetValue(fieldName, out var field))
                         Fields.Add(field);
                     else
                         Fields.Add(null);
