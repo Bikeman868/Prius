@@ -371,9 +371,8 @@ namespace Prius.PostgreSql
             }
             finally
             {
-                if (copy.CopyStream != null)
-                    copy.CopyStream.Close();
-            
+                copy.CopyStream?.Close();
+
                 copy.End();
             }  
         }
@@ -495,7 +494,7 @@ namespace Prius.PostgreSql
             {
                 AsyncState = asyncContext;
                 AsyncWaitHandle = new ManualResetEvent(true);
-                if (callback != null) callback(this);
+                callback?.Invoke(this);
             }
         }
 

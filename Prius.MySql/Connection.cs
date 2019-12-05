@@ -372,8 +372,7 @@ namespace Prius.MySql
             if (string.IsNullOrEmpty(message)) return;
 
             var traceWriter = TraceWriter;
-            if (traceWriter != null)
-                traceWriter.WriteLine(message);
+            traceWriter?.WriteLine(message);
         }
 
         #endregion
@@ -473,7 +472,7 @@ namespace Prius.MySql
             {
                 AsyncState = asyncContext;
                 AsyncWaitHandle = new ManualResetEvent(true);
-                if (callback != null) callback(this);
+                callback?.Invoke(this);
             }
         }
 

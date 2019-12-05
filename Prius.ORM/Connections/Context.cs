@@ -35,8 +35,7 @@ namespace Prius.Orm.Connections
 
         protected override void Dispose(bool destructor)
         {
-            if (_connection != null)
-                _connection.Dispose();
+            _connection?.Dispose();
             base.Dispose(destructor);
         }
 
@@ -46,20 +45,17 @@ namespace Prius.Orm.Connections
 
         public void BeginTransaction()
         {
-            if (_connection != null)
-                _connection.BeginTransaction();
+            _connection?.BeginTransaction();
         }
 
         public void Commit()
         {
-            if (_connection != null)
-                _connection.Commit();
+            _connection?.Commit();
         }
 
         public void Rollback()
         {
-            if (_connection != null)
-                _connection.Rollback();
+            _connection?.Rollback();
         }
 
         #endregion

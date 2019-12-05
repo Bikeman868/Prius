@@ -12,7 +12,7 @@ namespace Prius.Orm
     [Package]
     public class Package : IPackage
     {
-        public string Name { get { return "Prius ORM"; } }
+        public string Name => "Prius ORM";
         public IList<IocRegistration> IocRegistrations { get; private set; }
 
         public Package()

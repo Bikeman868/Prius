@@ -37,8 +37,8 @@ namespace Prius.Orm.Utility
 
         protected override void Dispose(bool destructor)
         {
-            if (_locked && _unlockAction != null)
-                _unlockAction();
+            if (_locked)
+                _unlockAction?.Invoke();
             _unlockAction = null;
 
             base.Dispose(destructor);

@@ -33,7 +33,7 @@ namespace Prius.Orm.Enumeration
 
         protected override void Dispose(bool destructor)
         {
-            if (_closeAction != null) _closeAction();
+            _closeAction?.Invoke();
             base.Dispose(destructor);
         }
 

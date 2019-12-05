@@ -91,8 +91,7 @@ namespace Prius.Orm.Enumeration
                 finally
                 {
                     var disposable = dataContract as IDisposable;
-                    if (disposable != null)
-                        disposable.Dispose();
+                    disposable?.Dispose();
                 }
             }
 
@@ -287,7 +286,7 @@ namespace Prius.Orm.Enumeration
                     }
                 }
                 var dataContractInterface = dataContract as IDataContract<TDataContract>;
-                if (dataContractInterface != null) dataContractInterface.SetCalculated(dataReader, _dataSetName);
+                dataContractInterface?.SetCalculated(dataReader, _dataSetName);
             }
 
             private DataReaderMapping<TDataContract> GetDataReaderMapping(IDataReader dataReader)
@@ -405,7 +404,7 @@ namespace Prius.Orm.Enumeration
                     }
                 }
                 var dataContractIntraface = dataContract as IDataContract<TDataContract>;
-                if (dataContractIntraface != null) dataContractIntraface.SetCalculated(_dataReader, _mapping.DataSetName);
+                dataContractIntraface?.SetCalculated(_dataReader, _mapping.DataSetName);
                 return dataContract;
             }
 

@@ -49,8 +49,8 @@ namespace Prius.SQLite.CommandProcessing
         protected override void Dispose(bool destructor)
         {
             _reader.Dispose();
-            if (_hasErrors && _errorAction != null) _errorAction(this);
-            if (_closeAction != null) _closeAction(this);
+            if (_hasErrors) _errorAction?.Invoke(this);
+            _closeAction?.Invoke(this);
             base.Dispose(destructor);
         }
 

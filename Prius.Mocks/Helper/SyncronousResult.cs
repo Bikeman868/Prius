@@ -14,7 +14,7 @@ namespace Prius.Mocks.Helper
         {
             AsyncState = asyncContext;
             AsyncWaitHandle = new ManualResetEvent(true);
-            if (callback != null) callback(this);
+            callback?.Invoke(this);
         }
     }
 }

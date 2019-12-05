@@ -49,12 +49,9 @@ namespace Prius.Mocks.Helper
         {
             _results = new MockedResultSet(data, predicate, schema);
             var firstRow = _results.Data.FirstOrDefault();
-            if (firstRow != null)
-            {
-                var firstColumn = firstRow.Properties().FirstOrDefault();
-                if (firstColumn != null)
-                    _scalar = firstColumn.Value;
-            }
+            var firstColumn = firstRow?.Properties().FirstOrDefault();
+            if (firstColumn != null)
+                _scalar = firstColumn.Value;
             _rowsAffected = rowsAffected ?? _results.Data.LongCount();
         }
 
@@ -74,9 +71,8 @@ namespace Prius.Mocks.Helper
         {
 
             var parameters = command.GetParameters();
-            if (parameters == null) return;
 
-            var parameter = parameters.FirstOrDefault(p => string.Equals(p.Name, parameterName, StringComparison.InvariantCultureIgnoreCase));
+            var parameter = parameters?.FirstOrDefault(p => string.Equals(p.Name, parameterName, StringComparison.InvariantCultureIgnoreCase));
             if (parameter == null) return;
 
             parameter.Value = value;

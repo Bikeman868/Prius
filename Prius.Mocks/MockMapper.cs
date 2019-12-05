@@ -77,8 +77,7 @@ namespace Prius.Mocks
                     finally
                     {
                         var disposable = dataContract as IDisposable;
-                        if (disposable != null)
-                            disposable.Dispose();
+                        disposable?.Dispose();
                     }
                 }
 
@@ -239,7 +238,7 @@ namespace Prius.Mocks
                         }
                     }
                     var dataContractInterface = dataContract as IDataContract<TDataContract>;
-                    if (dataContractInterface != null) dataContractInterface.SetCalculated(dataReader, _dataSetName);
+                    dataContractInterface?.SetCalculated(dataReader, _dataSetName);
                 }
 
                 private DataReaderMapping<TDataContract> GetDataReaderMapping(IDataReader dataReader)
@@ -321,10 +320,10 @@ namespace Prius.Mocks
                     for (var fieldIndex = 0; fieldIndex < _mapping.Fields.Count; fieldIndex++)
                     {
                         var field = _mapping.Fields[fieldIndex];
-                        if (field != null) field.WriteAction((TDataContract)dataContract, _dataReader.Get(fieldIndex, field.DefaultValue, field.PropertyType));
+                        field?.WriteAction((TDataContract)dataContract, _dataReader.Get(fieldIndex, field.DefaultValue, field.PropertyType));
                     }
                     var dataContractIntraface = dataContract as IDataContract<TDataContract>;
-                    if (dataContractIntraface != null) dataContractIntraface.SetCalculated(_dataReader, _mapping.DataSetName);
+                    dataContractIntraface?.SetCalculated(_dataReader, _mapping.DataSetName);
                     return dataContract;
                 }
 

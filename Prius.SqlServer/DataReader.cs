@@ -31,8 +31,8 @@ namespace Prius.SqlServer
 
         protected override void Dispose(bool destructor)
         {
-            if (_hasErrors && _errorAction != null) _errorAction();
-            if (_closeAction != null) _closeAction();
+            if (_hasErrors) _errorAction?.Invoke();
+            _closeAction?.Invoke();
             base.Dispose(destructor);
         }
 

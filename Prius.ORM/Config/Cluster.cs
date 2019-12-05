@@ -26,7 +26,7 @@ namespace Prius.Orm.Config
 
         /// <summary>
         /// Database requests for this cluster will be distributed in
-        /// round-robin fashbetween the databases listed here
+        /// round-robin fashion between the databases listed here
         /// </summary>
         [JsonProperty("databases")]
         public List<string> DatabaseNames { get; set; }
@@ -34,7 +34,7 @@ namespace Prius.Orm.Config
         /// <summary>
         /// The repository will only have one active cluster and will direct
         /// all database requests to that cluster. The active cluster will
-        /// be the one which is enabled, healthy and has the lowast sequence number.
+        /// be the one which is enabled, healthy and has the lowest sequence number.
         /// </summary>
         [JsonProperty("sequence")]
         public int SequenceNumber { get; set; }

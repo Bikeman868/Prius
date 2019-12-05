@@ -5,7 +5,6 @@ using System.Threading;
 using Prius.Contracts.Attributes;
 using Prius.Contracts.Enumerations;
 using Prius.Contracts.Exceptions;
-using Prius.Contracts.Interfaces;
 using Prius.Contracts.Interfaces.Commands;
 using Prius.Contracts.Interfaces.Factory;
 using Prius.Orm.Utility;
@@ -15,8 +14,7 @@ namespace Prius.Orm.Commands
     public class Command : Disposable, ICommand
     {
         private readonly IParameterFactory _parameterFactory;
-
-        private List<IParameter> _parameters = new List<IParameter>();
+        private readonly List<IParameter> _parameters = new List<IParameter>();
 
         public CommandType CommandType { get; private set; }
         public string CommandText { get; private set; }
