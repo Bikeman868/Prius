@@ -16,6 +16,7 @@ nuget System.Data.SQLite.Core ~> 1.0
 
 nuget Urchin.Client ~> 1.2
 
-nuget Ioc.Modules
+nuget Ioc.Modules ~> 1.4.1
+nuget Ioc.Modules.Contract ~> 1.4.1
 nuget Ioc.Modules.Unity
 nuget Unity ~> 2.1

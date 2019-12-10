@@ -69,8 +69,8 @@
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.0'">
       <ItemGroup>
-        <Reference Include="Ioc.Modules">
-          <HintPath>..\packages\Ioc.Modules\lib\net40\Ioc.Modules.dll</HintPath>
+        <Reference Include="Ioc.Modules.Contract">
+          <HintPath>..\packages\Ioc.Modules.Contract\lib\net40\Ioc.Modules.Contract.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -78,8 +78,8 @@
     </When>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.5'">
       <ItemGroup>
-        <Reference Include="Ioc.Modules">
-          <HintPath>..\packages\Ioc.Modules\lib\net45\Ioc.Modules.dll</HintPath>
+        <Reference Include="Ioc.Modules.Contract">
+          <HintPath>..\packages\Ioc.Modules.Contract\lib\net45\Ioc.Modules.Contract.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
