@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius.SqlServer</id>
-    <version>2.1.0-alpha2</version>
+    <version>2.1.0</version>
     <title>Prius driver for Microsoft SQL Server</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -11,11 +11,17 @@
     <copyright>Copyright 2009-2019</copyright>
     <releaseNotes>Fixed an issue when passing null parameters to stored procedures</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
-    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <license type="expression">Apache-2.0</license>
     <tags>ORM database prius sqlserver</tags>
     <dependencies>
-      <dependency id="Ioc.Modules.Contract" version="1.4.1" />
-      <dependency id="Prius" version="2.1.0-alpha2" />
+      <group targetFramework="net40">
+        <dependency id="Ioc.Modules.Contract" version="1.4.1" />
+        <dependency id="Prius" version="2.1.0" />
+      </group>
+      <group targetFramework="net45">
+        <dependency id="Ioc.Modules.Contract" version="1.4.1" />
+        <dependency id="Prius" version="2.1.0" />
+      </group>
     </dependencies>
     <references>
       <reference file="Prius.SqlServer.dll"/>
@@ -27,7 +33,10 @@
 
     <file src="Prius.SqlServer\bin\Net45\Release\Prius.SqlServer.dll" target="lib\net45"/>
     <file src="Prius.SqlServer\bin\Net45\Release\Prius.SqlServer.pdb" target="lib\net45"/>
-    
+
+    <file src="Prius.SqlServer\bin\Net40\Release\Prius.SqlServer.dll" target="ref\net40"/>
+    <file src="Prius.SqlServer\bin\Net45\Release\Prius.SqlServer.dll" target="ref\net45"/>
+
     <file src="*.md" target=""/>
     <file src="*.txt" target=""/>
   </files>

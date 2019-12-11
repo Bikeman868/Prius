@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius.MySql</id>
-    <version>2.1.0-alpha2</version>
+    <version>2.1.0</version>
     <title>Prius driver for MySQL and MariaDB databases</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -11,12 +11,19 @@
     <copyright>Copyright 2009-2019</copyright>
     <releaseNotes>First release, not fully tested yet</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
-    <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
+    <license type="expression">Apache-2.0</license>
     <tags>ORM database prius mysql</tags>
     <dependencies>
-      <dependency id="Ioc.Modules.Contract" version="1.4.1" />
-      <dependency id="Prius" version="2.1.0-alpha2" />
-      <dependency id="MySql.Data" version="6.9.9" />
+      <group targetFramework="net40">
+        <dependency id="Ioc.Modules.Contract" version="1.4.1" />
+        <dependency id="Prius" version="2.1.0" />
+        <dependency id="MySql.Data" version="6.9.9" />
+      </group>
+      <group targetFramework="net45">
+        <dependency id="Ioc.Modules.Contract" version="1.4.1" />
+        <dependency id="Prius" version="2.1.0" />
+        <dependency id="MySql.Data" version="6.9.9" />
+      </group>
     </dependencies>
     <references>
       <reference file="Prius.MySql.dll"/>
@@ -24,9 +31,11 @@
   </metadata>
   <files>
     <file src="Prius.MySql\bin\Net40\Release\Prius.MySql.dll" target="lib\net40"/>
+    <file src="Prius.MySql\bin\Net40\Release\Prius.MySql.dll" target="ref\net40"/>
     <file src="Prius.MySql\bin\Net40\Release\Prius.MySql.pdb" target="lib\net40"/>
 
     <file src="Prius.MySql\bin\Net45\Release\Prius.MySql.dll" target="lib\net45"/>
+    <file src="Prius.MySql\bin\Net45\Release\Prius.MySql.dll" target="ref\net45"/>
     <file src="Prius.MySql\bin\Net45\Release\Prius.MySql.pdb" target="lib\net45"/>
     
     <file src="*.md" target=""/>

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Prius.Mocks</id>
-    <version>2.1.0-alpha2</version>
+    <version>2.1.0</version>
     <title>Prius.Mocks - mock your database stored procedures</title>
     <authors>Martin Halliday</authors>
     <owners>Martin Halliday</owners>
@@ -11,13 +11,19 @@
     <copyright>Copyright 2009-2019</copyright>
     <releaseNotes>Use with Prius ORM with the same version number</releaseNotes>
     <projectUrl>https://github.com/Bikeman868/Prius</projectUrl>
-    <licenseUrl>http://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html</licenseUrl>
+    <license type="expression">Apache-2.0</license>
     <tags>ORM database mapping sqlserver mysql postgresql mock moq prius</tags>
     <dependencies>
-      <dependency id="Moq" version="4.2.1507.0118" />
-      <dependency id="Moq.Modules" version="1.0.2"  />
-      <dependency id="Newtonsoft.Json" version="7.0.1" />
-      <dependency id="Prius" version="2.1.0-alpha2" />
+      <group targetFramework="net40">
+        <dependency id="Moq.Modules" version="1.0.4"  />
+        <dependency id="Newtonsoft.Json" version="7.0.1" />
+        <dependency id="Prius" version="2.1.0" />
+      </group>
+      <group targetFramework="net45">
+        <dependency id="Moq.Modules" version="1.0.4"  />
+        <dependency id="Newtonsoft.Json" version="7.0.1" />
+        <dependency id="Prius" version="2.1.0" />
+      </group>
     </dependencies>
     <references>
       <reference file="Prius.Mocks.dll"/>
@@ -25,7 +31,9 @@
   </metadata>
   <files>
     <file src="Prius.Mocks\bin\Net40\Release\Prius.Mocks.dll" target="lib\net40"/>
+    <file src="Prius.Mocks\bin\Net40\Release\Prius.Mocks.dll" target="ref\net40"/>
     <file src="Prius.Mocks\bin\Net45\Release\Prius.Mocks.dll" target="lib\net45"/>
+    <file src="Prius.Mocks\bin\Net45\Release\Prius.Mocks.dll" target="ref\net45"/>
     <file src="*.md" target=""/>
     <file src="*.txt" target=""/>
   </files>
