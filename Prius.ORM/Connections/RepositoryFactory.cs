@@ -20,6 +20,7 @@ namespace Prius.Orm.Connections
         private readonly IDisposable _configChangeNotifier;
         private Dictionary<string, IRepository> _repositories;
         private ITraceWriterFactory _traceWriterFactory;
+        private IAnalyticRecorderFactory _analyticRecorder;
 
         public RepositoryFactory(
             IConnectionFactory connectionFactory,
@@ -79,6 +80,7 @@ namespace Prius.Orm.Connections
                 if (repositories.TryGetValue(repositoryName.ToLower(), out var repository))
                 {
                     repository.EnableTracing(_traceWriterFactory);
+                    repository.EnableAnalyticRecording(_analyticRecorder);
                     return repository;
                 }
                 throw new PriusException("No configuration for repository '" + repositoryName + "' in /prius/repositories");
@@ -88,6 +90,11 @@ namespace Prius.Orm.Connections
         public void EnableTracing(ITraceWriterFactory traceWriterFactory)
         {
             _traceWriterFactory = traceWriterFactory;
+        }
+
+        public void EnableAnalyticRecording(IAnalyticRecorderFactory analyticRecorder)
+        {
+            _analyticRecorder = analyticRecorder;
         }
     }
 }

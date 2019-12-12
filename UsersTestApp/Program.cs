@@ -161,6 +161,7 @@ namespace UsersTestApp
 
             var repositoryFactory = container.Resolve<IRepositoryFactory>();
             repositoryFactory.EnableTracing(new TraceWriterFactory());
+            repositoryFactory.EnableAnalyticRecording(new AnalyticRecorderFactory());
         }
 
         private static void ConfigureUrchin(UnityContainer container)

@@ -47,6 +47,7 @@
     <Compile Include="DataAccess\User.cs" />
     <Compile Include="DataAccess\StoredProcedureDataAccessLayer.cs" />
     <Compile Include="DataAccess\IDataAccessLayer.cs" />
+    <Compile Include="Integration\AnalyticRecorderFactory.cs" />
     <Compile Include="Integration\ErrorReporter.cs" />
     <Compile Include="Integration\Factory.cs" />
     <Compile Include="Integration\TraceWriter.cs" />
