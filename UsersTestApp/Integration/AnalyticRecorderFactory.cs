@@ -16,29 +16,29 @@ namespace UsersTestApp.Integration
             return this;
         }
 
-        public void ConnectionOpened(string serverType, string connectionString, bool fromPool, int pooledCount, int activeCount)
+        public void ConnectionOpened(ConnectionAnalyticInfo info)
         {
-            Console.WriteLine("Connection opened to '" + connectionString + "'. There are " + activeCount + " active connections");
+            Console.WriteLine("Connection opened to '" + info.ConnectionString + "'. There are " + info.ActiveCount + " active connections");
         }
 
-        public void ConnectionClosed(string serverType, string connectionString, bool toPool, int pooledCount, int activeCount)
+        public void ConnectionClosed(ConnectionAnalyticInfo info)
         {
-            Console.WriteLine("Connection closed to '" + connectionString + ". There are " + activeCount + " active connections");
+            Console.WriteLine("Connection closed to '" + info.ConnectionString + ". There are " + info.ActiveCount + " active connections");
         }
 
-        public void ConnectionFailed(string serverType, string serverName)
+        public void ConnectionFailed(ConnectionAnalyticInfo info)
         {
-            Console.WriteLine("Failed to connect to database server '" + serverName + "'");
+            Console.WriteLine("Failed to connect to repository '" + info.RepositoryName + "'");
         }
 
-        public void CommandCompleted(IConnection connection, ICommand command, double elapsedSeconds)
+        public void CommandCompleted(CommandAnalyticInfo info)
         {
-            Console.WriteLine("Command '" + command.CommandText + "' completed in " + elapsedSeconds + "s");
+            Console.WriteLine("Command '" + info.Command.CommandText + "' completed in " + info.ElapsedSeconds + "s");
         }
 
-        public void CommandFailed(IConnection connection, ICommand command)
+        public void CommandFailed(CommandAnalyticInfo info)
         {
-            Console.WriteLine("Command '" + command.CommandText + "' failed");
+            Console.WriteLine("Command '" + info.Command.CommandText + "' failed");
         }
     }
 }

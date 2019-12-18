@@ -28,7 +28,9 @@ namespace Prius.SQLite.CommandProcessing
         private readonly ICommandProcessorFactory _commandProcessorFactory;
         private readonly ISchemaUpdater _schemaUpdater;
 
-        private static volatile int _openCount;
+        private const string ServerType = "SQLite";
+
+        private static volatile int _activeCount;
 
         public object RepositoryContext { get; set; }
         public ITraceWriter TraceWriter { get; set; }
@@ -54,6 +56,7 @@ namespace Prius.SQLite.CommandProcessing
             _dataEnumeratorFactory = dataEnumeratorFactory;
             _commandProcessorFactory = commandProcessorFactory;
             _schemaUpdater = schemaUpdater;
+            _activeCount++;
         }
 
         public IConnection Open(
@@ -71,8 +74,6 @@ namespace Prius.SQLite.CommandProcessing
             TraceWriter = traceWriter;
             AnalyticRecorder = analyticRecorder;
 
-            _openCount++;
-
             _schemaUpdater.CheckSchema(_repository, _connection);
 
             SetCommand(command);
@@ -82,15 +83,19 @@ namespace Prius.SQLite.CommandProcessing
 
         protected override void Dispose(bool destructor)
         {
-            Commit();
+            try
+            {
+                Commit();
+                CloseConnection();
 
-            _openCount--;
-
-            CloseConnection();
-
-            _commandProcessor.Dispose();
-            _connection.Dispose();
-            base.Dispose(destructor);
+                _commandProcessor.Dispose();
+                _connection.Dispose();
+                base.Dispose(destructor);
+            }
+            finally
+            {
+                _activeCount--;
+            }
         }
 
         private void OpenConnection()
@@ -98,13 +103,31 @@ namespace Prius.SQLite.CommandProcessing
             try
             {
                 Trace("Opening a connection to SQlite database");
+
                 _connection.Open();
-                AnalyticRecorder?.ConnectionOpened("SQLite", _connection.ConnectionString, false, 0, _openCount);
+
+                AnalyticRecorder?.ConnectionOpened(new ConnectionAnalyticInfo
+                    {
+                        ServerType = ServerType,
+                        RepositoryName = _repository.Name,
+                        ConnectionString = _connection.ConnectionString,
+                        ActiveCount = _activeCount
+                    });
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+
                 _errorReporter.ReportError(ex, "Failed to open connection to SQLite on " + _repository.Name);
+
+                AnalyticRecorder?.ConnectionFailed(new ConnectionAnalyticInfo
+                {
+                    ServerType = ServerType,
+                    RepositoryName = _repository.Name,
+                    ConnectionString = _connection.ConnectionString,
+                    ActiveCount = _activeCount
+                });
+
                 throw;
             }
         }
@@ -127,7 +150,13 @@ namespace Prius.SQLite.CommandProcessing
             }
             finally
             {
-                AnalyticRecorder?.ConnectionClosed("SQLite", _connection.ConnectionString, false, 0, _openCount);
+                AnalyticRecorder?.ConnectionClosed(new ConnectionAnalyticInfo
+                {
+                    ServerType = ServerType,
+                    RepositoryName = _repository.Name,
+                    ConnectionString = _connection.ConnectionString,
+                    ActiveCount = _activeCount
+                });
             }
         }
 
@@ -227,8 +256,14 @@ namespace Prius.SQLite.CommandProcessing
                     _dataShapeName,
                     r =>
                         {
-                            var elapsedTicks = PerformanceTimer.TimeNow - asyncContext.StartTime;
-                            _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(elapsedTicks));
+                            var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
+                            _repository.RecordSuccess(this, elapsedSeconds);
+                            AnalyticRecorder?.CommandCompleted(new CommandAnalyticInfo
+                            {
+                                Connection = this,
+                                Command = _command,
+                                ElapsedSeconds = elapsedSeconds
+                            });
 
                             if (asyncContext.InitiallyClosed) 
                                 CloseConnection();
@@ -236,6 +271,11 @@ namespace Prius.SQLite.CommandProcessing
                     r =>
                         {
                             _repository.RecordFailure(this);
+                            AnalyticRecorder?.CommandFailed(new CommandAnalyticInfo
+                            {
+                                Connection = this,
+                                Command = _command,
+                            });
 
                             if (asyncContext.InitiallyClosed)
                                 CloseConnection();
@@ -269,6 +309,14 @@ namespace Prius.SQLite.CommandProcessing
         {
             Trace("SQlite end execute reader");
             var asyncContext = (AsyncContext)asyncResult.AsyncState;
+            var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
+            _repository.RecordSuccess(this, elapsedSeconds);
+            AnalyticRecorder?.CommandCompleted(new CommandAnalyticInfo
+            {
+                Connection = this,
+                Command = _command,
+                ElapsedSeconds = elapsedSeconds
+            });
             return (IDataReader)asyncContext.Result;
         }
 
@@ -296,11 +344,25 @@ namespace Prius.SQLite.CommandProcessing
                     OpenConnection();
 
                 asyncContext.Result = _commandProcessor.ExecuteNonQuery();
+
+                var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
+                _repository.RecordSuccess(this, elapsedSeconds);
+                AnalyticRecorder?.CommandCompleted(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                    ElapsedSeconds = elapsedSeconds
+                });
             }
             catch (Exception ex)
             {
                 Trace("Exception executing SQlite non-query");
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                });
                 _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on SQLite " + _repository.Name, _repository, this);
                 asyncContext.Result = (long)0;
                 throw;
@@ -350,14 +412,25 @@ namespace Prius.SQLite.CommandProcessing
 
                 var result = _commandProcessor.ExecuteScalar<T>();
 
-                var elapsedTicks = PerformanceTimer.TimeNow - startTime;
-                _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(elapsedTicks));
+                var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - startTime);
+                _repository.RecordSuccess(this, elapsedSeconds);
+                AnalyticRecorder?.CommandCompleted(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                    ElapsedSeconds = elapsedSeconds
+                });
 
                 return result;
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+                AnalyticRecorder?.CommandFailed(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                });
                 _errorReporter.ReportError(ex, "Failed to ExecuteScalar on SQLite repository '" + _repository.Name + "'", _repository, this);
                 throw;
             }
