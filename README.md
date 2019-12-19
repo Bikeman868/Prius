@@ -815,7 +815,7 @@ data enumerator and the context, closing the connection.
         }
         finally
         {
-        	if (context != null) context.Dispose();
+            if (context != null) context.Dispose();
         }
     }
 ```
