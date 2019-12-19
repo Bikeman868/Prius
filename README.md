@@ -558,17 +558,20 @@ mindful of writing scaleable and thread-safe code in your implementation.
         private readonly ICommandFactory _commandFactory;
         private readonly IMapper _mapper;
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
+        private readonly IEnumerableDataFactory _enumerableDataFactory;
     
         public DataAccessLayer(
             IContextFactory contextFactory,
             ICommandFactory commandFactory,
             IMapper mapper,
-            IDataEnumeratorFactory dataEnumeratorFactory)
+            IDataEnumeratorFactory dataEnumeratorFactory,
+            IEnumerableDataFactory enumerableDataFactory)
         {
             _contextFactory = contextFactory;
             _commandFactory = commandFactory;
             _mapper = mapper;
             _dataEnumeratorFactory = dataEnumeratorFactory;
+            _enumerableDataFactory = enumerableDataFactory;
         }
     }
 ```
@@ -793,10 +796,10 @@ database technology.
     }
 ```
 ### Return an open data reader that will close the database connection on dispose
-To use this mechanism you need to add a dependency on the `IEnumerableDataFactory` interface
+To use this mechanism you need to have a dependency on the `IEnumerableDataFactory` interface
 then call its `Create` method to wrap the context and the data enumerator in a new
 enumerable collection that is also disposable. Disposing of the result disposes of the
-data enumerator and the context, closing the connection.
+data enumerator and the context - closing the connection.
 ```
     public IDisposableEnumerable<ICustomer> GetCustomers()
     {
