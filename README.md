@@ -792,3 +792,30 @@ database technology.
         }
     }
 ```
+### Return an open data reader that will close the database connection on dispose
+To use this mechanism you need to add a dependency on the `IEnumerableDataFactory` interface
+then call its `Create` method to wrap the context and the data enumerator in a new
+enumerable collection that is also disposable. Disposing of the result disposes of the
+data enumerator and the context, closing the connection.
+```
+    public IDisposableEnumerable<ICustomer> GetCustomers()
+    {
+        var context = _contextFactory.Create("MyData"))
+		try
+        {
+            using (var command = _commandFactory.CreateStoredProcedure("sp_GetAllCustomers"))
+            {
+                var data = context.ExecuteEnumerable<Customer>(command))
+				if (data == null) return null;
+
+				var result = _enumerableDataFactory.Create(context, data);
+				context = null;
+				return result;
+            }
+		}
+		finally
+		{
+			if (context != null) context.Dispose();
+		}
+    }
+```

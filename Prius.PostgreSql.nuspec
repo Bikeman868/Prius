@@ -16,12 +16,12 @@
     <dependencies>
       <group targetFramework="net40">
         <dependency id="Ioc.Modules.Contract" version="1.4.1" />
-        <dependency id="Prius" version="2.2.0" />
+        <dependency id="Prius" version="2.2.1" />
         <dependency id="Npgsql" version="2.2.7" />
       </group>
       <group targetFramework="net45">
         <dependency id="Ioc.Modules.Contract" version="1.4.1" />
-        <dependency id="Prius" version="2.2.0" />
+        <dependency id="Prius" version="2.2.1" />
         <dependency id="Npgsql" version="2.2.7" />
       </group>
     </dependencies>
