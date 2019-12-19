@@ -801,21 +801,21 @@ data enumerator and the context, closing the connection.
     public IDisposableEnumerable<ICustomer> GetCustomers()
     {
         var context = _contextFactory.Create("MyData"))
-		try
+        try
         {
             using (var command = _commandFactory.CreateStoredProcedure("sp_GetAllCustomers"))
             {
                 var data = context.ExecuteEnumerable<Customer>(command))
-				if (data == null) return null;
-
-				var result = _enumerableDataFactory.Create(context, data);
-				context = null;
-				return result;
+                if (data == null) return null;
+                
+                var result = _enumerableDataFactory.Create(context, data);
+                context = null;
+                return result;
             }
-		}
-		finally
-		{
-			if (context != null) context.Dispose();
-		}
+        }
+        finally
+        {
+        	if (context != null) context.Dispose();
+        }
     }
 ```
