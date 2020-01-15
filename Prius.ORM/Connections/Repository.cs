@@ -144,6 +144,13 @@ namespace Prius.Orm.Connections
                 traceWriter.SetDatabase(server.Name);
             }
 
+            var traceWriter2 = traceWriter as ITraceWriter2;
+            if (traceWriter2  != null)
+            {
+                foreach (var parameter in command.GetParameters())
+                    traceWriter2.SetParameter(parameter);
+            }
+
             if (!command.TimeoutSeconds.HasValue)
             {
                 SetTimeout(command, server, traceWriter);

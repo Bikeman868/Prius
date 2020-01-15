@@ -1,12 +1,10 @@
-﻿using Prius.Contracts.Interfaces.External;
+﻿using Prius.Contracts.Interfaces.Commands;
+using Prius.Contracts.Interfaces.External;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace UsersTestApp.Integration
 {
-    internal class TraceWriter: ITraceWriter
+    internal class TraceWriter: ITraceWriter2
     {
         private readonly string _id;
         private readonly string _repository;
@@ -28,6 +26,20 @@ namespace UsersTestApp.Integration
         public void SetDatabase(string databaseName)
         {
             _database = databaseName;
+        }
+
+        public void SetParameter(IParameter parameter)
+        {
+            var message = "Parameter " + parameter.Name + " = ";
+
+            if (parameter.Value == null)
+                message += "NULL";
+            else
+                message += parameter.Value.ToString();
+
+            message += " [" + parameter.Type.Name + "]";
+
+            WriteLine(message);
         }
 
         public void SetProcedure(string storedProcedureName)
