@@ -175,12 +175,9 @@ namespace Prius.Orm.Connections
             }
             catch (Exception ex)
             {
-                traceWriter?.WriteLine("Failed to connect to " + server.Name + ". " + ex.Message);
-                analyticRecorder?.ConnectionFailed(server.ServerType, server.Name);
-
+                traceWriter?.WriteLine("Failed to create a connection to " + server.Name + ". " + ex.Message);
                 server.Group.RecordFailure(server);
-
-                throw new PriusException("Failed to create connection to " + server.Name, ex);
+                throw new PriusException("Failed to create a connection to " + server.Name, ex);
             }
 
             result.RepositoryContext = server;

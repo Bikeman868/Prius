@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("Martin Halliday")]
-[assembly: AssemblyCopyright("Copyright © Martin Halliday 2009-2019")]
+[assembly: AssemblyCopyright("Copyright © Martin Halliday 2013-2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyProduct("Prius")]
 [assembly: AssemblyConfiguration("")]
@@ -10,5 +10,5 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("2.1.3.29")]
-[assembly: AssemblyFileVersion("2.1.3.29")]
+[assembly: AssemblyVersion("2.2.2.31")]
+[assembly: AssemblyFileVersion("2.2.2.31")]

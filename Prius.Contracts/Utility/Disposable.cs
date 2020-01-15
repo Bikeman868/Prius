@@ -10,6 +10,8 @@ namespace Prius.Contracts.Utility
         public bool IsDisposed { get; private set; }
         public bool IsDisposing { get; private set; }
 
+        private object _locker = new object();
+
 #if CHECK_DISPOSABLE
 
         private string _constructorStackTrace;
@@ -37,7 +39,8 @@ namespace Prius.Contracts.Utility
 
         public void Dispose()
         {
-            DoDispose(false);
+            lock(_locker)
+                DoDispose(false);
         }
 
 #endif

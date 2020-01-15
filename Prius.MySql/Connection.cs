@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using MySql.Data.MySqlClient;
@@ -21,7 +20,9 @@ namespace Prius.MySql
         private readonly IErrorReporter _errorReporter;
         private readonly IDataEnumeratorFactory _dataEnumeratorFactory;
 
-        private static volatile int _openCount;
+        private const string ServerType = "MySql";
+
+        private static volatile int _activeCount;
 
         public object RepositoryContext { get; set; }
         public ITraceWriter TraceWriter { get; set; }
@@ -42,6 +43,7 @@ namespace Prius.MySql
         {
             _errorReporter = errorReporter;
             _dataEnumeratorFactory = dataEnumeratorFactory;
+            _activeCount++;
         }
 
         public IConnection Open(
@@ -59,8 +61,6 @@ namespace Prius.MySql
             TraceWriter = traceWriter;
             AnalyticRecorder = analyticRecorder;
 
-            _openCount++;
-
             SetCommand(command);
 
             return this;
@@ -68,14 +68,17 @@ namespace Prius.MySql
 
         protected override void Dispose(bool destructor)
         {
-            Commit();
-
-            _openCount--;
-
-            CloseConnection();
-
-            _connection.Dispose();
-            base.Dispose(destructor);
+            try
+            {
+                Commit();
+                CloseConnection();
+                _connection.Dispose();
+                base.Dispose(destructor);
+            }
+            finally
+            {
+                _activeCount--;
+            }
         }
 
         private void OpenConnection()
@@ -83,13 +86,31 @@ namespace Prius.MySql
             try
             {
                 Trace("Opening a connection to MySQL database");
+
                 _connection.Open();
-                AnalyticRecorder?.ConnectionOpened("MySQL", _connection.ConnectionString, false, 0, _openCount);
+
+                AnalyticRecorder?.ConnectionOpened(new ConnectionAnalyticInfo
+                {
+                    ServerType = ServerType,
+                    RepositoryName = _repository.Name,
+                    ConnectionString = _connection.ConnectionString,
+                    ActiveCount = _activeCount
+                });
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
+
                 _errorReporter.ReportError(ex, "Failed to open connection to MySQL on " + _repository.Name);
+
+                AnalyticRecorder?.ConnectionFailed(new ConnectionAnalyticInfo
+                {
+                    ServerType = ServerType,
+                    RepositoryName = _repository.Name,
+                    ConnectionString = _connection.ConnectionString,
+                    ActiveCount = _activeCount
+                });
+
                 throw;
             }
         }
@@ -112,7 +133,13 @@ namespace Prius.MySql
             }
             finally
             {
-                AnalyticRecorder?.ConnectionClosed("MySQL", _connection.ConnectionString, false, 0, _openCount);
+                AnalyticRecorder?.ConnectionClosed(new ConnectionAnalyticInfo
+                {
+                    ServerType = ServerType,
+                    RepositoryName = _repository.Name,
+                    ConnectionString = _connection.ConnectionString,
+                    ActiveCount = _activeCount
+                });
             }
         }
 
@@ -252,13 +279,22 @@ namespace Prius.MySql
                             reader.Dispose();
                             var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
                             _repository.RecordSuccess(this, elapsedSeconds);
-                            AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
+                            AnalyticRecorder?.CommandCompleted(new CommandAnalyticInfo
+                            {
+                                Connection = this,
+                                Command = _command,
+                                ElapsedSeconds = elapsedSeconds
+                            });
                             if (asyncContext.InitiallyClosed) CloseConnection();
                         },
                     () =>
                         {
                             _repository.RecordFailure(this);
-                            AnalyticRecorder?.CommandFailed(this, _command);
+                            AnalyticRecorder?.CommandFailed(new CommandAnalyticInfo
+                            {
+                                Connection = this,
+                                Command = _command,
+                            });
                             if (asyncContext.InitiallyClosed) CloseConnection();
                         }
                     );
@@ -266,7 +302,11 @@ namespace Prius.MySql
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                AnalyticRecorder?.CommandFailed(this, _command);
+                AnalyticRecorder?.CommandFailed(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                });
                 _errorReporter.ReportError(ex, "Failed to ExecuteReader on MySQL " + _repository.Name, _repository, this);
                 if (asyncContext.InitiallyClosed) CloseConnection();
                 throw;
@@ -308,7 +348,11 @@ namespace Prius.MySql
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                AnalyticRecorder?.CommandFailed(this, _command);
+                AnalyticRecorder?.CommandFailed(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                });
                 _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on MySQL " + _repository.Name, _repository, this);
                 asyncContext.Result = (long)0;
                 throw;
@@ -328,7 +372,12 @@ namespace Prius.MySql
 
                 var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
                 _repository.RecordSuccess(this, elapsedSeconds);
-                AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
+                AnalyticRecorder?.CommandCompleted(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                    ElapsedSeconds = elapsedSeconds
+                });
 
                 foreach (var parameter in _command.GetParameters())
                     parameter.StoreOutputValue(parameter);
@@ -338,7 +387,11 @@ namespace Prius.MySql
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                AnalyticRecorder?.CommandFailed(this, _command);
+                AnalyticRecorder?.CommandFailed(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                });
                 _errorReporter.ReportError(ex, "Failed to ExecuteNonQuery on MySQL " + _repository.Name, _repository, this);
                 throw;
             }
@@ -375,12 +428,21 @@ namespace Prius.MySql
 
                 var elapsedSeconds = PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime);
                 _repository.RecordSuccess(this, PerformanceTimer.TicksToSeconds(PerformanceTimer.TimeNow - asyncContext.StartTime));
-                AnalyticRecorder?.CommandCompleted(this, _command, elapsedSeconds);
+                AnalyticRecorder?.CommandCompleted(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                    ElapsedSeconds = elapsedSeconds
+                });
             }
             catch (Exception ex)
             {
                 _repository.RecordFailure(this);
-                AnalyticRecorder?.CommandFailed(this, _command);
+                AnalyticRecorder?.CommandFailed(new CommandAnalyticInfo
+                {
+                    Connection = this,
+                    Command = _command,
+                });
                 _errorReporter.ReportError(ex, "Failed to ExecuteScalar on MySQL " + _repository.Name, _repository, this);
                 throw;
             }
